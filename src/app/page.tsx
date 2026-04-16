@@ -63,7 +63,6 @@ const activeHeroBanners = homeHeroBanners
 export default function HomePage() {
   return (
     <div className="bg-white">
-
       {/* HERO */}
       <section className="bg-gradient-to-b from-[#f5fbf6] to-white border-b">
         <div className="container mx-auto px-4 py-10">
@@ -141,7 +140,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
     </div>
   );
 }

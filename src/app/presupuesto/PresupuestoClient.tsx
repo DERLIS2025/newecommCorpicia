@@ -33,6 +33,7 @@ export default function PresupuestoClient() {
     window.open(url, '_blank');
   };
 
+  // 🟡 ESTADO VACÍO
   if (items.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center text-center">
@@ -49,6 +50,7 @@ export default function PresupuestoClient() {
     );
   }
 
+  // 🟢 PRESUPUESTO CON PRODUCTOS
   return (
     <div className="container mx-auto px-4 py-10">
       <Link href="/productos/" className="flex items-center gap-2 text-gray-500 mb-6">
@@ -58,7 +60,7 @@ export default function PresupuestoClient() {
       <h1 className="text-3xl font-bold mb-6">Mi Presupuesto</h1>
 
       <div className="grid md:grid-cols-3 gap-6">
-        {/* Productos */}
+        {/* PRODUCTOS */}
         <div className="md:col-span-2 space-y-4">
           {items.map((item) => (
             <Card key={item.product.id}>
@@ -122,7 +124,7 @@ export default function PresupuestoClient() {
           </Button>
         </div>
 
-        {/* Resumen */}
+        {/* RESUMEN */}
         <div>
           <Card>
             <CardContent className="p-6 space-y-4">
