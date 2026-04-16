@@ -7,18 +7,28 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useBudgetStore } from '@/store/budgetStore';
 import { formatPrice, generateWhatsAppMessage } from '@/lib/utils';
 import { trackWhatsAppClick } from '@/lib/tracking';
-import { Minus, Plus, Trash2, ShoppingCart, MessageCircle, ArrowLeft, Package } from 'lucide-react';
+import {
+  Minus,
+  Plus,
+  Trash2,
+  ShoppingCart,
+  MessageCircle,
+  ArrowLeft,
+  Package,
+} from 'lucide-react';
 
 export default function PresupuestoClient() {
   const { items, removeItem, updateQuantity, getTotal, clearBudget } = useBudgetStore();
 
   const handleWhatsAppClick = () => {
     trackWhatsAppClick('budget_summary', 'enviar-presupuesto');
-    const messageItems = items.map(item => ({
+
+    const messageItems = items.map((item) => ({
       name: item.product.name,
       quantity: item.quantity,
       total: item.total,
     }));
+
     const url = generateWhatsAppMessage(messageItems, getTotal());
     window.open(url, '_blank');
   };
@@ -31,12 +41,15 @@ export default function PresupuestoClient() {
             <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <ShoppingCart className="w-12 h-12 text-gray-400" />
             </div>
+
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               Tu presupuesto está vacío
             </h1>
+
             <p className="text-gray-500 mb-8">
               Agregá productos para armar tu presupuesto personalizado
             </p>
+
             <Link href="/productos/">
               <Button className="gap-2">
                 <Package className="w-4 h-4" />
@@ -61,9 +74,11 @@ export default function PresupuestoClient() {
             <ArrowLeft className="w-4 h-4" />
             Seguir comprando
           </Link>
+
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
             Mi Presupuesto
           </h1>
+
           <p className="text-gray-500 mt-2">
             {items.length} {items.length === 1 ? 'producto' : 'productos'} en tu presupuesto
           </p>
@@ -105,9 +120,11 @@ export default function PresupuestoClient() {
                           >
                             {item.product.name}
                           </Link>
+
                           <p className="text-sm text-gray-500 mt-1">
                             {formatPrice(item.product.pricePerM2)} / m²
                           </p>
+
                           <p className="text-xs text-gray-400 mt-1">
                             Mínimo: {item.product.minQuantity} m²
                           </p>
@@ -116,6 +133,7 @@ export default function PresupuestoClient() {
                         <button
                           onClick={() => removeItem(item.product.id)}
                           className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors self-start"
+                          aria-label={`Eliminar ${item.product.name} del presupuesto`}
                         >
                           <Trash2 className="w-5 h-5" />
                         </button>
@@ -125,23 +143,34 @@ export default function PresupuestoClient() {
                         {/* Quantity Controls */}
                         <div className="flex items-center gap-3">
                           <span className="text-sm text-gray-600">Cantidad:</span>
+
                           <div className="flex items-center">
                             <button
-                              onClick={() => updateQuantity(item.product.id, Math.max(item.product.minQuantity, item.quantity - 1))}
+                              onClick={() =>
+                                updateQuantity(
+                                  item.product.id,
+                                  Math.max(item.product.minQuantity, item.quantity - 1)
+                                )
+                              }
                               className="w-10 h-10 flex items-center justify-center bg-gray-100 border border-r-0 rounded-l-lg hover:bg-gray-200 transition-colors"
+                              aria-label={`Disminuir cantidad de ${item.product.name}`}
                             >
                               <Minus className="w-4 h-4" />
                             </button>
+
                             <div className="w-16 h-10 flex items-center justify-center border-y bg-white">
                               <span className="font-medium">{item.quantity}</span>
                             </div>
+
                             <button
                               onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
                               className="w-10 h-10 flex items-center justify-center bg-gray-100 border border-l-0 rounded-r-lg hover:bg-gray-200 transition-colors"
+                              aria-label={`Aumentar cantidad de ${item.product.name}`}
                             >
                               <Plus className="w-4 h-4" />
                             </button>
                           </div>
+
                           <span className="text-sm text-gray-500">m²</span>
                         </div>
 
@@ -150,6 +179,7 @@ export default function PresupuestoClient() {
                           <p className="text-sm text-gray-500">
                             {formatPrice(item.product.pricePerM2)} × {item.quantity} m²
                           </p>
+
                           <p className="text-xl font-bold text-corpicia-green">
                             {formatPrice(item.total)}
                           </p>
@@ -183,10 +213,12 @@ export default function PresupuestoClient() {
                       <span>Subtotal</span>
                       <span>{formatPrice(getTotal())}</span>
                     </div>
+
                     <div className="flex justify-between text-gray-600">
                       <span>Envío</span>
                       <span className="text-corpicia-green">A consultar</span>
                     </div>
+
                     <div className="flex justify-between text-gray-600">
                       <span>Instalación</span>
                       <span className="text-corpicia-green">A consultar</span>
@@ -200,6 +232,7 @@ export default function PresupuestoClient() {
                         {formatPrice(getTotal())}
                       </span>
                     </div>
+
                     <p className="text-xs text-gray-400 mt-2">
                       * El precio final puede variar según ubicación y servicios adicionales
                     </p>
