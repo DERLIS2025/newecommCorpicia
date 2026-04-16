@@ -15,9 +15,9 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   return (
-    <Card className="group overflow-hidden hover:shadow-lg transition-shadow">
+    <Card className="group overflow-hidden hover:shadow-md transition-shadow border border-gray-200 rounded-xl">
       <Link href={`/productos/${product.slug}/`}>
-        <div className="aspect-square bg-gray-100 relative overflow-hidden">
+        <div className="aspect-[4/3] sm:aspect-square bg-gray-100 relative overflow-hidden">
           {product.images && product.images.length > 0 ? (
             <Image
               src={product.images[0]}
@@ -33,34 +33,34 @@ export function ProductCard({ product }: ProductCardProps) {
             </div>
           )}
           {product.isFeatured && (
-            <Badge className="absolute top-3 left-3 bg-amber-500">
+            <Badge className="absolute top-2 left-2 bg-amber-500 text-[10px] sm:text-xs px-2 py-0.5">
               Destacado
             </Badge>
           )}
         </div>
       </Link>
 
-      <CardContent className="p-4">
+      <CardContent className="p-2 sm:p-4">
         <Link href={`/productos/${product.slug}/`}>
-          <h3 className="font-semibold text-gray-900 line-clamp-2 mb-2 group-hover:text-corpicia-green transition-colors">
+          <h3 className="font-semibold text-gray-900 text-sm sm:text-base line-clamp-2 mb-1 sm:mb-2 group-hover:text-corpicia-green transition-colors">
             {product.name}
           </h3>
         </Link>
         
-        <p className="text-sm text-gray-500 line-clamp-2 mb-3">
+        <p className="text-xs sm:text-sm text-gray-500 line-clamp-2 mb-2 sm:mb-3">
           {product.shortDescription || product.description}
         </p>
 
-        <div className="flex items-baseline gap-1 mb-4">
-          <span className="text-lg font-bold text-corpicia-green">
+        <div className="flex items-baseline gap-1 mb-2 sm:mb-4">
+          <span className="text-base sm:text-lg font-bold text-corpicia-green">
             {formatPrice(product.pricePerM2)}
           </span>
-          <span className="text-sm text-gray-400">/ m²</span>
+          <span className="text-xs sm:text-sm text-gray-400">/ m²</span>
         </div>
 
         <Link href={`/productos/${product.slug}/`}>
-          <Button className="w-full gap-2">
-            <ShoppingCart className="w-4 h-4" />
+          <Button className="w-full gap-1.5 h-9 sm:h-10 text-xs sm:text-sm">
+            <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             Agregar al Presupuesto
           </Button>
         </Link>
