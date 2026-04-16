@@ -7,233 +7,140 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useBudgetStore } from '@/store/budgetStore';
 import { formatPrice, generateWhatsAppMessage } from '@/lib/utils';
 import { trackWhatsAppClick } from '@/lib/tracking';
-import { Minus, Plus, Trash2, ShoppingCart, MessageCircle, ArrowLeft, Package } from 'lucide-react';
+import {
+  Minus,
+  Plus,
+  Trash2,
+  ShoppingCart,
+  MessageCircle,
+  ArrowLeft,
+  Package,
+} from 'lucide-react';
 
 export default function PresupuestoClient() {
   const { items, removeItem, updateQuantity, getTotal, clearBudget } = useBudgetStore();
 
   const handleWhatsAppClick = () => {
     trackWhatsAppClick('budget_summary', 'enviar-presupuesto');
-    const messageItems = items.map(item => ({
+
+    const messageItems = items.map((item) => ({
       name: item.product.name,
       quantity: item.quantity,
       total: item.total,
     }));
+
     const url = generateWhatsAppMessage(messageItems, getTotal());
     window.open(url, '_blank');
   };
 
+  // 🟡 ESTADO VACÍO
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-16">
-          <div className="max-w-md mx-auto text-center">
-            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <ShoppingCart className="w-12 h-12 text-gray-400" />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Tu presupuesto está vacío
-            </h1>
-            <p className="text-gray-500 mb-8">
-              Agregá productos para armar tu presupuesto personalizado
-            </p>
-            <Link href="/productos/">
-              <Button className="gap-2">
-                <Package className="w-4 h-4" />
-                Ver Productos
-              </Button>
-            </Link>
-          </div>
+      <div className="min-h-screen flex items-center justify-center text-center">
+        <div>
+          <ShoppingCart className="mx-auto mb-4 text-gray-400" size={40} />
+          <h1 className="text-xl font-bold">Tu presupuesto está vacío</h1>
+          <p className="text-gray-500">Agregá productos para comenzar</p>
+
+          <Link href="/productos/">
+            <Button className="mt-4">Ver Productos</Button>
+          </Link>
         </div>
       </div>
     );
   }
 
+  // 🟢 PRESUPUESTO CON PRODUCTOS
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b">
-        <div className="container mx-auto px-4 py-8">
-          <Link
-            href="/productos/"
-            className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-corpicia-green transition-colors mb-4"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Seguir comprando
-          </Link>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-            Mi Presupuesto
-          </h1>
-          <p className="text-gray-500 mt-2">
-            {items.length} {items.length === 1 ? 'producto' : 'productos'} en tu presupuesto
-          </p>
+    <div className="container mx-auto px-4 py-10">
+      <Link href="/productos/" className="flex items-center gap-2 text-gray-500 mb-6">
+        <ArrowLeft size={16} /> Seguir comprando
+      </Link>
+
+      <h1 className="text-3xl font-bold mb-6">Mi Presupuesto</h1>
+
+      <div className="grid md:grid-cols-3 gap-6">
+        {/* PRODUCTOS */}
+        <div className="md:col-span-2 space-y-4">
+          {items.map((item) => (
+            <Card key={item.product.id}>
+              <CardContent className="p-4 flex gap-4">
+                <div className="w-32 h-32 bg-gray-100">
+                  {item.product.images?.length ? (
+                    <Image
+                      src={item.product.images[0]}
+                      alt={item.product.name}
+                      width={128}
+                      height={128}
+                      className="object-cover w-full h-full"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full">
+                      <Package />
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-1">
+                  <h2 className="font-semibold">{item.product.name}</h2>
+
+                  <p className="text-sm text-gray-500">
+                    {formatPrice(item.product.pricePerM2)} / m²
+                  </p>
+
+                  <div className="flex items-center gap-2 mt-3">
+                    <button
+                      onClick={() =>
+                        updateQuantity(
+                          item.product.id,
+                          Math.max(item.product.minQuantity, item.quantity - 1)
+                        )
+                      }
+                    >
+                      <Minus size={16} />
+                    </button>
+
+                    <span>{item.quantity}</span>
+
+                    <button onClick={() => updateQuantity(item.product.id, item.quantity + 1)}>
+                      <Plus size={16} />
+                    </button>
+                  </div>
+
+                  <p className="mt-2 font-bold text-corpicia-green">
+                    {formatPrice(item.total)}
+                  </p>
+                </div>
+
+                <button onClick={() => removeItem(item.product.id)}>
+                  <Trash2 className="text-red-500" />
+                </button>
+              </CardContent>
+            </Card>
+          ))}
+
+          <Button variant="outline" onClick={clearBudget}>
+            Vaciar presupuesto
+          </Button>
         </div>
-      </div>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Products List */}
-          <div className="lg:col-span-2 space-y-4">
-            {items.map((item) => (
-              <Card key={item.product.id} className="overflow-hidden">
-                <CardContent className="p-0">
-                  <div className="flex flex-col sm:flex-row">
-                    {/* Image */}
-                    <div className="w-full sm:w-48 h-48 bg-gray-100 flex-shrink-0">
-                      {item.product.images && item.product.images.length > 0 ? (
-                        <Image
-                          src={item.product.images[0]}
-                          alt={item.product.name}
-                          width={192}
-                          height={192}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-300">
-                          <Package className="w-12 h-12" />
-                        </div>
-                      )}
-                    </div>
+        {/* RESUMEN */}
+        <div>
+          <Card>
+            <CardContent className="p-6 space-y-4">
+              <h2 className="font-bold text-lg">Resumen</h2>
 
-                    {/* Details */}
-                    <div className="flex-1 p-6">
-                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                        <div className="flex-1">
-                          <Link
-                            href={`/productos/${item.product.slug}/`}
-                            className="font-semibold text-lg text-gray-900 hover:text-corpicia-green transition-colors"
-                          >
-                            {item.product.name}
-                          </Link>
-                          <p className="text-sm text-gray-500 mt-1">
-                            {formatPrice(item.product.pricePerM2)} / m²
-                          </p>
-                          <p className="text-xs text-gray-400 mt-1">
-                            Mínimo: {item.product.minQuantity} m²
-                          </p>
-                        </div>
-
-                        <button
-                          onClick={() => removeItem(item.product.id)}
-                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors self-start"
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </div>
-
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-6">
-                        {/* Quantity Controls */}
-                        <div className="flex items-center gap-3">
-                          <span className="text-sm text-gray-600">Cantidad:</span>
-                          <div className="flex items-center">
-                            <button
-                              onClick={() => updateQuantity(item.product.id, Math.max(item.product.minQuantity, item.quantity - 1))}
-                              className="w-10 h-10 flex items-center justify-center bg-gray-100 border border-r-0 rounded-l-lg hover:bg-gray-200 transition-colors"
-                            >
-                              <Minus className="w-4 h-4" />
-                            </button>
-                            <div className="w-16 h-10 flex items-center justify-center border-y bg-white">
-                              <span className="font-medium">{item.quantity}</span>
-                            </div>
-                            <button
-                              onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                              className="w-10 h-10 flex items-center justify-center bg-gray-100 border border-l-0 rounded-r-lg hover:bg-gray-200 transition-colors"
-                            >
-                              <Plus className="w-4 h-4" />
-                            </button>
-                          </div>
-                          <span className="text-sm text-gray-500">m²</span>
-                        </div>
-
-                        {/* Price */}
-                        <div className="text-right">
-                          <p className="text-sm text-gray-500">
-                            {formatPrice(item.product.pricePerM2)} × {item.quantity} m²
-                          </p>
-                          <p className="text-xl font-bold text-corpicia-green">
-                            {formatPrice(item.total)}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-
-            <Button
-              variant="outline"
-              onClick={clearBudget}
-              className="text-red-500 hover:text-red-600 hover:bg-red-50"
-            >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Vaciar presupuesto
-            </Button>
-          </div>
-
-          {/* Summary */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-24">
-              <Card>
-                <CardContent className="p-6 space-y-6">
-                  <h2 className="text-xl font-bold">Resumen</h2>
-
-                  <div className="space-y-3">
-                    <div className="flex justify-between text-gray-600">
-                      <span>Subtotal</span>
-                      <span>{formatPrice(getTotal())}</span>
-                    </div>
-                    <div className="flex justify-between text-gray-600">
-                      <span>Envío</span>
-                      <span className="text-corpicia-green">A consultar</span>
-                    </div>
-                    <div className="flex justify-between text-gray-600">
-                      <span>Instalación</span>
-                      <span className="text-corpicia-green">A consultar</span>
-                    </div>
-                  </div>
-
-                  <div className="border-t pt-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-lg font-semibold">Total estimado</span>
-                      <span className="text-2xl font-bold text-corpicia-green">
-                        {formatPrice(getTotal())}
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-400 mt-2">
-                      * El precio final puede variar según ubicación y servicios adicionales
-                    </p>
-                  </div>
-
-                  <Button
-                    onClick={handleWhatsAppClick}
-                    className="w-full h-14 gap-2 bg-green-500 hover:bg-green-600 text-lg"
-                  >
-                    <MessageCircle className="w-5 h-5" />
-                    Enviar por WhatsApp
-                  </Button>
-
-                  <a
-                    href="https://wa.me/595992588770"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => trackWhatsAppClick('budget_summary', 'otra-consulta')}
-                  >
-                    <Button variant="outline" className="w-full mt-2">
-                      Hacer otra consulta
-                    </Button>
-                  </a>
-                </CardContent>
-              </Card>
-
-              <div className="mt-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
-                <p className="text-sm text-amber-800">
-                  <strong>¿Necesitas ayuda?</strong> Contactanos por WhatsApp y te asesoramos
-                  para elegir el producto ideal para tu proyecto.
-                </p>
+              <div className="flex justify-between">
+                <span>Total</span>
+                <span>{formatPrice(getTotal())}</span>
               </div>
-            </div>
-          </div>
+
+              <Button onClick={handleWhatsAppClick} className="w-full">
+                <MessageCircle className="mr-2" />
+                Enviar por WhatsApp
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

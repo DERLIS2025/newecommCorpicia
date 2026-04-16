@@ -1,239 +1,141 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import type { Metadata } from 'next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ProductCard } from '@/components/ProductCard';
-import { ArrowRight, Leaf, Truck, Phone, Shield } from 'lucide-react';
-import { homeHeroBanners, homeSecondaryBanners } from '@/data/banners';
+import {
+  ArrowRight,
+  Leaf,
+  Truck,
+  Phone,
+  Shield,
+  ChevronRight,
+  Sparkles,
+} from 'lucide-react';
+import { homeHeroBanners } from '@/data/banners';
 import { productsCatalog } from './productos/[slug]/productsData';
 
 export const metadata: Metadata = {
   title: 'Césped natural y jardinería en Paraguay | Corpicia',
-  description: 'Comprá césped en Paraguay, accesorios de riego y soluciones de jardinería. Cotizá online y enviá tu presupuesto por WhatsApp.',
+  description:
+    'Comprá césped en Paraguay, accesorios de riego y soluciones de jardinería. Cotizá online y enviá tu presupuesto por WhatsApp.',
   alternates: {
     canonical: '/',
   },
 };
 
-const benefits = [
-  { icon: Leaf, title: 'Calidad premium', description: 'Productos seleccionados para resultados duraderos.' },
-  { icon: Truck, title: 'Cobertura nacional', description: 'Entregas coordinadas en Asunción y Paraguay.' },
-  { icon: Phone, title: 'Asesoría experta', description: 'Acompañamiento antes y después de comprar.' },
-  { icon: Shield, title: 'Compra segura', description: 'Atención transparente y soporte personalizado.' },
+const featuredProducts = productsCatalog
+  .filter((product) => product.isFeatured)
+  .slice(0, 4);
+
+const promoBlocks = [
+  {
+    title: 'Comprá por categoría',
+    description: 'Encontrá rápidamente césped, insumos y complementos.',
+    cta: 'Explorar catálogo',
+    link: '/productos/',
+  },
+  {
+    title: 'Cotizá sin fricción',
+    description: 'Calculá por m² y enviá por WhatsApp en minutos.',
+    cta: 'Ir a presupuesto',
+    link: '/presupuesto/',
+  },
+  {
+    title: 'Te acompañamos',
+    description: 'Desde la elección hasta la instalación.',
+    cta: 'Ver servicios',
+    link: '/servicios/',
+  },
 ];
 
-const heroBanners = homeHeroBanners.filter((banner) => banner.active).sort((a, b) => a.order - b.order);
-const secondaryBanners = homeSecondaryBanners.filter((banner) => banner.active).sort((a, b) => a.order - b.order);
+const benefits = [
+  { icon: Leaf, title: 'Calidad Premium', description: 'Productos duraderos.' },
+  { icon: Truck, title: 'Cobertura Nacional', description: 'Envíos en Paraguay.' },
+  { icon: Phone, title: 'Asesoría Experta', description: 'Acompañamiento total.' },
+  { icon: Shield, title: 'Compra Segura', description: 'Transparencia total.' },
+];
 
-const firstRowProducts = productsCatalog.slice(0, 4);
-const secondRowProducts = productsCatalog.slice(4, 8);
-const mixedBlockProducts = productsCatalog.slice(8, 10);
+const activeHeroBanners = homeHeroBanners
+  .filter((banner) => banner.active)
+  .sort((a, b) => a.order - b.order);
 
 export default function HomePage() {
-  const heroMain = heroBanners[0] ?? {
-    title: 'Césped natural premium para transformar tus espacios',
-    subtitle: 'Asesoría personalizada, instalación profesional y entrega en todo Paraguay.',
-    imageDesktop: '/banners/hero-cesped-desktop.jpg',
-    CTA: 'Ver productos',
-    link: '/productos/',
-  };
-
-  const heroSmallTop = heroBanners[1] ?? {
-    title: 'Armá tu presupuesto por m² y enviá por WhatsApp',
-    subtitle: 'Proceso rápido y simple para cotizar sin fricción.',
-    imageDesktop: '/banners/hero-presupuesto-desktop.jpg',
-    CTA: 'Ir a presupuesto',
-    link: '/presupuesto/',
-  };
-
-  const heroSmallBottom = heroBanners[2] ?? {
-    title: 'Soluciones para jardines residenciales y comerciales',
-    subtitle: 'Productos y acompañamiento para cada proyecto.',
-    imageDesktop: '/banners/hero-soluciones-desktop.jpg',
-    CTA: 'Ver servicios',
-    link: '/servicios/',
-  };
-
-  const mixedBanner = secondaryBanners[0] ?? {
-    title: 'Instalación profesional en Asunción y Gran Asunción',
-    subtitle: 'Equipo técnico con experiencia en proyectos residenciales y corporativos.',
-    imageDesktop: '/banners/instalacion-desktop.jpg',
-    CTA: 'Solicitar asesoría',
-    link: 'https://wa.me/595992588770',
-  };
-
-  const wideBanner = secondaryBanners[1] ?? {
-    title: 'Césped natural premium para transformar tus espacios',
-    subtitle: 'Asesoría personalizada, instalación profesional y entrega en todo Paraguay.',
-    imageDesktop: '/banners/productos-desktop.jpg',
-    CTA: 'Ver productos',
-    link: '/productos/',
-  };
-
   return (
-    <div className="bg-[#f5f5f5]">
-      {/* 1) HERO SUPERIOR */}
-      <section className="py-5 md:py-8">
-        <div className="container mx-auto px-4">
-          <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-            <Card className="overflow-hidden bg-white border border-gray-200 rounded-xl hover:shadow-md transition-shadow">
-              <CardContent className="p-0 h-full">
-                <div className="relative h-full min-h-[260px] md:min-h-[420px]">
-                  <Image src={heroMain.imageDesktop} alt={heroMain.title} fill className="object-cover" />
-                  <div className="absolute inset-0 bg-black/35" />
-                  <div className="relative z-10 h-full p-5 md:p-8 text-white flex flex-col justify-end">
-                    <h1 className="text-2xl md:text-4xl font-bold leading-tight max-w-2xl">{heroMain.title}</h1>
-                    <p className="text-sm md:text-base text-white/90 mt-2 max-w-xl line-clamp-2 md:line-clamp-none">{heroMain.subtitle}</p>
-                    <Link href={heroMain.link} className="mt-4">
-                      <Button className="bg-corpicia-green hover:bg-corpicia-green-dark text-white gap-2">
-                        {heroMain.CTA}
-                        <ArrowRight className="w-4 h-4" />
+    <div className="bg-white">
+      {/* HERO */}
+      <section className="bg-gradient-to-b from-[#f5fbf6] to-white border-b">
+        <div className="container mx-auto px-4 py-10">
+          <div className="grid lg:grid-cols-[2fr_1fr] gap-4">
+            {activeHeroBanners.map((banner, index) => (
+              <Card key={banner.title} className={`${index === 0 ? 'lg:row-span-2' : ''}`}>
+                <CardContent className="p-0">
+                  <div className="p-8 bg-gradient-to-br from-corpicia-green to-[#025c17] text-white h-full flex flex-col justify-between">
+                    <div>
+                      <span className="text-xs mb-3 inline-flex items-center gap-2">
+                        <Sparkles className="w-4 h-4" /> Destacado
+                      </span>
+                      <h1 className="text-3xl font-bold">{banner.title}</h1>
+                      <p className="mt-2 text-white/90">{banner.subtitle}</p>
+                    </div>
+
+                    <Link href={banner.link}>
+                      <Button className="bg-white text-corpicia-green mt-4">
+                        {banner.CTA}
+                        <ArrowRight className="ml-2 w-4 h-4" />
                       </Button>
                     </Link>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="grid gap-4 grid-rows-2">
-              <Card className="overflow-hidden bg-white border border-gray-200 rounded-xl hover:shadow-md transition-shadow h-full">
-                <CardContent className="p-0 h-full">
-                  <div className="relative h-full min-h-[128px] md:min-h-[202px]">
-                    <Image src={heroSmallTop.imageDesktop} alt={heroSmallTop.title} fill className="object-cover" />
-                    <div className="absolute inset-0 bg-black/35" />
-                    <div className="relative z-10 h-full p-4 md:p-6 text-white flex flex-col justify-end">
-                      <h2 className="text-base md:text-xl font-semibold leading-snug line-clamp-2">{heroSmallTop.title}</h2>
-                      <Link href={heroSmallTop.link} className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium">
-                        {heroSmallTop.CTA}
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </Link>
-                    </div>
-                  </div>
                 </CardContent>
               </Card>
-
-              <Card className="overflow-hidden bg-white border border-gray-200 rounded-xl hover:shadow-md transition-shadow h-full">
-                <CardContent className="p-0 h-full">
-                  <div className="relative h-full min-h-[128px] md:min-h-[202px]">
-                    <Image src={heroSmallBottom.imageDesktop} alt={heroSmallBottom.title} fill className="object-cover" />
-                    <div className="absolute inset-0 bg-black/35" />
-                    <div className="relative z-10 h-full p-4 md:p-6 text-white flex flex-col justify-end">
-                      <h2 className="text-base md:text-xl font-semibold leading-snug line-clamp-2">{heroSmallBottom.title}</h2>
-                      <Link href={heroSmallBottom.link} className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium">
-                        {heroSmallBottom.CTA}
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </Link>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 2) BENEFICIOS */}
-      <section className="pb-5 md:pb-8">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-            {benefits.map((benefit) => {
-              const Icon = benefit.icon;
-              return (
-                <Card key={benefit.title} className="bg-white border border-gray-200 rounded-xl hover:shadow-md transition-shadow">
-                  <CardContent className="p-3 md:p-4">
-                    <div className="w-9 h-9 rounded-lg bg-corpicia-green/10 flex items-center justify-center mb-2">
-                      <Icon className="w-4.5 h-4.5 text-corpicia-green" />
-                    </div>
-                    <h3 className="text-sm md:text-base font-semibold text-gray-900">{benefit.title}</h3>
-                    <p className="text-xs md:text-sm text-gray-600 mt-1">{benefit.description}</p>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* 3) PRIMERA FILA DE PRODUCTOS */}
-      <section className="py-5 md:py-7 bg-white border-y border-gray-100">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between mb-4 md:mb-6">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Productos destacados</h2>
-            <Link href="/productos/" className="text-corpicia-green text-sm md:text-base font-medium">Ver todo</Link>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-6">
-            {firstRowProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
             ))}
           </div>
         </div>
       </section>
 
-      {/* 4) BLOQUE MIXTO */}
-      <section className="py-5 md:py-8">
-        <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-[1.6fr_1fr] gap-4 md:gap-6">
-            <Card className="overflow-hidden bg-white border border-gray-200 rounded-xl hover:shadow-md transition-shadow min-h-[260px] md:min-h-[420px]">
-              <CardContent className="p-0 h-full">
-                <div className="relative h-full min-h-[260px] md:min-h-[420px]">
-                  <Image src={mixedBanner.imageDesktop} alt={mixedBanner.title} fill className="object-cover" />
-                  <div className="absolute inset-0 bg-black/35" />
-                  <div className="relative z-10 h-full p-5 md:p-8 text-white flex flex-col justify-end">
-                    <h3 className="text-2xl md:text-4xl font-bold leading-tight max-w-xl">{mixedBanner.title}</h3>
-                    <p className="text-white/90 mt-2 max-w-lg line-clamp-2 md:line-clamp-none">{mixedBanner.subtitle}</p>
-                    <a href={mixedBanner.link} target={mixedBanner.link.startsWith('http') ? '_blank' : undefined} rel={mixedBanner.link.startsWith('http') ? 'noopener noreferrer' : undefined} className="mt-4">
-                      <Button className="bg-corpicia-green hover:bg-corpicia-green-dark text-white">
-                        {mixedBanner.CTA}
-                      </Button>
-                    </a>
-                  </div>
-                </div>
+      {/* PROMOS */}
+      <section className="py-10">
+        <div className="container mx-auto px-4 grid md:grid-cols-3 gap-4">
+          {promoBlocks.map((promo) => (
+            <Card key={promo.title}>
+              <CardContent className="p-6">
+                <h2 className="font-bold text-lg">{promo.title}</h2>
+                <p className="text-sm text-gray-600 mt-2">{promo.description}</p>
+                <Link href={promo.link} className="text-corpicia-green mt-3 inline-flex">
+                  {promo.cta}
+                  <ChevronRight className="ml-1 w-4 h-4" />
+                </Link>
               </CardContent>
             </Card>
-
-            <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 md:gap-4">
-              {mixedBlockProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          </div>
+          ))}
         </div>
       </section>
 
-      {/* 5) BANNER HORIZONTAL */}
-      <section className="py-2 md:py-3">
-        <div className="container mx-auto px-4">
-          <Card className="overflow-hidden bg-corpicia-green border border-corpicia-green rounded-xl hover:shadow-md transition-shadow">
-            <CardContent className="p-0">
-              <div className="relative min-h-[160px] md:min-h-[220px]">
-                <Image src={wideBanner.imageDesktop} alt={wideBanner.title} fill className="object-cover opacity-20" />
-                <div className="absolute inset-0 bg-corpicia-green/85" />
-                <div className="relative z-10 p-5 md:p-7 h-full flex flex-col justify-end text-white">
-                  <h3 className="text-2xl md:text-4xl font-bold leading-tight">{wideBanner.title}</h3>
-                  <p className="text-white/90 mt-2 max-w-2xl line-clamp-2 md:line-clamp-none">{wideBanner.subtitle}</p>
-                  <a href={wideBanner.link} target={wideBanner.link.startsWith('http') ? '_blank' : undefined} rel={wideBanner.link.startsWith('http') ? 'noopener noreferrer' : undefined} className="mt-4">
-                    <Button className="bg-corpicia-green hover:bg-corpicia-green-dark text-white">
-                      {wideBanner.CTA}
-                    </Button>
-                  </a>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+      {/* BENEFICIOS */}
+      <section className="py-10 bg-gray-50">
+        <div className="container mx-auto px-4 grid md:grid-cols-4 gap-4">
+          {benefits.map((b) => {
+            const Icon = b.icon;
+            return (
+              <Card key={b.title}>
+                <CardContent className="p-5">
+                  <Icon className="text-corpicia-green mb-2" />
+                  <h3 className="font-semibold">{b.title}</h3>
+                  <p className="text-sm text-gray-600">{b.description}</p>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       </section>
 
-      {/* 6) SEGUNDA FILA DE PRODUCTOS */}
-      <section className="py-5 md:py-8 bg-white mt-3">
+      {/* PRODUCTOS */}
+      <section className="py-14">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between mb-4 md:mb-6">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Más productos para tu proyecto</h2>
-            <Link href="/productos/" className="text-corpicia-green text-sm md:text-base font-medium">Ver todo</Link>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-6">
-            {secondRowProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
+          <h2 className="text-2xl font-bold mb-6">Productos destacados</h2>
+          <div className="grid md:grid-cols-4 gap-6">
+            {featuredProducts.map((p) => (
+              <ProductCard key={p.id} product={p} />
             ))}
           </div>
         </div>
