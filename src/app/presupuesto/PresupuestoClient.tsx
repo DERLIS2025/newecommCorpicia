@@ -35,8 +35,8 @@ export default function PresupuestoClient() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen flex items-center justify-center text-center">
+        <div>
           <ShoppingCart className="mx-auto mb-4 text-gray-400" size={40} />
           <h1 className="text-xl font-bold">Tu presupuesto está vacío</h1>
           <p className="text-gray-500">Agregá productos para comenzar</p>

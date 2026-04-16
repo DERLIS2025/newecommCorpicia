@@ -31,18 +31,18 @@ const featuredProducts = productsCatalog
 const promoBlocks = [
   {
     title: 'Comprá por categoría',
-    description: 'Encontrá rápidamente césped, insumos y complementos para tu proyecto.',
+    description: 'Encontrá rápidamente césped, insumos y complementos.',
     cta: 'Explorar catálogo',
     link: '/productos/',
   },
   {
     title: 'Cotizá sin fricción',
-    description: 'Armá tu presupuesto por m² y enviá por WhatsApp en minutos.',
+    description: 'Calculá por m² y enviá por WhatsApp en minutos.',
     cta: 'Ir a presupuesto',
     link: '/presupuesto/',
   },
   {
-    title: 'Te acompañamos en todo el proceso',
+    title: 'Te acompañamos',
     description: 'Desde la elección hasta la instalación.',
     cta: 'Ver servicios',
     link: '/servicios/',
@@ -50,10 +50,10 @@ const promoBlocks = [
 ];
 
 const benefits = [
-  { icon: Leaf, title: 'Calidad Premium', description: 'Productos confiables y duraderos.' },
-  { icon: Truck, title: 'Cobertura Nacional', description: 'Envíos en todo Paraguay.' },
-  { icon: Phone, title: 'Asesoría Experta', description: 'Te acompañamos en todo el proceso.' },
-  { icon: Shield, title: 'Compra Segura', description: 'Atención transparente.' },
+  { icon: Leaf, title: 'Calidad Premium', description: 'Productos duraderos.' },
+  { icon: Truck, title: 'Cobertura Nacional', description: 'Envíos en Paraguay.' },
+  { icon: Phone, title: 'Asesoría Experta', description: 'Acompañamiento total.' },
+  { icon: Shield, title: 'Compra Segura', description: 'Transparencia total.' },
 ];
 
 const activeHeroBanners = homeHeroBanners
