@@ -5,6 +5,9 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Nosotros - Corpicia | Césped Natural en Paraguay',
   description: 'Conocé a Corpicia, especialistas en césped natural y jardinería en Paraguay. Más de 10 años de experiencia transformando espacios verdes.',
+  alternates: {
+    canonical: '/nosotros/',
+  },
 };
 
 const values = [
