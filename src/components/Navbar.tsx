@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Menu, X, ShoppingCart, Phone, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useBudgetStore } from '@/store/budgetStore';
+import { getWhatsAppUrl } from '@/lib/utils';
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -26,7 +27,7 @@ export function Navbar() {
             Envíos a todo Paraguay · Asunción y Gran Asunción
           </p>
           <a
-            href="https://wa.me/595992588770"
+            href={getWhatsAppUrl()}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 ml-auto font-medium text-corpicia-green hover:underline"

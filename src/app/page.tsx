@@ -75,7 +75,11 @@ export default function HomePage() {
                       <span className="text-xs mb-3 inline-flex items-center gap-2">
                         <Sparkles className="w-4 h-4" /> Destacado
                       </span>
-                      <h1 className="text-3xl font-bold">{banner.title}</h1>
+                      {index === 0 ? (
+                        <h1 className="text-3xl font-bold">{banner.title}</h1>
+                      ) : (
+                        <h2 className="text-3xl font-bold">{banner.title}</h2>
+                      )}
                       <p className="mt-2 text-white/90">{banner.subtitle}</p>
                     </div>
 

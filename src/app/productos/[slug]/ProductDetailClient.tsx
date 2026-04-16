@@ -7,35 +7,17 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { QuantitySelector } from '@/components/QuantitySelector';
 import { useBudgetStore } from '@/store/budgetStore';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, formatUnit, getWhatsAppUrl } from '@/lib/utils';
 import { trackAddToBudget, trackProductView, trackWhatsAppClick } from '@/lib/tracking';
-import { Check, ArrowLeft, ShoppingCart, Phone, Leaf, Truck, Shield, Star } from 'lucide-react';
-import { defaultProduct, productsCatalog, productsData } from './productsData';
+import { Check, ArrowLeft, ShoppingCart, Phone, Leaf, Truck, Shield } from 'lucide-react';
+import { productsCatalog, productsData } from './productsData';
 
 type ProductDetailClientProps = {
   slug: string;
 };
 
-const mockReviews = [
-  {
-    name: 'Carlos R.',
-    city: 'Asunción',
-    text: 'Excelente atención y el césped llegó en perfectas condiciones. El presupuesto por WhatsApp fue rapidísimo.',
-  },
-  {
-    name: 'María G.',
-    city: 'Luque',
-    text: 'Me ayudaron a elegir la mejor opción para mi patio. Muy buena experiencia y cumplimiento en tiempos.',
-  },
-  {
-    name: 'Diego F.',
-    city: 'San Lorenzo',
-    text: 'Compré césped y accesorios de riego. Todo bien explicado y la instalación quedó impecable.',
-  },
-];
-
 export default function ProductDetailClient({ slug }: ProductDetailClientProps) {
-  const product = productsData[slug] || defaultProduct;
+  const product = productsData[slug];
 
   const [quantity, setQuantity] = useState(product.minQuantity);
   const addItem = useBudgetStore((state) => state.addItem);
@@ -137,12 +119,12 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
                       <span className="text-3xl font-bold text-corpicia-green">
                         {formatPrice(product.pricePerM2)}
                       </span>
-                      <span className="text-gray-500 pb-1">/ m²</span>
+                      <span className="text-gray-500 pb-1">/ {formatUnit(product.unit)}</span>
                     </div>
 
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-gray-700">
-                        Cantidad (m²) - Mínimo: {product.minQuantity}m²
+                        Cantidad ({formatUnit(product.unit)}) - Mínimo: {product.minQuantity} {formatUnit(product.unit)}
                       </label>
                       <QuantitySelector
                         quantity={quantity}
@@ -168,7 +150,7 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
                       </Button>
 
                       <a
-                        href="https://wa.me/595992588770"
+                        href={getWhatsAppUrl()}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="block"
@@ -264,26 +246,6 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
                       Agregar
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        <section className="mt-12 md:mt-14 pb-8">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-5">Opiniones de clientes</h2>
-          <div className="grid md:grid-cols-3 gap-4">
-            {mockReviews.map((review) => (
-              <Card key={review.name} className="border border-gray-200 rounded-2xl shadow-sm">
-                <CardContent className="p-5">
-                  <div className="flex items-center gap-1 text-amber-500 mb-3">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-current" />
-                    ))}
-                  </div>
-                  <p className="text-gray-600 text-sm leading-relaxed">“{review.text}”</p>
-                  <p className="mt-4 font-semibold text-gray-900">{review.name}</p>
-                  <p className="text-xs text-gray-500">{review.city}</p>
                 </CardContent>
               </Card>
             ))}

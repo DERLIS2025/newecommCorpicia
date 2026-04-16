@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, formatUnit } from '@/lib/utils';
 import { Product } from '@/types';
 import { ShoppingCart } from 'lucide-react';
 
@@ -55,7 +55,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <span className="text-base sm:text-lg font-bold text-corpicia-green">
             {formatPrice(product.pricePerM2)}
           </span>
-          <span className="text-xs sm:text-sm text-gray-400">/ m²</span>
+          <span className="text-xs sm:text-sm text-gray-400">/ {formatUnit(product.unit)}</span>
         </div>
 
         <Link href={`/productos/${product.slug}/`}>
