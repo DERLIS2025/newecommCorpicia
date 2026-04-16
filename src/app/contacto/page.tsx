@@ -7,6 +7,9 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Contacto - Corpicia | Césped Natural en Paraguay',
   description: 'Contactanos para solicitar tu presupuesto. Atendemos Asunción y todo Paraguay. WhatsApp: +595 992 588 770',
+  alternates: {
+    canonical: '/contacto/',
+  },
 };
 
 const contactInfo = [

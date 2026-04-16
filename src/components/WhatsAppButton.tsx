@@ -1,6 +1,7 @@
 'use client';
 
 import { Phone } from 'lucide-react';
+import { trackWhatsAppClick } from '@/lib/tracking';
 
 interface WhatsAppButtonProps {
   message?: string;
@@ -18,6 +19,7 @@ export function WhatsAppButton({ message, className = '' }: WhatsAppButtonProps)
       href={whatsappUrl}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={() => trackWhatsAppClick('floating_button', 'generic-whatsapp')}
       className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-full shadow-lg hover:shadow-xl transition-all ${className}`}
     >
       <Phone className="w-5 h-5" />
@@ -32,6 +34,7 @@ export function WhatsAppFloatingButton() {
       href="https://wa.me/595992588770"
       target="_blank"
       rel="noopener noreferrer"
+      onClick={() => trackWhatsAppClick('floating_button', 'main-whatsapp')}
       className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all hover:scale-110"
     >
       <svg
