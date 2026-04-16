@@ -10,9 +10,13 @@ const config: Config = {
     extend: {
       colors: {
         corpicia: {
-          green: '#006C1A',
-          'green-light': '#008F23',
-          'green-dark': '#004D12',
+          green: '#2E7D32',
+          'green-light': '#EAF4EC',
+          'green-dark': '#1B5E20',
+          'text-main': '#1F2937',
+          'text-soft': '#6B7280',
+          'surface': '#F8FAF9',
+          'border-soft': '#E5E7EB',
         },
       },
       fontFamily: {
