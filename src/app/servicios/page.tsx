@@ -6,6 +6,9 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Servicios - Corpicia | Instalación y Mantenimiento',
   description: 'Servicios profesionales de instalación de césped, mantenimiento de jardines, paisajismo y sistemas de riego en Paraguay.',
+  alternates: {
+    canonical: '/servicios/',
+  },
 };
 
 const services = [
