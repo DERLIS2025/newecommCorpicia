@@ -1,9 +1,0 @@
-{
-  "redirects": [
-    {
-      "source": "/:path*",
-      "destination": "https://corpicia.com/:path*",
-      "permanent": true
-    }
-  ]
-}
