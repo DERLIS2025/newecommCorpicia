@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useBudgetStore } from '@/store/budgetStore';
-import { formatPrice, generateWhatsAppMessage } from '@/lib/utils';
+import { formatPrice, formatUnit, generateWhatsAppMessage } from '@/lib/utils';
 import { trackWhatsAppClick } from '@/lib/tracking';
 import {
   Minus,
@@ -27,6 +27,7 @@ export default function PresupuestoClient() {
       name: item.product.name,
       quantity: item.quantity,
       total: item.total,
+      unit: item.product.unit,
     }));
 
     const url = generateWhatsAppMessage(messageItems, getTotal());
@@ -85,7 +86,7 @@ export default function PresupuestoClient() {
                   <h2 className="font-semibold">{item.product.name}</h2>
 
                   <p className="text-sm text-gray-500">
-                    {formatPrice(item.product.pricePerM2)} / m²
+                    {formatPrice(item.product.pricePerM2)} / {formatUnit(item.product.unit)}
                   </p>
 
                   <div className="flex items-center gap-2 mt-3">
