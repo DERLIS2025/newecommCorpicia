@@ -7,7 +7,8 @@ import { productCategories, productsCatalog } from './[slug]/productsData';
 
 export const metadata: Metadata = {
   title: 'Productos de césped y jardinería en Paraguay | Corpicia',
-  description: 'Catálogo de productos Corpicia: césped natural, riego, pisos, decorativos y servicios de jardinería en Asunción y todo Paraguay.',
+  description:
+    'Catálogo de productos Corpicia: césped natural, riego, pisos, decorativos y servicios de jardinería en Asunción y todo Paraguay.',
   alternates: {
     canonical: '/productos/',
   },
@@ -23,10 +24,12 @@ export default function ProductsPage() {
               <Sparkles className="w-3.5 h-3.5" />
               Catálogo Corpicia
             </span>
-            <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mt-4 tracking-tight">
+
+            <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mt-4">
               Césped en Paraguay, riego, pisos y jardinería
             </h1>
-            <p className="text-gray-600 mt-3 text-base md:text-lg">
+
+            <p className="text-gray-600 mt-3">
               Soluciones reales para proyectos residenciales y comerciales en Asunción y todo Paraguay.
             </p>
           </div>
@@ -35,84 +38,41 @@ export default function ProductsPage() {
 
       <div className="container mx-auto px-4 py-8 md:py-10">
         <div className="grid lg:grid-cols-[280px_1fr] gap-6 lg:gap-8">
-          <aside className="lg:sticky lg:top-24 self-start">
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 md:p-6 shadow-sm space-y-6">
-              <div className="flex items-center gap-2">
-                <SlidersHorizontal className="w-5 h-5 text-corpicia-green" />
-                <h2 className="font-semibold text-gray-900">Filtros</h2>
-              </div>
 
-              <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-3">Categorías</h3>
-                <div className="space-y-2.5">
-                  {productCategories.map((category) => (
-                    <label key={category.id} className="flex items-center gap-3 cursor-pointer group">
-                      <input
-                        type="checkbox"
-                        className="w-4 h-4 rounded border-gray-300 text-corpicia-green focus:ring-corpicia-green"
-                      />
-                      <span className="text-sm text-gray-600 group-hover:text-corpicia-green transition-colors">
-                        {category.name}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+          {/* FILTROS */}
+          <aside>
+            <div className="bg-white p-5 rounded-xl border">
+              <h2 className="font-bold mb-4">Filtros</h2>
 
-              <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-3">Rango de Precio</h3>
-                <div className="flex items-center gap-2">
-                  <Input type="number" placeholder="Min" className="h-10 rounded-lg" />
-                  <span className="text-gray-400">-</span>
-                  <Input type="number" placeholder="Max" className="h-10 rounded-lg" />
-                </div>
-              </div>
-
-              <Button className="w-full">Aplicar filtros</Button>
+              {productCategories.map((c) => (
+                <label key={c.id} className="flex gap-2">
+                  <input type="checkbox" />
+                  {c.name}
+                </label>
+              ))}
             </div>
           </aside>
 
+          {/* PRODUCTOS */}
           <section>
-            <div className="rounded-2xl border border-gray-200 bg-white p-4 md:p-5 mb-5 shadow-sm">
-              <div className="flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
-                <div className="relative flex-1 max-w-xl">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <Input placeholder="Buscar productos..." className="pl-10 h-11 rounded-xl" />
-                </div>
 
-                <div className="relative w-full md:w-auto">
-                  <select className="w-full md:min-w-[230px] h-11 px-4 pr-10 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-corpicia-green/20 focus:border-corpicia-green appearance-none bg-white">
-                    <option>Ordenar por: Relevancia</option>
-                    <option>Precio: Menor a Mayor</option>
-                    <option>Precio: Mayor a Menor</option>
-                    <option>Nombre: A-Z</option>
-                  </select>
-                  <ChevronDown className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
-              </div>
+            {/* BUSCADOR */}
+            <div className="bg-white p-4 rounded-xl border mb-5 flex gap-3">
+              <Input placeholder="Buscar productos..." />
+              <Button>Buscar</Button>
             </div>
 
-            <p className="text-sm text-gray-500 mb-4">Mostrando {productsCatalog.length} productos</p>
+            <p className="text-sm text-gray-500 mb-4">
+              Mostrando {productsCatalog.length} productos
+            </p>
 
+            {/* GRID CORRECTO */}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 md:gap-6">
               {productsCatalog.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
 
-            <div className="flex justify-center mt-9">
-              <div className="inline-flex gap-2 rounded-xl border border-gray-200 bg-white p-2">
-                <Button variant="outline" disabled>
-                  Anterior
-                </Button>
-                <Button variant="default" className="bg-corpicia-green hover:bg-corpicia-green-dark">
-                  1
-                </Button>
-                <Button variant="outline">2</Button>
-                <Button variant="outline">3</Button>
-                <Button variant="outline">Siguiente</Button>
-              </div>
-            </div>
           </section>
         </div>
       </div>
