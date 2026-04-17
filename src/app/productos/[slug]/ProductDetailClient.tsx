@@ -1,31 +1,80 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useEffect, useMemo, useState } from 'react';
+import { ArrowLeft, Check, Leaf, Phone, Shield, ShoppingCart, Truck } from 'lucide-react';
+
+import { QuantitySelector } from '@/components/QuantitySelector';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { QuantitySelector } from '@/components/QuantitySelector';
-import { useBudgetStore } from '@/store/budgetStore';
-import { formatPrice, formatUnit, getWhatsAppUrl } from '@/lib/utils';
 import { trackAddToBudget, trackProductView, trackWhatsAppClick } from '@/lib/tracking';
-import { Check, ArrowLeft, ShoppingCart, Phone, Leaf, Truck, Shield } from 'lucide-react';
+import { formatPrice, formatUnit, getPriceForQuantity, getWhatsAppUrl } from '@/lib/utils';
+import { useBudgetStore } from '@/store/budgetStore';
+import type { Product } from '@/types';
+
 import { productsCatalog, productsData } from './productsData';
 
 type ProductDetailClientProps = {
   slug: string;
 };
 
+function getCalculatedQuantity(product: Product, quantity: number, areaM2: number): number {
+  const safeQuantity = Math.max(quantity, product.minQuantity);
+  const safeArea = Math.max(areaM2, product.minQuantity);
+
+  switch (product.unit) {
+    case 'm2':
+      return safeArea;
+    case 'docena':
+      return safeQuantity * 12;
+    case 'servicio':
+    case 'visita':
+      return 1;
+    case 'unidad':
+    default:
+      return safeQuantity;
+  }
+}
+
 export default function ProductDetailClient({ slug }: ProductDetailClientProps) {
   const product = productsData[slug];
+  const addItem = useBudgetStore((state) => state.addItem);
 
   const [quantity, setQuantity] = useState(product.minQuantity);
-  const addItem = useBudgetStore((state) => state.addItem);
+  const [showPriceTiers, setShowPriceTiers] = useState(false);
 
   useEffect(() => {
     trackProductView(product.name, product.slug);
   }, [product.name, product.slug]);
+
+  const { price: currentPrice, tier: currentTier, isPromo } = useMemo(() => {
+    return getPriceForQuantity(quantity, product.priceTiers, product.pricePerM2);
+  }, [quantity, product.priceTiers, product.pricePerM2]);
+
+  const estimatedPrice = useMemo(
+    () => currentPrice * Math.max(quantity, product.minQuantity),
+    [currentPrice, quantity, product.minQuantity]
+  );
+
+  const highestTierPrice = product.priceTiers?.[0]?.price || product.pricePerM2;
+  const promoTier = product.priceTiers?.find((tier) => tier.isPromo);
+
+  const volumeSavings = useMemo(
+    () => Math.max(0, (highestTierPrice - currentPrice) * Math.max(quantity, product.minQuantity)),
+    [highestTierPrice, currentPrice, quantity, product.minQuantity]
+  );
+
+  const missingForPromo = useMemo(
+    () => (promoTier ? Math.max(0, promoTier.min - Math.max(quantity, product.minQuantity)) : 0),
+    [promoTier, quantity, product.minQuantity]
+  );
+
+  const promoSavingsIfReached = useMemo(() => {
+    if (!promoTier || isPromo) return 0;
+    return Math.max(0, (currentPrice - promoTier.price) * Math.max(quantity, product.minQuantity));
+  }, [promoTier, isPromo, currentPrice, quantity, product.minQuantity]);
 
   const relatedProducts = useMemo(
     () =>
@@ -43,16 +92,17 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
   const productsToShow = relatedProducts.length > 0 ? relatedProducts : fallbackRelated;
 
   const handleAddToBudget = () => {
-    trackAddToBudget(product.name, quantity);
-    addItem(product, quantity);
+    const calculatedQuantity = getCalculatedQuantity(product, quantity, quantity);
+    addItem(product, calculatedQuantity);
+    trackAddToBudget(product.name, calculatedQuantity);
   };
 
-  const estimatedPrice = product.pricePerM2 * quantity;
+  const handleWhatsAppClick = () => {
+    trackWhatsAppClick('product_detail', product.slug);
+  };
 
   const productImages =
-    product.images && product.images.length > 0
-      ? product.images
-      : ['/productos/default.jpg'];
+    product.images && product.images.length > 0 ? product.images : ['/productos/default.jpg'];
 
   return (
     <div className="min-h-screen bg-[#f7faf7]">
@@ -134,6 +184,7 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
                   {product.isFeatured && (
                     <Badge className="bg-corpicia-green text-white">Destacado</Badge>
                   )}
+                  {isPromo && <Badge className="bg-red-500 text-white">PROMO</Badge>}
                 </div>
 
                 <div>
@@ -147,7 +198,7 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
                   <CardContent className="space-y-4 p-5">
                     <div className="flex items-end gap-2 border-b border-corpicia-green/20 pb-3">
                       <span className="text-3xl font-bold text-corpicia-green">
-                        {formatPrice(product.pricePerM2)}
+                        {formatPrice(currentPrice)}
                       </span>
                       <span className="pb-1 text-gray-500">/ {formatUnit(product.unit)}</span>
                     </div>
@@ -157,32 +208,128 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
                         Cantidad ({formatUnit(product.unit)}) - Mínimo: {product.minQuantity}{' '}
                         {formatUnit(product.unit)}
                       </label>
-                      <QuantitySelector
-                        quantity={quantity}
-                        minQuantity={product.minQuantity}
-                        onChange={setQuantity}
-                      />
+
+                      {product.unit === 'm2' ? (
+                        <QuantitySelector
+                          quantity={quantity}
+                          minQuantity={product.minQuantity}
+                          onChange={setQuantity}
+                        />
+                      ) : (
+                        <input
+                          type="number"
+                          min={product.minQuantity}
+                          value={quantity}
+                          onChange={(event) =>
+                            setQuantity(Number(event.target.value) || product.minQuantity)
+                          }
+                          className="h-10 w-full rounded-lg border border-gray-200 px-3 focus:border-corpicia-green focus:outline-none focus:ring-2 focus:ring-corpicia-green/20"
+                          aria-label={product.unit === 'm2' ? 'Metros cuadrados' : 'Cantidad'}
+                        />
+                      )}
                     </div>
 
-                    <div className="space-y-3 border-t border-corpicia-green/20 pt-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-gray-600">Precio estimado:</span>
-                        <span className="text-2xl font-bold text-corpicia-green">
-                          {formatPrice(estimatedPrice)}
-                        </span>
-                      </div>
+                    {product.priceTiers && product.priceTiers.length > 0 && (
+                      <div className="space-y-3 rounded-xl border border-gray-200 bg-white p-4">
+                        <button
+                          type="button"
+                          onClick={() => setShowPriceTiers((prev) => !prev)}
+                          className="text-sm font-medium text-corpicia-green hover:underline"
+                        >
+                          {showPriceTiers ? 'Ocultar precios por volumen' : 'Ver precios por volumen'}
+                        </button>
 
+                        {showPriceTiers && (
+                          <div className="overflow-hidden rounded-lg border border-gray-200">
+                            {product.priceTiers.map((tier) => {
+                              const isActiveTier = currentTier?.label === tier.label;
+
+                              return (
+                                <div
+                                  key={tier.label}
+                                  className={`flex items-center justify-between px-3 py-2 text-sm ${
+                                    isActiveTier
+                                      ? 'border-corpicia-green/30 bg-corpicia-green/10'
+                                      : 'border-b bg-white last:border-b-0'
+                                  }`}
+                                >
+                                  <span>{tier.label}</span>
+
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-semibold">{formatPrice(tier.price)}</span>
+                                    {tier.isPromo && (
+                                      <Badge className="bg-red-500 text-white">PROMO</Badge>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        {!isPromo && missingForPromo > 0 && promoTier && (
+                          <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+                            Te faltan {missingForPromo} m² para acceder al precio promo.
+                            Ahorrarías {formatPrice(promoSavingsIfReached)} en este pedido.
+                          </div>
+                        )}
+
+                        <div className="space-y-1 text-sm text-gray-600">
+                          <p>
+                            Precio unitario:{' '}
+                            <span className="font-semibold text-corpicia-green">
+                              {formatPrice(currentPrice)}
+                            </span>
+                          </p>
+
+                          {volumeSavings > 0 && (
+                            <p>
+                              Ahorro por volumen:{' '}
+                              <span className="font-semibold text-corpicia-green">
+                                {formatPrice(volumeSavings)}
+                              </span>
+                            </p>
+                          )}
+
+                          <p>
+                            Precio estimado:{' '}
+                            <span className="font-semibold text-corpicia-green">
+                              {formatPrice(estimatedPrice)}
+                            </span>
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {(!product.priceTiers || product.priceTiers.length === 0) && (
+                      <div className="space-y-1 border-t border-corpicia-green/20 pt-4 text-sm text-gray-600">
+                        <p>
+                          Precio unitario:{' '}
+                          <span className="font-semibold text-corpicia-green">
+                            {formatPrice(currentPrice)}
+                          </span>
+                        </p>
+                        <p>
+                          Precio estimado:{' '}
+                          <span className="font-semibold text-corpicia-green">
+                            {formatPrice(estimatedPrice)}
+                          </span>
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="space-y-3 border-t border-corpicia-green/20 pt-4">
                       <Button onClick={handleAddToBudget} className="h-12 w-full gap-2 text-base">
                         <ShoppingCart className="h-5 w-5" />
                         Agregar al Presupuesto
                       </Button>
 
                       <a
-                        href={getWhatsAppUrl()}
+                        href={getWhatsAppUrl(`Hola, quiero consultar por ${product.name}.`)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="block"
-                        onClick={() => trackWhatsAppClick('product_detail', product.slug)}
+                        onClick={handleWhatsAppClick}
                       >
                         <Button
                           variant="outline"
@@ -198,7 +345,7 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
               </CardContent>
             </Card>
 
-            <div className="grid gap-4 md:grid-cols-2">
+            {product.features?.length > 0 && (
               <Card className="rounded-2xl border border-gray-200 shadow-sm">
                 <CardContent className="p-5">
                   <h2 className="mb-3 font-semibold text-gray-900">Características</h2>
@@ -212,7 +359,9 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
                   </ul>
                 </CardContent>
               </Card>
+            )}
 
+            {product.specifications && Object.keys(product.specifications).length > 0 && (
               <Card className="rounded-2xl border border-gray-200 shadow-sm">
                 <CardContent className="p-5">
                   <h2 className="mb-3 font-semibold text-gray-900">Especificaciones</h2>
@@ -229,7 +378,7 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
                   </div>
                 </CardContent>
               </Card>
-            </div>
+            )}
 
             <Card className="rounded-2xl border border-gray-200 shadow-sm">
               <CardContent className="p-5">
@@ -259,6 +408,7 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
           <h2 className="mb-5 text-2xl font-bold text-gray-900 md:text-3xl">
             También te puede interesar
           </h2>
+
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {productsToShow.map((item) => (
               <Card
@@ -281,22 +431,30 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
                       </div>
                     )}
                   </div>
+
                   <div>
                     <p className="font-semibold leading-snug text-gray-900">{item.name}</p>
                     <p className="mt-1 font-bold text-corpicia-green">
                       {formatPrice(item.pricePerM2)}
                     </p>
                   </div>
+
                   <div className="flex gap-2">
                     <Link href={`/productos/${item.slug}/`} className="flex-1">
                       <Button variant="outline" className="w-full">
                         Ver
                       </Button>
                     </Link>
+
                     <Button
                       onClick={() => {
-                        trackAddToBudget(item.name, item.minQuantity);
-                        addItem(item, item.minQuantity);
+                        const calculatedQuantity = getCalculatedQuantity(
+                          item,
+                          item.minQuantity,
+                          item.minQuantity
+                        );
+                        trackAddToBudget(item.name, calculatedQuantity);
+                        addItem(item, calculatedQuantity);
                       }}
                       className="flex-1"
                     >
