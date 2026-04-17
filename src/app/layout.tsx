@@ -16,7 +16,8 @@ export const metadata: Metadata = {
     default: 'Corpicia - Césped Natural y Jardinería en Paraguay',
     template: '%s | Corpicia',
   },
-  description: 'Especialistas en césped natural, instalación y mantenimiento de jardines en Paraguay. Solicita tu presupuesto por WhatsApp.',
+  description:
+    'Especialistas en césped natural, instalación y mantenimiento de jardines en Paraguay. Solicita tu presupuesto por WhatsApp.',
   keywords: 'césped, jardinería, Paraguay, Asunción, césped natural, paisajismo',
   authors: [{ name: 'Corpicia' }],
   alternates: {
@@ -39,7 +40,7 @@ const organizationSchema = {
   logo: `${siteUrl}/icon.png`,
   contactPoint: {
     '@type': 'ContactPoint',
-    telephone: '+595992588770',
+    telephone: '0992-588-770',
     contactType: 'customer service',
     areaServed: 'PY',
     availableLanguage: ['es'],
@@ -73,32 +74,71 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={inter.className}>
+        
+        {/* GOOGLE ADS (AW) */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-17945928058"
+          strategy="afterInteractive"
+        />
+        <Script id="google-ads" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            window.gtag = gtag;
+            gtag('js', new Date());
+            gtag('config', 'AW-17945928058');
+          `}
+        </Script>
+
+        {/* GOOGLE ANALYTICS 4 */}
         {gaId && (
           <>
-            <Script async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} />
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+              strategy="afterInteractive"
+            />
             <Script id="ga4-script" strategy="afterInteractive">
-              {`window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} window.gtag = gtag; gtag('js', new Date()); gtag('config', '${gaId}');`}
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                window.gtag = gtag;
+                gtag('js', new Date());
+                gtag('config', '${gaId}');
+              `}
             </Script>
           </>
         )}
 
+        {/* GOOGLE TAG MANAGER */}
         {gtmId && (
           <Script id="gtm-script" strategy="afterInteractive">
-            {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${gtmId}');`}
+            {`
+              (function(w,d,s,l,i){
+                w[l]=w[l]||[];
+                w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});
+                var f=d.getElementsByTagName(s)[0],
+                j=d.createElement(s),
+                dl=l!='dataLayer'?'&l='+l:'';
+                j.async=true;
+                j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+                f.parentNode.insertBefore(j,f);
+              })(window,document,'script','dataLayer','${gtmId}');
+            `}
           </Script>
         )}
 
+        {/* SCHEMAS SEO */}
         <Script id="org-schema" type="application/ld+json" strategy="afterInteractive">
           {JSON.stringify(organizationSchema)}
         </Script>
+
         <Script id="local-schema" type="application/ld+json" strategy="afterInteractive">
           {JSON.stringify(localBusinessSchema)}
         </Script>
 
+        {/* UI */}
         <Navbar />
-        <main className="min-h-screen">
-          {children}
-        </main>
+        <main className="min-h-screen">{children}</main>
         <Footer />
         <WhatsAppFloatingButton />
         <BudgetDrawer />
