@@ -101,9 +101,15 @@ export default function ContactPage() {
                     placeholder="¿En qué podemos ayudarte?"
                   />
                 </div>
-                <Button className="w-full h-12">
-                  Enviar Mensaje
-                </Button>
+                <a
+                  href={getWhatsAppUrl('Hola, quiero hacer una consulta desde el formulario de contacto.')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button className="w-full h-12">
+                    Enviar Mensaje
+                  </Button>
+                </a>
               </CardContent>
             </Card>
           </div>
