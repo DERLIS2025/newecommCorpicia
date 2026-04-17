@@ -61,14 +61,15 @@ export default function HomePage() {
                 />
               </div>
 
+              {/* Banner inferior */}
               <div className="relative w-full h-[145px] md:h-[190px] lg:h-[240px] rounded-xl overflow-hidden">
-  <Image
-    src="/banners/hero-side-2.jpg"
-    alt="Banner secundario inferior"
-    fill
-    className="object-cover"
-  />
-</div>
+                <Image
+                  src="/banners/hero-side-2.webp"
+                  alt="Banner secundario inferior"
+                  fill
+                  className="object-cover"
+                />
+              </div>
 
             </div>
           </div>
@@ -118,7 +119,7 @@ export default function HomePage() {
             
             <div className="relative w-full h-[300px] md:h-[400px] lg:h-[500px] rounded-xl overflow-hidden">
               <Image
-                src="/banners/mixed-banner-desktop.webp"
+                src="/banners/mixed-banner-desktop.jpg"
                 alt="Banner mixto"
                 fill
                 className="object-cover"
@@ -140,7 +141,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="relative w-full h-[220px] md:h-[300px] lg:h-[400px] rounded-xl overflow-hidden">
             <Image
-              src="/banners/wide-banner-desktop.webp"
+              src="/banners/wide-banner-desktop.jpg"
               alt="Banner horizontal"
               fill
               className="object-cover"
