@@ -8,12 +8,21 @@ import { Button } from '@/components/ui/button';
 import { formatPrice, formatUnit } from '@/lib/utils';
 import { Product } from '@/types';
 import { ShoppingCart } from 'lucide-react';
+import { useBudgetStore } from '@/store/budgetStore';
+import { trackAddToBudget } from '@/lib/tracking';
 
 interface ProductCardProps {
   product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const addItem = useBudgetStore((state) => state.addItem);
+
+  const handleAddToBudget = () => {
+    addItem(product, product.minQuantity);
+    trackAddToBudget(product.name, product.minQuantity);
+  };
+
   return (
     <Card className="group flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 transition-shadow hover:shadow-md">
       <Link href={`/productos/${product.slug}/`} className="block">
@@ -73,14 +82,20 @@ export function ProductCard({ product }: ProductCardProps) {
             / {formatUnit(product.unit)}
           </span>
         </div>
+        {product.priceTiers && product.priceTiers.length > 0 && (
+          <p className="mb-3 text-xs text-gray-500">
+            Precios por volumen disponibles
+          </p>
+        )}
 
         <div className="mt-auto">
-          <Link href={`/productos/${product.slug}/`} className="block">
-            <Button className="h-9 w-full gap-1.5 text-xs sm:h-10 sm:text-sm">
-              <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              Agregar al Presupuesto
-            </Button>
-          </Link>
+          <Button
+            onClick={handleAddToBudget}
+            className="h-9 w-full gap-1.5 text-xs sm:h-10 sm:text-sm"
+          >
+            <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            Agregar al Presupuesto
+          </Button>
         </div>
       </CardContent>
     </Card>
