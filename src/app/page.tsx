@@ -31,6 +31,7 @@ const benefits = [
 export default function HomePage() {
   return (
     <div className="bg-white">
+      
       {/* HERO */}
       <section className="border-b">
         <div className="container mx-auto px-4 py-6">
@@ -50,7 +51,7 @@ export default function HomePage() {
             {/* Banners derecha */}
             <div className="grid gap-4">
               
-              {/* 🔥 ESTE ES EL QUE CORREGIMOS */}
+              {/* Banner superior */}
               <div className="relative w-full h-[145px] md:h-[190px] lg:h-[240px] rounded-xl overflow-hidden">
                 <Image
                   src="/banners/hero-side-1.webp"
@@ -60,17 +61,16 @@ export default function HomePage() {
                 />
               </div>
 
-              {/* Banner inferior (dejamos placeholder hasta que subas imagen) */}
-              <div className="relative w-full h-[145px] md:h-[190px] lg:h-[240px] rounded-xl overflow-hidden bg-gray-200">
-                {/* Cuando tengas imagen usar:
+              {/* 🔥 Banner inferior YA ACTIVADO */}
+              <div className="relative w-full h-[145px] md:h-[190px] lg:h-[240px] rounded-xl overflow-hidden">
                 <Image
                   src="/banners/hero-side-2.webp"
                   alt="Banner secundario inferior"
                   fill
                   className="object-cover"
                 />
-                */}
               </div>
+
             </div>
           </div>
         </div>
@@ -162,6 +162,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
     </div>
   );
 }
