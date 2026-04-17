@@ -25,6 +25,8 @@ export function formatUnit(unit: Product['unit']): string {
       return 'unidad';
     case 'visita':
       return 'visita';
+    case 'servicio':
+      return 'servicio';
     default:
       return 'm²';
   }
