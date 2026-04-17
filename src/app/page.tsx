@@ -109,7 +109,7 @@ export default function HomePage() {
       </section>
 
       {/* BLOQUE MIXTO */}
-      <section className="pb-10">
+      <section className="pb-12">
         <div className="container mx-auto px-4">
           <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
             <div className="relative w-full h-[300px] md:h-[400px] lg:h-[500px] rounded-xl overflow-hidden">
@@ -126,20 +126,6 @@ export default function HomePage() {
                 <ProductCard key={p.id} product={p} />
               ))}
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* BANNER HORIZONTAL */}
-      <section className="pb-10">
-        <div className="container mx-auto px-4">
-          <div className="relative w-full h-[220px] md:h-[300px] lg:h-[400px] rounded-xl overflow-hidden">
-            <Image
-              src="/banners/wide-banner-desktop.jpg"
-              alt="Banner horizontal"
-              fill
-              className="object-cover"
-            />
           </div>
         </div>
       </section>
