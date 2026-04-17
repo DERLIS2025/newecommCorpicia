@@ -61,10 +61,9 @@ export default function HomePage() {
                 />
               </div>
 
-              {/* 🔥 Banner inferior YA ACTIVADO */}
-<div className="relative w-full h-[145px] md:h-[190px] lg:h-[240px] rounded-xl overflow-hidden">
+              <div className="relative w-full h-[145px] md:h-[190px] lg:h-[240px] rounded-xl overflow-hidden">
   <Image
-    src="/banners/hero-side-2.svg"
+    src="/banners/hero-side-2.jpg"
     alt="Banner secundario inferior"
     fill
     className="object-cover"
