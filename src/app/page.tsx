@@ -31,12 +31,10 @@ const benefits = [
 export default function HomePage() {
   return (
     <div className="bg-white">
-      
       {/* HERO */}
       <section className="border-b">
         <div className="container mx-auto px-4 py-6">
           <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-            
             {/* Banner principal */}
             <div className="relative w-full h-[300px] md:h-[400px] lg:h-[500px] rounded-xl overflow-hidden">
               <Image
@@ -50,7 +48,6 @@ export default function HomePage() {
 
             {/* Banners derecha */}
             <div className="grid gap-4">
-              
               {/* Banner superior */}
               <div className="relative w-full h-[145px] md:h-[190px] lg:h-[240px] rounded-xl overflow-hidden">
                 <Image
@@ -64,13 +61,12 @@ export default function HomePage() {
               {/* Banner inferior */}
               <div className="relative w-full h-[145px] md:h-[190px] lg:h-[240px] rounded-xl overflow-hidden">
                 <Image
-                  src="/banners/hero-side-2.webp"
+                  src="/banners/hero-side-2.jpg"
                   alt="Banner secundario inferior"
                   fill
                   className="object-cover"
                 />
               </div>
-
             </div>
           </div>
         </div>
@@ -116,7 +112,6 @@ export default function HomePage() {
       <section className="pb-10">
         <div className="container mx-auto px-4">
           <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-            
             <div className="relative w-full h-[300px] md:h-[400px] lg:h-[500px] rounded-xl overflow-hidden">
               <Image
                 src="/banners/mixed-banner-desktop.jpg"
@@ -131,7 +126,6 @@ export default function HomePage() {
                 <ProductCard key={p.id} product={p} />
               ))}
             </div>
-
           </div>
         </div>
       </section>
@@ -162,7 +156,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
     </div>
   );
 }
