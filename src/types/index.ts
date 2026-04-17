@@ -5,7 +5,7 @@ export interface Product {
   description: string;
   shortDescription?: string;
   pricePerM2: number;
-  unit: 'm2' | 'docena' | 'unidad' | 'visita';
+  unit: 'm2' | 'docena' | 'unidad' | 'visita' | 'servicio';
   minQuantity: number;
   images: string[];
   category: string;

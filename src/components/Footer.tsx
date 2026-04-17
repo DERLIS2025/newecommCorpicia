@@ -6,6 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 export function Footer() {
+  const handleSubscribeClick = () => {
+    console.log('Newsletter pendiente de integración backend.');
+  };
+
   return (
     <footer className="bg-[#0f1f12] text-white mt-8">
       <div className="border-b border-white/10">
@@ -23,7 +27,11 @@ export function Footer() {
                 placeholder="Tu correo electrónico"
                 className="bg-white text-gray-900 border-0 h-12"
               />
-              <Button className="h-12 px-5 bg-corpicia-green hover:bg-corpicia-green-dark whitespace-nowrap">
+              <Button
+                type="button"
+                onClick={handleSubscribeClick}
+                className="h-12 px-5 bg-corpicia-green hover:bg-corpicia-green-dark whitespace-nowrap"
+              >
                 Suscribirme
               </Button>
             </div>

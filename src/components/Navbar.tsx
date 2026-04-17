@@ -9,6 +9,8 @@ import { getWhatsAppUrl } from '@/lib/utils';
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [desktopQuery, setDesktopQuery] = useState('');
+  const [mobileQuery, setMobileQuery] = useState('');
   const itemCount = useBudgetStore((state) => state.getItemCount());
 
   const navLinks = [
@@ -51,14 +53,17 @@ export function Navbar() {
           </Link>
 
           <div className="hidden md:flex flex-1 max-w-xl mx-2 lg:mx-6">
-            <div className="relative w-full">
+            <form action="/productos/" method="get" className="relative w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
+                name="q"
                 placeholder="Buscar productos..."
+                value={desktopQuery}
+                onChange={(event) => setDesktopQuery(event.target.value)}
                 className="w-full h-11 pl-10 pr-4 rounded-full border border-gray-200 bg-white focus:outline-none focus:border-corpicia-green focus:ring-2 focus:ring-corpicia-green/20"
               />
-            </div>
+            </form>
           </div>
 
           <nav className="hidden lg:flex items-center gap-5">
@@ -105,12 +110,17 @@ export function Navbar() {
         <div className="lg:hidden border-t border-gray-100 bg-white">
           <div className="container mx-auto px-4 py-4">
             <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Buscar productos..."
-                className="w-full h-11 pl-10 pr-4 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-corpicia-green/20 focus:border-corpicia-green"
-              />
+              <form action="/productos/" method="get" className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  name="q"
+                  placeholder="Buscar productos..."
+                  value={mobileQuery}
+                  onChange={(event) => setMobileQuery(event.target.value)}
+                  className="w-full h-11 pl-10 pr-4 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-corpicia-green/20 focus:border-corpicia-green"
+                />
+              </form>
             </div>
 
             <nav className="flex flex-col gap-1">
