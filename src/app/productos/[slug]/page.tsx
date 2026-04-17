@@ -84,19 +84,21 @@ export default function ProductPage({ params }: ProductPageProps) {
               </div>
 
               <div className="mt-8 flex flex-wrap gap-3">
-                <Button asChild>
-                  <Link href="/presupuesto/">Agregar al presupuesto</Link>
-                </Button>
+                <Link href="/presupuesto/">
+                  <Button>
+                    Agregar al presupuesto
+                  </Button>
+                </Link>
 
-                <Button variant="outline" asChild>
-                  <a
-                    href="https://wa.me/595992588770"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
+                <a
+                  href="https://wa.me/595992588770"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button variant="outline">
                     Consultar por WhatsApp
-                  </a>
-                </Button>
+                  </Button>
+                </a>
               </div>
 
               {product.features?.length > 0 && (
