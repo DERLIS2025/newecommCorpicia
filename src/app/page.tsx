@@ -28,6 +28,8 @@ const benefits = [
   { icon: Shield, title: 'Compra Segura', description: 'Transparencia total.' },
 ];
 
+const whatsappHref = 'https://wa.me/595992588770';
+
 export default function HomePage() {
   return (
     <div className="bg-white">
@@ -36,37 +38,64 @@ export default function HomePage() {
         <div className="container mx-auto px-4 py-6">
           <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
             {/* Banner principal */}
-            <div className="relative w-full h-[300px] md:h-[400px] lg:h-[500px] rounded-xl overflow-hidden">
-              <Image
-                src="/banners/hero-main-desktop.webp"
-                alt="Banner principal"
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
+            <a
+              href={whatsappHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Ir a WhatsApp desde banner principal"
+              className="block"
+            >
+              <div className="relative w-full h-[220px] sm:h-[280px] md:h-[360px] lg:h-[500px] rounded-xl overflow-hidden bg-[#f5fbf6]">
+                <Image
+                  src="/banners/hero-main-desktop.webp"
+                  alt="Banner principal"
+                  fill
+                  className="object-contain"
+                  priority
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 66vw"
+                />
+              </div>
+            </a>
 
             {/* Banners derecha */}
             <div className="grid gap-4">
               {/* Banner superior */}
-              <div className="relative w-full h-[145px] md:h-[190px] lg:h-[240px] rounded-xl overflow-hidden">
-                <Image
-                  src="/banners/hero-side-1.webp"
-                  alt="Banner secundario superior"
-                  fill
-                  className="object-cover"
-                />
-              </div>
+              <a
+                href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Ir a WhatsApp desde banner secundario superior"
+                className="block"
+              >
+                <div className="relative w-full h-[160px] sm:h-[180px] md:h-[200px] lg:h-[240px] rounded-xl overflow-hidden bg-[#f5fbf6]">
+                  <Image
+                    src="/banners/hero-side-1.webp"
+                    alt="Banner secundario superior"
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 1024px) 100vw, 33vw"
+                  />
+                </div>
+              </a>
 
               {/* Banner inferior */}
-              <div className="relative w-full h-[145px] md:h-[190px] lg:h-[240px] rounded-xl overflow-hidden">
-                <Image
-                  src="/banners/hero-side-2.jpg"
-                  alt="Banner secundario inferior"
-                  fill
-                  className="object-cover"
-                />
-              </div>
+              <a
+                href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Ir a WhatsApp desde banner secundario inferior"
+                className="block"
+              >
+                <div className="relative w-full h-[160px] sm:h-[180px] md:h-[200px] lg:h-[240px] rounded-xl overflow-hidden bg-[#f5fbf6]">
+                  <Image
+                    src="/banners/hero-side-2.jpg"
+                    alt="Banner secundario inferior"
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 1024px) 100vw, 33vw"
+                  />
+                </div>
+              </a>
             </div>
           </div>
         </div>
@@ -112,14 +141,23 @@ export default function HomePage() {
       <section className="pb-12">
         <div className="container mx-auto px-4">
           <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-            <div className="relative w-full h-[300px] md:h-[400px] lg:h-[500px] rounded-xl overflow-hidden">
-              <Image
-                src="/banners/mixed-banner-desktop.jpg"
-                alt="Banner mixto"
-                fill
-                className="object-cover"
-              />
-            </div>
+            <a
+              href={whatsappHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Ir a WhatsApp desde banner mixto"
+              className="block"
+            >
+              <div className="relative w-full h-[220px] sm:h-[280px] md:h-[360px] lg:h-[500px] rounded-xl overflow-hidden bg-[#f5fbf6]">
+                <Image
+                  src="/banners/mixed-banner-desktop.jpg"
+                  alt="Banner mixto"
+                  fill
+                  className="object-contain"
+                  sizes="(max-width: 1024px) 100vw, 66vw"
+                />
+              </div>
+            </a>
 
             <div className="grid gap-4">
               {mixedProducts.map((p) => (
