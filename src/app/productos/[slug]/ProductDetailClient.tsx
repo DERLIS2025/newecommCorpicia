@@ -224,7 +224,7 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
                             setQuantity(Number(event.target.value) || product.minQuantity)
                           }
                           className="h-10 w-full rounded-lg border border-gray-200 px-3 focus:border-corpicia-green focus:outline-none focus:ring-2 focus:ring-corpicia-green/20"
-                          aria-label={product.unit === 'm2' ? 'Metros cuadrados' : 'Cantidad'}
+                          aria-label={`Cantidad en ${formatUnit(product.unit)}`}
                         />
                       )}
                     </div>
