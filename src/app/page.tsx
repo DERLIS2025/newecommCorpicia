@@ -14,13 +14,31 @@ export const metadata: Metadata = {
   },
 };
 
-const featuredProducts = productsCatalog
-  .filter((product) => product.isFeatured)
-  .slice(0, 4);
+// ORDEN MANUAL DEL HOME
+const featuredProducts = [
+  productsCatalog.find((p) => p.slug === 'cesped-esmeralda'),
+  productsCatalog.find((p) => p.slug === 'cesped-siempre-verde'),
+  productsCatalog.find((p) => p.slug === 'cesped-kavaju'),
+  productsCatalog.find((p) => p.slug === 'cesped-mani-docena'),
+].filter(Boolean);
 
-const secondaryProducts = productsCatalog.slice(4, 8);
-const mixedProducts = productsCatalog.slice(8, 10);
-const underBannerProducts = productsCatalog.slice(10, 12);
+const mixedProducts = [
+  productsCatalog.find((p) => p.slug === 'mini-rotor-rain-bird-3500'),
+  productsCatalog.find((p) => p.slug === 'difusor-riego'),
+].filter(Boolean);
+
+const underBannerProducts = [
+  productsCatalog.find((p) => p.slug === 'valvula-riego-rain-bird'),
+  productsCatalog.find((p) => p.slug === 'aspersor-rain-bird-5004'),
+].filter(Boolean);
+
+const secondaryProducts = [
+  productsCatalog.find((p) => p.slug === 'piso-ecologico-40x60'),
+  productsCatalog.find((p) => p.slug === 'separador-cesped-caminos'),
+  productsCatalog.find((p) => p.slug === 'pisos-imitacion-madera'),
+  productsCatalog.find((p) => p.slug === 'granza-blanca-fina-decorativa'),
+  productsCatalog.find((p) => p.slug === 'canto-rodado'),
+].filter(Boolean);
 
 const benefits = [
   { icon: Leaf, title: 'Calidad Premium', description: 'Productos duraderos.' },
@@ -128,7 +146,7 @@ export default function HomePage() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {featuredProducts.map((p) => (
-              <ProductCard key={p.id} product={p} />
+              <ProductCard key={p!.id} product={p!} />
             ))}
           </div>
         </div>
@@ -158,32 +176,37 @@ export default function HomePage() {
                 </div>
               </a>
 
-              {/* NUEVOS 2 PRODUCTOS DEBAJO DEL BANNER */}
-              <div className="grid grid-cols-2 gap-4">
-                {underBannerProducts.map((p) => (
-                  <ProductCard key={p.id} product={p} />
-                ))}
+              <div>
+                <div className="mt-2 mb-4">
+                  <h3 className="text-xl font-semibold text-gray-900">Más riego automático</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  {underBannerProducts.map((p) => (
+                    <ProductCard key={p!.id} product={p!} />
+                  ))}
+                </div>
               </div>
             </div>
 
             {/* COLUMNA DERECHA */}
             <div className="grid gap-4">
+              <h2 className="text-2xl font-bold text-gray-900">Riego Automático</h2>
               {mixedProducts.map((p) => (
-                <ProductCard key={p.id} product={p} />
+                <ProductCard key={p!.id} product={p!} />
               ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* MÁS PRODUCTOS */}
+      {/* PAISAJISMO */}
       <section className="pb-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold mb-6">Más productos</h2>
+          <h2 className="text-2xl font-bold mb-6">Paisajismo</h2>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {secondaryProducts.map((p) => (
-              <ProductCard key={p.id} product={p} />
+              <ProductCard key={p!.id} product={p!} />
             ))}
           </div>
         </div>
