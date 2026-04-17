@@ -1,87 +1,141 @@
-import Image from 'next/image';
 import type { Metadata } from 'next';
-import { Card, CardContent } from '@/components/ui/card';
-import { ProductCard } from '@/components/ProductCard';
-import { Leaf, Truck, Phone, Shield } from 'lucide-react';
-import { productsCatalog } from './productos/[slug]/productsData';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { productsData, productsCatalog } from './productsData';
 
-export const metadata: Metadata = {
-  title: 'Césped natural y jardinería en Paraguay | Corpicia',
-  description:
-    'Comprá césped en Paraguay, accesorios de riego y soluciones de jardinería.',
-  alternates: {
-    canonical: '/',
-  },
+type ProductPageProps = {
+  params: {
+    slug: string;
+  };
 };
 
-// 🔥 FILTRO: OCULTAR SERVICIOS DEL HOME
-const homeProducts = productsCatalog.filter(
-  (product) => product.category !== 'servicios'
-);
+export async function generateStaticParams() {
+  return productsCatalog.map((product) => ({
+    slug: product.slug,
+  }));
+}
 
-// 🔥 ORDEN VISUAL DEL HOME
-const featuredProducts = homeProducts.slice(0, 4);
-const mixedProducts = homeProducts.slice(4, 6);
-const underBannerProducts = homeProducts.slice(6, 8);
-const secondaryProducts = homeProducts.slice(8, 12);
+export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+  const product = productsData[params.slug];
 
-const benefits = [
-  { icon: Leaf, title: 'Calidad Premium', description: 'Productos duraderos.' },
-  { icon: Truck, title: 'Cobertura Nacional', description: 'Envíos en Paraguay.' },
-  { icon: Phone, title: 'Asesoría Experta', description: 'Acompañamiento total.' },
-  { icon: Shield, title: 'Compra Segura', description: 'Transparencia total.' },
-];
+  if (!product) {
+    return {
+      title: 'Producto no encontrado | Corpicia',
+      description: 'El producto solicitado no existe.',
+    };
+  }
 
-const whatsappHref = 'https://wa.me/595992588770';
+  return {
+    title: `${product.name} | Corpicia`,
+    description: product.shortDescription || product.description,
+    alternates: {
+      canonical: `/productos/${product.slug}/`,
+    },
+  };
+}
 
-export default function HomePage() {
+export default function ProductPage({ params }: ProductPageProps) {
+  const product = productsData[params.slug];
+
+  if (!product) {
+    notFound();
+  }
+
   return (
-    <div className="bg-white">
+    <main className="min-h-screen bg-white">
+      <section className="border-b bg-[#f8faf8]">
+        <div className="container mx-auto px-4 py-10">
+          <Link
+            href="/productos/"
+            className="text-sm text-corpicia-green font-medium"
+          >
+            ← Volver a productos
+          </Link>
 
-      {/* HERO */}
-      <section className="border-b">
-        <div className="container mx-auto px-4 py-6">
-          <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
+          <div className="mt-6 grid gap-8 lg:grid-cols-[1.1fr_1fr]">
+            <div className="rounded-2xl border bg-gray-50 min-h-[320px] flex items-center justify-center">
+              <span className="text-gray-400">Imagen del producto</span>
+            </div>
 
-            {/* Banner principal */}
-            <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="block">
-              <div className="relative w-full h-[220px] sm:h-[280px] md:h-[360px] lg:h-[500px] rounded-xl overflow-hidden bg-[#f5fbf6]">
-                <Image
-                  src="/banners/hero-main-desktop.webp"
-                  alt="Banner principal"
-                  fill
-                  className="object-contain"
-                  priority
-                />
+            <div>
+              <p className="text-sm font-medium text-corpicia-green uppercase tracking-wide">
+                {product.category}
+              </p>
+
+              <h1 className="mt-2 text-3xl md:text-4xl font-bold text-gray-900">
+                {product.name}
+              </h1>
+
+              <p className="mt-4 text-gray-600">
+                {product.description}
+              </p>
+
+              <div className="mt-6">
+                <p className="text-3xl font-bold text-corpicia-green">
+                  Gs. {product.pricePerM2.toLocaleString('es-PY')}
+                </p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Unidad: {product.unit}
+                </p>
+                <p className="text-sm text-gray-500">
+                  Mínimo: {product.minQuantity}
+                </p>
               </div>
-            </a>
 
-            {/* Banners laterales */}
-            <div className="grid gap-4">
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Button asChild>
+                  <Link href="/presupuesto/">Agregar al presupuesto</Link>
+                </Button>
 
-              <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
-                <div className="relative w-full h-[160px] md:h-[200px] lg:h-[240px] rounded-xl overflow-hidden bg-[#f5fbf6]">
-                  <Image
-                    src="/banners/hero-side-1.webp"
-                    alt="Banner secundario superior"
-                    fill
-                    className="object-contain"
-                  />
+                <Button variant="outline" asChild>
+                  <a
+                    href="https://wa.me/595992588770"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Consultar por WhatsApp
+                  </a>
+                </Button>
+              </div>
+
+              {product.features?.length > 0 && (
+                <div className="mt-10">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-3">
+                    Características
+                  </h2>
+                  <ul className="list-disc pl-5 space-y-2 text-gray-600">
+                    {product.features.map((feature) => (
+                      <li key={feature}>{feature}</li>
+                    ))}
+                  </ul>
                 </div>
-              </a>
+              )}
 
-              <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
-                <div className="relative w-full h-[160px] md:h-[200px] lg:h-[240px] rounded-xl overflow-hidden bg-[#f5fbf6]">
-                  <Image
-                    src="/banners/hero-side-2.jpg"
-                    alt="Banner secundario inferior"
-                    fill
-                    className="object-contain"
-                  />
+              {product.specifications && Object.keys(product.specifications).length > 0 && (
+                <div className="mt-10">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-3">
+                    Especificaciones
+                  </h2>
+                  <div className="rounded-xl border overflow-hidden">
+                    {Object.entries(product.specifications).map(([key, value]) => (
+                      <div
+                        key={key}
+                        className="grid grid-cols-2 border-b last:border-b-0"
+                      >
+                        <div className="bg-gray-50 px-4 py-3 font-medium text-gray-700">
+                          {key}
+                        </div>
+                        <div className="px-4 py-3 text-gray-600">{value}</div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </a>
-
+              )}
             </div>
           </div>
         </div>
-      </
+      </section>
+    </main>
+  );
+}
