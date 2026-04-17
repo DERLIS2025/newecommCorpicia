@@ -20,6 +20,7 @@ const featuredProducts = productsCatalog
 
 const secondaryProducts = productsCatalog.slice(4, 8);
 const mixedProducts = productsCatalog.slice(8, 10);
+const underBannerProducts = productsCatalog.slice(10, 12);
 
 const benefits = [
   { icon: Leaf, title: 'Calidad Premium', description: 'Productos duraderos.' },
@@ -37,7 +38,6 @@ export default function HomePage() {
       <section className="border-b">
         <div className="container mx-auto px-4 py-6">
           <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-            {/* Banner principal */}
             <a
               href={whatsappHref}
               target="_blank"
@@ -57,9 +57,7 @@ export default function HomePage() {
               </div>
             </a>
 
-            {/* Banners derecha */}
             <div className="grid gap-4">
-              {/* Banner superior */}
               <a
                 href={whatsappHref}
                 target="_blank"
@@ -78,7 +76,6 @@ export default function HomePage() {
                 </div>
               </a>
 
-              {/* Banner inferior */}
               <a
                 href={whatsappHref}
                 target="_blank"
@@ -137,28 +134,39 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* BLOQUE MIXTO */}
+      {/* BLOQUE MIXTO REDISEÑADO */}
       <section className="pb-12">
         <div className="container mx-auto px-4">
           <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-            <a
-              href={whatsappHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Ir a WhatsApp desde banner mixto"
-              className="block"
-            >
-              <div className="relative w-full h-[220px] sm:h-[280px] md:h-[360px] lg:h-[500px] rounded-xl overflow-hidden bg-[#f5fbf6]">
-                <Image
-                  src="/banners/mixed-banner-desktop.jpg"
-                  alt="Banner mixto"
-                  fill
-                  className="object-contain"
-                  sizes="(max-width: 1024px) 100vw, 66vw"
-                />
-              </div>
-            </a>
+            {/* COLUMNA IZQUIERDA */}
+            <div className="grid gap-4">
+              <a
+                href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Ir a WhatsApp desde banner mixto"
+                className="block"
+              >
+                <div className="relative w-full h-[220px] sm:h-[280px] md:h-[360px] lg:h-[500px] rounded-xl overflow-hidden bg-[#f5fbf6]">
+                  <Image
+                    src="/banners/mixed-banner-desktop.jpg"
+                    alt="Banner mixto"
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 1024px) 100vw, 66vw"
+                  />
+                </div>
+              </a>
 
+              {/* NUEVOS 2 PRODUCTOS DEBAJO DEL BANNER */}
+              <div className="grid grid-cols-2 gap-4">
+                {underBannerProducts.map((p) => (
+                  <ProductCard key={p.id} product={p} />
+                ))}
+              </div>
+            </div>
+
+            {/* COLUMNA DERECHA */}
             <div className="grid gap-4">
               {mixedProducts.map((p) => (
                 <ProductCard key={p.id} product={p} />
