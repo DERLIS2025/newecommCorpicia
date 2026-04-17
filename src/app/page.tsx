@@ -58,38 +58,40 @@ export default function HomePage() {
         <div className="container mx-auto px-4 py-4 sm:py-6">
           <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
 
+            {/* HERO PRINCIPAL */}
             <a href={whatsappHref} target="_blank" className="block">
-              <div className="relative w-full h-[200px] sm:h-[260px] md:h-[360px] lg:h-[500px] rounded-xl overflow-hidden">
+              <div className="relative w-full aspect-[16/9] lg:h-[500px] rounded-xl overflow-hidden bg-[#f5fbf6]">
                 <Image
                   src="/banners/hero-main-desktop.webp"
                   alt="Banner principal"
                   fill
-                  className="object-cover"
+                  className="object-contain"
                   priority
                 />
               </div>
             </a>
 
+            {/* BANNERS LATERALES */}
             <div className="grid gap-4">
 
               <a href={whatsappHref} target="_blank">
-                <div className="relative w-full h-[140px] sm:h-[180px] md:h-[200px] lg:h-[240px] rounded-xl overflow-hidden">
+                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-[#f5fbf6]">
                   <Image
                     src="/banners/hero-side-1.webp"
                     alt=""
                     fill
-                    className="object-cover"
+                    className="object-contain"
                   />
                 </div>
               </a>
 
               <a href={whatsappHref} target="_blank">
-                <div className="relative w-full h-[140px] sm:h-[180px] md:h-[200px] lg:h-[240px] rounded-xl overflow-hidden">
+                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-[#f5fbf6]">
                   <Image
                     src="/banners/hero-side-2.jpg"
                     alt=""
                     fill
-                    className="object-cover"
+                    className="object-contain"
                   />
                 </div>
               </a>
@@ -139,12 +141,12 @@ export default function HomePage() {
 
             <div className="grid gap-4">
               <a href={whatsappHref} target="_blank">
-                <div className="relative w-full h-[200px] sm:h-[260px] md:h-[360px] lg:h-[500px] rounded-xl overflow-hidden">
+                <div className="relative w-full aspect-[16/9] lg:h-[500px] rounded-xl overflow-hidden bg-[#f5fbf6]">
                   <Image
                     src="/banners/mixed-banner-desktop.jpg"
                     alt=""
                     fill
-                    className="object-cover"
+                    className="object-contain"
                   />
                 </div>
               </a>
