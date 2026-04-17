@@ -44,6 +44,7 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
 
   const [quantity, setQuantity] = useState(product.minQuantity);
   const [showPriceTiers, setShowPriceTiers] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   useEffect(() => {
     trackProductView(product.name, product.slug);
@@ -104,6 +105,8 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
   const productImages =
     product.images && product.images.length > 0 ? product.images : ['/productos/default.jpg'];
 
+  const selectedImage = productImages[selectedImageIndex] || productImages[0];
+
   return (
     <div className="min-h-screen bg-[#f7faf7]">
       <div className="sticky top-0 z-30 border-b border-gray-200 bg-white/95 backdrop-blur-sm">
@@ -124,9 +127,9 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
             <Card className="overflow-hidden rounded-2xl border border-gray-200 shadow-sm">
               <CardContent className="p-0">
                 <div className="relative aspect-square bg-gradient-to-br from-[#edf8ef] to-white">
-                  {product.images && product.images.length > 0 ? (
+                  {selectedImage ? (
                     <Image
-                      src={productImages[0]}
+                      src={selectedImage}
                       alt={product.name}
                       fill
                       className="object-cover"
@@ -152,10 +155,15 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
                 <button
                   key={`${img}-${i}`}
                   type="button"
-                  className="aspect-square overflow-hidden rounded-xl border border-gray-200 bg-white transition-all hover:border-corpicia-green/30 hover:shadow-sm"
+                  onClick={() => setSelectedImageIndex(i)}
+                  className={`aspect-square overflow-hidden rounded-xl border bg-white transition-all hover:border-corpicia-green/30 hover:shadow-sm ${
+                    selectedImageIndex === i
+                      ? 'border-corpicia-green ring-2 ring-corpicia-green/20'
+                      : 'border-gray-200'
+                  }`}
                 >
                   <div className="relative h-full w-full">
-                    {product.images && product.images.length > 0 ? (
+                    {img ? (
                       <Image
                         src={img}
                         alt={`${product.name} ${i + 1}`}
