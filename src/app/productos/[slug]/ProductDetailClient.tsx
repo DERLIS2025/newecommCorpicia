@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -48,6 +49,11 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
 
   const estimatedPrice = product.pricePerM2 * quantity;
 
+  const productImages =
+    product.images && product.images.length > 0
+      ? product.images
+      : ['/productos/default.jpg'];
+
   return (
     <div className="min-h-screen bg-[#f7faf7]">
       <div className="sticky top-0 z-30 border-b border-gray-200 bg-white/95 backdrop-blur-sm">
@@ -67,25 +73,51 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
           <div className="space-y-4 lg:sticky lg:top-24">
             <Card className="overflow-hidden rounded-2xl border border-gray-200 shadow-sm">
               <CardContent className="p-0">
-                <div className="flex aspect-square items-center justify-center bg-gradient-to-br from-[#edf8ef] to-white">
-                  <div className="px-6 text-center">
-                    <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-corpicia-green/10">
-                      <Leaf className="h-12 w-12 text-corpicia-green" />
+                <div className="relative aspect-square bg-gradient-to-br from-[#edf8ef] to-white">
+                  {product.images && product.images.length > 0 ? (
+                    <Image
+                      src={productImages[0]}
+                      alt={product.name}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      priority
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center">
+                      <div className="px-6 text-center">
+                        <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-corpicia-green/10">
+                          <Leaf className="h-12 w-12 text-corpicia-green" />
+                        </div>
+                        <p className="text-gray-500">Imagen del producto</p>
+                      </div>
                     </div>
-                    <p className="text-gray-500">Imagen del producto</p>
-                  </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
 
             <div className="grid grid-cols-4 gap-2">
-              {[1, 2, 3, 4].map((i) => (
+              {productImages.slice(0, 4).map((img, i) => (
                 <button
-                  key={i}
-                  className="aspect-square rounded-xl border border-gray-200 bg-white transition-all hover:border-corpicia-green/30 hover:shadow-sm"
+                  key={`${img}-${i}`}
+                  type="button"
+                  className="aspect-square overflow-hidden rounded-xl border border-gray-200 bg-white transition-all hover:border-corpicia-green/30 hover:shadow-sm"
                 >
-                  <div className="flex h-full w-full items-center justify-center">
-                    <Leaf className="h-5 w-5 text-gray-300" />
+                  <div className="relative h-full w-full">
+                    {product.images && product.images.length > 0 ? (
+                      <Image
+                        src={img}
+                        alt={`${product.name} ${i + 1}`}
+                        fill
+                        className="object-cover"
+                        sizes="120px"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center">
+                        <Leaf className="h-5 w-5 text-gray-300" />
+                      </div>
+                    )}
                   </div>
                 </button>
               ))}
@@ -234,11 +266,23 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
                 className="rounded-2xl border border-gray-200 shadow-sm transition-shadow hover:shadow-md"
               >
                 <CardContent className="space-y-3 p-4">
-                  <div className="flex aspect-square items-center justify-center rounded-xl bg-gray-100 text-gray-300">
-                    <Leaf className="h-8 w-8" />
+                  <div className="relative aspect-square overflow-hidden rounded-xl bg-gray-100 text-gray-300">
+                    {item.images && item.images.length > 0 ? (
+                      <Image
+                        src={item.images[0]}
+                        alt={item.name}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 640px) 50vw, 25vw"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center">
+                        <Leaf className="h-8 w-8" />
+                      </div>
+                    )}
                   </div>
                   <div>
-                    <p className="leading-snug text-gray-900 font-semibold">{item.name}</p>
+                    <p className="font-semibold leading-snug text-gray-900">{item.name}</p>
                     <p className="mt-1 font-bold text-corpicia-green">
                       {formatPrice(item.pricePerM2)}
                     </p>
