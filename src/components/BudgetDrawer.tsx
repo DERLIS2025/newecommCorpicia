@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useBudgetStore } from '@/store/budgetStore';
-import { formatPrice, generateWhatsAppMessage } from '@/lib/utils';
+import { formatPrice, formatUnit, generateWhatsAppMessage } from '@/lib/utils';
 import { Minus, Plus, Trash2, ShoppingCart, X, MessageCircle } from 'lucide-react';
 
 export function BudgetDrawer() {
@@ -16,6 +16,7 @@ export function BudgetDrawer() {
       name: item.product.name,
       quantity: item.quantity,
       total: item.total,
+      unit: item.product.unit,
     }));
     const url = generateWhatsAppMessage(messageItems, getTotal());
     window.open(url, '_blank');
@@ -89,7 +90,7 @@ export function BudgetDrawer() {
                       {item.product.name}
                     </h4>
                     <p className="text-sm text-gray-500 mt-1">
-                      {formatPrice(item.product.pricePerM2)} / m²
+                      {formatPrice(item.product.pricePerM2)} / {formatUnit(item.product.unit)}
                     </p>
 
                     {/* Quantity Controls */}
@@ -102,7 +103,7 @@ export function BudgetDrawer() {
                           <Minus className="w-4 h-4" />
                         </button>
                         <span className="w-12 text-center font-medium">
-                          {item.quantity} m²
+                          {item.quantity} {formatUnit(item.product.unit)}
                         </span>
                         <button
                           onClick={() => updateQuantity(item.product.id, item.quantity + 1)}

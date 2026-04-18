@@ -3,6 +3,7 @@ import type { Product } from '@/types';
 export type ProductDetail = Product & {
   features: string[];
   specifications: Record<string, string>;
+  relatedSlugs?: string[];
 };
 
 export const productsCatalog: ProductDetail[] = [
@@ -13,7 +14,13 @@ export const productsCatalog: ProductDetail[] = [
     description: 'Césped de alta densidad y color intenso, ideal para jardines residenciales en Paraguay y zonas de alto tránsito moderado.',
     shortDescription: 'Césped natural premium para jardines en Paraguay',
     pricePerM2: 32000,
+    unit: 'm2',
     minQuantity: 10,
+    priceTiers: [
+      { min: 10, max: 24, price: 36000, label: '10 a 24 m²' },
+      { min: 25, max: 49, price: 34000, label: '25 a 49 m²' },
+      { min: 50, max: null, price: 32000, label: '50+ m²', isPromo: true },
+    ],
     images: [],
     category: 'cesped-natural',
     isActive: true,
@@ -21,6 +28,7 @@ export const productsCatalog: ProductDetail[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     features: ['Color verde uniforme', 'Recuperación rápida', 'Ideal para Asunción y Gran Asunción', 'Bajo mantenimiento'],
+    relatedSlugs: ['cesped-siempre-verde', 'cesped-kavaju', 'servicio-mantenimiento-jardin', 'mini-rotor-rain-bird-3500'],
     specifications: {
       Tipo: 'Césped natural',
       Presentación: 'm²',
@@ -35,7 +43,13 @@ export const productsCatalog: ProductDetail[] = [
     description: 'Variedad versátil con excelente adaptación al clima cálido, recomendada para cobertura uniforme durante todo el año.',
     shortDescription: 'Cobertura verde constante para jardines familiares',
     pricePerM2: 30000,
+    unit: 'm2',
     minQuantity: 10,
+    priceTiers: [
+      { min: 10, max: 24, price: 34000, label: '10 a 24 m²' },
+      { min: 25, max: 49, price: 32000, label: '25 a 49 m²' },
+      { min: 50, max: null, price: 30000, label: '50+ m²', isPromo: true },
+    ],
     images: [],
     category: 'cesped-natural',
     isActive: true,
@@ -43,6 +57,7 @@ export const productsCatalog: ProductDetail[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     features: ['Alta adaptabilidad', 'Textura agradable', 'Crecimiento uniforme', 'Buena tolerancia al sol'],
+    relatedSlugs: ['cesped-esmeralda', 'cesped-kavaju', 'servicio-mantenimiento-jardin', 'difusor-riego'],
     specifications: {
       Tipo: 'Césped natural',
       Presentación: 'm²',
@@ -57,7 +72,13 @@ export const productsCatalog: ProductDetail[] = [
     description: 'Alternativa de césped rústico de rápida implantación, pensado para áreas extensas y proyectos de alto uso.',
     shortDescription: 'Césped rústico de gran cobertura',
     pricePerM2: 28000,
+    unit: 'm2',
     minQuantity: 15,
+    priceTiers: [
+      { min: 15, max: 29, price: 32000, label: '15 a 29 m²' },
+      { min: 30, max: 59, price: 30000, label: '30 a 59 m²' },
+      { min: 60, max: null, price: 28000, label: '60+ m²', isPromo: true },
+    ],
     images: [],
     category: 'cesped-natural',
     isActive: true,
@@ -65,6 +86,7 @@ export const productsCatalog: ProductDetail[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     features: ['Rápida implantación', 'Cobertura amplia', 'Buena resistencia', 'Mantenimiento simple'],
+    relatedSlugs: ['cesped-esmeralda', 'cesped-siempre-verde', 'servicio-mantenimiento-jardin', 'aspersor-rain-bird-5004'],
     specifications: {
       Tipo: 'Césped natural',
       Presentación: 'm²',
@@ -79,6 +101,7 @@ export const productsCatalog: ProductDetail[] = [
     description: 'Planta tapizante ornamental ideal para cubrir espacios decorativos y bordes verdes de bajo porte.',
     shortDescription: 'Tapizante ornamental por docena',
     pricePerM2: 18000,
+    unit: 'docena',
     minQuantity: 1,
     images: [],
     category: 'ornamentales',
@@ -87,6 +110,7 @@ export const productsCatalog: ProductDetail[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     features: ['Formato por docena', 'Cobertura decorativa', 'Bajo porte', 'Ideal para canteros'],
+    relatedSlugs: ['granza-blanca-fina-decorativa', 'canto-rodado', 'separador-cesped-caminos'],
     specifications: {
       Tipo: 'Planta tapizante',
       Presentación: 'Docena',
@@ -101,6 +125,7 @@ export const productsCatalog: ProductDetail[] = [
     description: 'Piedra decorativa blanca para diseño de jardines modernos, senderos y terminaciones de paisajismo.',
     shortDescription: 'Terminación decorativa premium',
     pricePerM2: 45000,
+    unit: 'm2',
     minQuantity: 2,
     images: [],
     category: 'decorativos',
@@ -109,6 +134,7 @@ export const productsCatalog: ProductDetail[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     features: ['Color blanco fino', 'Acabado elegante', 'Bajo mantenimiento', 'Ideal para contraste'],
+    relatedSlugs: ['canto-rodado', 'separador-cesped-caminos', 'piso-ecologico-40x60'],
     specifications: {
       Tipo: 'Piedra decorativa',
       Presentación: 'Bolsa/por m²',
@@ -123,6 +149,7 @@ export const productsCatalog: ProductDetail[] = [
     description: 'Piedra redondeada para drenajes, decoración de jardines y terminaciones en zonas de alto tránsito.',
     shortDescription: 'Piedra versátil para jardín y paisajismo',
     pricePerM2: 42000,
+    unit: 'm2',
     minQuantity: 2,
     images: [],
     category: 'decorativos',
@@ -131,6 +158,7 @@ export const productsCatalog: ProductDetail[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     features: ['Buena drenabilidad', 'Aspecto natural', 'Alta durabilidad', 'Uso múltiple'],
+    relatedSlugs: ['granza-blanca-fina-decorativa', 'piso-ecologico-40x60', 'separador-cesped-caminos'],
     specifications: {
       Tipo: 'Piedra decorativa',
       Presentación: 'Bolsa/por m²',
@@ -145,6 +173,7 @@ export const productsCatalog: ProductDetail[] = [
     description: 'Perfil separador para definir bordes entre césped, canteros y caminos con un acabado profesional.',
     shortDescription: 'Bordes prolijos para jardinería',
     pricePerM2: 25000,
+    unit: 'unidad',
     minQuantity: 2,
     images: [],
     category: 'insumos-jardin',
@@ -153,6 +182,7 @@ export const productsCatalog: ProductDetail[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     features: ['Instalación simple', 'Borde definido', 'Mayor orden visual', 'Apto exterior'],
+    relatedSlugs: ['granza-blanca-fina-decorativa', 'canto-rodado', 'pisos-imitacion-madera'],
     specifications: {
       Tipo: 'Separador',
       Presentación: 'Unidad/metro lineal',
@@ -167,6 +197,7 @@ export const productsCatalog: ProductDetail[] = [
     description: 'Piso drenante para senderos y zonas verdes, con formato 40x60 para proyectos residenciales y comerciales.',
     shortDescription: 'Piso drenante para espacios exteriores',
     pricePerM2: 85000,
+    unit: 'm2',
     minQuantity: 1,
     images: [],
     category: 'pisos-exteriores',
@@ -175,6 +206,7 @@ export const productsCatalog: ProductDetail[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     features: ['Formato 40x60', 'Permite drenaje', 'Alta durabilidad', 'Acabado moderno'],
+    relatedSlugs: ['pisos-imitacion-madera', 'granza-blanca-fina-decorativa', 'separador-cesped-caminos'],
     specifications: {
       Tipo: 'Piso ecológico',
       Formato: '40x60',
@@ -189,6 +221,7 @@ export const productsCatalog: ProductDetail[] = [
     description: 'Solución estética para exteriores con aspecto madera y mayor resistencia a humedad y uso continuo.',
     shortDescription: 'Calidez de madera con resistencia exterior',
     pricePerM2: 97000,
+    unit: 'm2',
     minQuantity: 1,
     images: [],
     category: 'pisos-exteriores',
@@ -197,6 +230,7 @@ export const productsCatalog: ProductDetail[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     features: ['Acabado símil madera', 'Fácil limpieza', 'Apto intemperie', 'Aspecto premium'],
+    relatedSlugs: ['piso-ecologico-40x60', 'granza-blanca-fina-decorativa', 'canto-rodado'],
     specifications: {
       Tipo: 'Piso exterior',
       Acabado: 'Imitación madera',
@@ -211,6 +245,7 @@ export const productsCatalog: ProductDetail[] = [
     description: 'Aspersor de alto rendimiento para sistemas de riego residencial y comercial con cobertura uniforme.',
     shortDescription: 'Riego eficiente con marca líder',
     pricePerM2: 105000,
+    unit: 'unidad',
     minQuantity: 1,
     images: [],
     category: 'riego',
@@ -219,6 +254,7 @@ export const productsCatalog: ProductDetail[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     features: ['Cobertura uniforme', 'Regulación precisa', 'Durabilidad Rain Bird', 'Ideal para césped'],
+    relatedSlugs: ['valvula-riego-rain-bird', 'mini-rotor-rain-bird-3500', 'difusor-riego'],
     specifications: {
       Tipo: 'Aspersor',
       Marca: 'Rain Bird',
@@ -233,6 +269,7 @@ export const productsCatalog: ProductDetail[] = [
     description: 'Válvula para control de sectores de riego con excelente desempeño y confiabilidad.',
     shortDescription: 'Control de riego profesional',
     pricePerM2: 89000,
+    unit: 'unidad',
     minQuantity: 1,
     images: [],
     category: 'riego',
@@ -241,6 +278,7 @@ export const productsCatalog: ProductDetail[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     features: ['Control por sectores', 'Alta confiabilidad', 'Instalación estándar', 'Baja mantención'],
+    relatedSlugs: ['aspersor-rain-bird-5004', 'mini-rotor-rain-bird-3500', 'difusor-riego'],
     specifications: {
       Tipo: 'Válvula',
       Marca: 'Rain Bird',
@@ -255,6 +293,7 @@ export const productsCatalog: ProductDetail[] = [
     description: 'Difusor para cobertura en zonas de jardinería de pequeño y mediano tamaño.',
     shortDescription: 'Cobertura puntual para canteros y césped',
     pricePerM2: 55000,
+    unit: 'unidad',
     minQuantity: 1,
     images: [],
     category: 'riego',
@@ -263,6 +302,7 @@ export const productsCatalog: ProductDetail[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     features: ['Cobertura precisa', 'Fácil ajuste', 'Ideal para jardines', 'Consumo eficiente'],
+    relatedSlugs: ['aspersor-rain-bird-5004', 'valvula-riego-rain-bird', 'mini-rotor-rain-bird-3500'],
     specifications: {
       Tipo: 'Difusor',
       Uso: 'Riego localizado',
@@ -277,6 +317,7 @@ export const productsCatalog: ProductDetail[] = [
     description: 'Mini rotor para cobertura uniforme en jardines medianos, con regulación de alcance y sector.',
     shortDescription: 'Mini rotor para riego técnico',
     pricePerM2: 76000,
+    unit: 'unidad',
     minQuantity: 1,
     images: [],
     category: 'riego',
@@ -285,6 +326,7 @@ export const productsCatalog: ProductDetail[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     features: ['Ajuste de alcance', 'Cobertura uniforme', 'Marca Rain Bird', 'Uso residencial/comercial'],
+    relatedSlugs: ['aspersor-rain-bird-5004', 'valvula-riego-rain-bird', 'difusor-riego'],
     specifications: {
       Tipo: 'Mini rotor',
       Marca: 'Rain Bird',
@@ -299,6 +341,7 @@ export const productsCatalog: ProductDetail[] = [
     description: 'Servicio periódico de mantenimiento para conservar césped, canteros y sistema de riego en óptimas condiciones.',
     shortDescription: 'Mantenimiento integral en Asunción y alrededores',
     pricePerM2: 150000,
+    unit: 'visita',
     minQuantity: 1,
     images: [],
     category: 'servicios',
@@ -307,6 +350,7 @@ export const productsCatalog: ProductDetail[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     features: ['Visita técnica', 'Plan de mantenimiento', 'Control preventivo', 'Cobertura en Asunción'],
+    relatedSlugs: ['cesped-esmeralda', 'cesped-siempre-verde', 'cesped-kavaju', 'mini-rotor-rain-bird-3500'],
     specifications: {
       Tipo: 'Servicio',
       Modalidad: 'Por visita',
@@ -327,6 +371,7 @@ export const defaultProduct: ProductDetail = {
   description: 'Descripción del producto',
   shortDescription: 'Producto disponible en Corpicia',
   pricePerM2: 0,
+  unit: 'm2',
   minQuantity: 1,
   images: [],
   category: 'general',
@@ -348,3 +393,29 @@ export const productCategories = [
   { id: 'riego', name: 'Riego', slug: 'riego' },
   { id: 'servicios', name: 'Servicios', slug: 'servicios' },
 ];
+
+export function getRelatedProducts(product: ProductDetail, limit = 4): ProductDetail[] {
+  const relatedBySlug = (product.relatedSlugs || [])
+    .map((slug) => productsData[slug])
+    .filter((item): item is ProductDetail => Boolean(item) && item.slug !== product.slug);
+
+  if (relatedBySlug.length >= limit) {
+    return relatedBySlug.slice(0, limit);
+  }
+
+  const categoryFallback = productsCatalog.filter(
+    (item) =>
+      item.slug !== product.slug &&
+      item.category === product.category &&
+      !relatedBySlug.some((related) => related.slug === item.slug)
+  );
+
+  const mixedFallback = productsCatalog.filter(
+    (item) =>
+      item.slug !== product.slug &&
+      !relatedBySlug.some((related) => related.slug === item.slug) &&
+      !categoryFallback.some((fallback) => fallback.slug === item.slug)
+  );
+
+  return [...relatedBySlug, ...categoryFallback, ...mixedFallback].slice(0, limit);
+}

@@ -2,6 +2,7 @@
 
 import { Phone } from 'lucide-react';
 import { trackWhatsAppClick } from '@/lib/tracking';
+import { getWhatsAppUrl } from '@/lib/utils';
 
 interface WhatsAppButtonProps {
   message?: string;
@@ -9,10 +10,8 @@ interface WhatsAppButtonProps {
 }
 
 export function WhatsAppButton({ message, className = '' }: WhatsAppButtonProps) {
-  const phone = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '595992588770';
   const defaultMessage = 'Hola, quiero más información sobre Corpicia.';
-  const encodedMessage = encodeURIComponent(message || defaultMessage);
-  const whatsappUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
+  const whatsappUrl = getWhatsAppUrl(message || defaultMessage);
 
   return (
     <a
@@ -31,7 +30,7 @@ export function WhatsAppButton({ message, className = '' }: WhatsAppButtonProps)
 export function WhatsAppFloatingButton() {
   return (
     <a
-      href="https://wa.me/595992588770"
+      href={getWhatsAppUrl()}
       target="_blank"
       rel="noopener noreferrer"
       onClick={() => trackWhatsAppClick('floating_button', 'main-whatsapp')}

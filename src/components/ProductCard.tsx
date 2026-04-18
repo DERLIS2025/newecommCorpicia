@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, formatUnit } from '@/lib/utils';
 import { Product } from '@/types';
 import { ShoppingCart } from 'lucide-react';
 
@@ -15,7 +15,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   return (
-    <Card className="group overflow-hidden hover:shadow-md transition-shadow border border-gray-200 rounded-xl">
+    <Card className="group flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 transition-shadow hover:shadow-md">
       <Link href={`/productos/${product.slug}/`}>
         <div className="aspect-[4/3] sm:aspect-square bg-gray-100 relative overflow-hidden">
           {product.images && product.images.length > 0 ? (
@@ -40,14 +40,14 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
       </Link>
 
-      <CardContent className="p-2 sm:p-4">
+      <CardContent className="p-3 sm:p-4 flex-1 flex flex-col">
         <Link href={`/productos/${product.slug}/`}>
-          <h3 className="font-semibold text-gray-900 text-sm sm:text-base line-clamp-2 mb-1 sm:mb-2 group-hover:text-corpicia-green transition-colors">
+          <h3 className="font-semibold text-gray-900 text-sm sm:text-base line-clamp-2 mb-1 sm:mb-2 min-h-[2.6rem] group-hover:text-corpicia-green transition-colors">
             {product.name}
           </h3>
         </Link>
         
-        <p className="text-xs sm:text-sm text-gray-500 line-clamp-2 mb-2 sm:mb-3">
+        <p className="text-xs sm:text-sm text-gray-500 line-clamp-2 mb-2 sm:mb-3 min-h-[2.6rem]">
           {product.shortDescription || product.description}
         </p>
 
@@ -55,10 +55,10 @@ export function ProductCard({ product }: ProductCardProps) {
           <span className="text-base sm:text-lg font-bold text-corpicia-green">
             {formatPrice(product.pricePerM2)}
           </span>
-          <span className="text-xs sm:text-sm text-gray-400">/ m²</span>
+          <span className="text-xs sm:text-sm text-gray-400">/ {formatUnit(product.unit)}</span>
         </div>
 
-        <Link href={`/productos/${product.slug}/`}>
+        <Link href={`/productos/${product.slug}/`} className="mt-auto">
           <Button className="w-full gap-1.5 h-9 sm:h-10 text-xs sm:text-sm">
             <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             Agregar al Presupuesto
