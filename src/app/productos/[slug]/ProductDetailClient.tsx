@@ -3,12 +3,10 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, Check, Phone, Shield, ShoppingCart, Truck } from 'lucide-react';
+import { ArrowLeft, Check, ShoppingCart } from 'lucide-react';
 
 import { QuantitySelector } from '@/components/QuantitySelector';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { ProductCard } from '@/components/ProductCard';
 
 import { trackAddToBudget, trackProductView, trackWhatsAppClick } from '@/lib/tracking';
@@ -62,21 +60,21 @@ export default function ProductDetailClient({ slug }: Props) {
 
   return (
     <div className="bg-[#f7faf7] min-h-screen">
-      <div className="container mx-auto px-4 py-10">
+      <div className="container mx-auto px-4 py-8 md:py-10">
 
-        <Link href="/productos" className="flex items-center gap-2 mb-6 text-sm">
+        <Link href="/productos" className="flex items-center gap-2 mb-5 md:mb-6 text-sm text-gray-700">
           <ArrowLeft size={16} /> Volver
         </Link>
 
-        <div className="grid lg:grid-cols-[1.2fr_1fr] gap-10">
+        <div className="grid lg:grid-cols-[1.2fr_1fr] gap-8 lg:gap-10">
 
           {/* GALERÍA */}
           <div>
-            <div className="relative aspect-square rounded-xl overflow-hidden bg-white">
+            <div className="relative aspect-square rounded-xl overflow-hidden bg-white shadow-sm">
               <Image src={selectedImage} alt={product.name} fill className="object-cover" />
             </div>
 
-            <div className="grid grid-cols-4 gap-2 mt-3">
+            <div className="grid grid-cols-4 gap-2 mt-4">
               {images.map((img, i) => (
                 <button key={i} onClick={() => setSelectedImageIndex(i)}>
                   <div className="relative aspect-square">
@@ -88,15 +86,20 @@ export default function ProductDetailClient({ slug }: Props) {
           </div>
 
           {/* INFO */}
-          <div>
+          <div className="space-y-5 md:space-y-6">
 
-            <h1 className="text-3xl font-bold">{product.name}</h1>
-            <p className="text-gray-600 mt-2">{product.description}</p>
+            <div className="space-y-2">
+              <h1 className="text-3xl font-bold leading-tight">{product.name}</h1>
+              <p className="text-gray-700 leading-relaxed">{product.description}</p>
+            </div>
 
-            <div className="mt-6 border rounded-xl p-5 bg-white space-y-4">
+            <div className="border rounded-xl p-5 md:p-6 bg-white space-y-5 shadow-sm">
 
-              <div className="text-3xl font-bold text-green-600">
-                {formatPrice(unitPrice)} / {formatUnit(product.unit)}
+              <div className="space-y-1">
+                <p className="text-xs uppercase tracking-wide text-gray-500">Precio por unidad</p>
+                <div className="text-3xl md:text-4xl font-bold text-green-600">
+                  {formatPrice(unitPrice)} <span className="text-lg md:text-xl font-semibold text-green-700">/ {formatUnit(product.unit)}</span>
+                </div>
               </div>
 
               <QuantitySelector
@@ -106,10 +109,10 @@ export default function ProductDetailClient({ slug }: Props) {
               />
 
               {product.priceTiers && (
-                <div>
+                <div className="pt-1 border-t">
                   <p className="text-sm font-semibold mb-2">Precios por volumen</p>
                   {product.priceTiers.map((tier) => (
-                    <div key={tier.label} className="flex justify-between text-sm">
+                    <div key={tier.label} className="flex justify-between text-sm py-0.5">
                       <span>{tier.label}</span>
                       <span>{formatPrice(tier.price)}</span>
                     </div>
@@ -123,7 +126,7 @@ export default function ProductDetailClient({ slug }: Props) {
                 </div>
               )}
 
-              <div className="text-xl font-bold">
+              <div className="text-xl font-bold pt-1 border-t">
                 Total: {formatPrice(totalPrice)}
               </div>
 
@@ -139,6 +142,38 @@ export default function ProductDetailClient({ slug }: Props) {
                 <Button variant="outline">WhatsApp</Button>
               </a>
 
+            </div>
+
+            <div className="border rounded-xl bg-white p-5 md:p-6 space-y-4 shadow-sm">
+              <h2 className="text-lg font-semibold">Características y especificaciones</h2>
+
+              <div className="space-y-2">
+                {product.features.map((feature) => (
+                  <div key={feature} className="flex items-start gap-2 text-sm text-gray-700">
+                    <Check size={16} className="mt-0.5 text-green-600" />
+                    <span>{feature}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-1 text-sm text-gray-700">
+                {Object.entries(product.specifications).map(([label, value]) => (
+                  <p key={label}>
+                    <span className="font-semibold">{label}:</span> {value}
+                  </p>
+                ))}
+              </div>
+
+              {product.recommendations?.length > 0 && (
+                <div className="pt-2 border-t space-y-2">
+                  <h3 className="text-base font-semibold">Recomendaciones de uso</h3>
+                  <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700 leading-relaxed">
+                    {product.recommendations.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
 
           </div>
