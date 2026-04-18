@@ -1,3 +1,11 @@
+export interface PriceTier {
+  min: number;
+  max: number | null;
+  price: number;
+  label: string;
+  isPromo?: boolean;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -5,6 +13,8 @@ export interface Product {
   description: string;
   shortDescription?: string;
   pricePerM2: number;
+  unit: 'm2' | 'docena' | 'unidad' | 'visita';
+  priceTiers?: PriceTier[];
   minQuantity: number;
   images: string[];
   category: string;

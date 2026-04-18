@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { PriceTier, Product } from "@/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -14,6 +15,60 @@ export function formatPrice(price: number): string {
   }).format(price);
 }
 
+export function formatUnit(unit: Product['unit']): string {
+  switch (unit) {
+    case 'm2':
+      return 'm²';
+    case 'docena':
+      return 'docena';
+    case 'unidad':
+      return 'unidad';
+    case 'visita':
+      return 'visita';
+    default:
+      return 'm²';
+  }
+}
+
+export function getWhatsAppUrl(message?: string): string {
+  const phone = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '595992588770';
+  const encodedMessage = message ? `?text=${encodeURIComponent(message)}` : '';
+  return `https://wa.me/${phone}${encodedMessage}`;
+}
+
+export function getPriceForQuantity(
+  product: Product,
+  quantity: number
+): {
+  unitPrice: number;
+  totalPrice: number;
+  activeTier: PriceTier | null;
+} {
+  const safeQuantity = Math.max(quantity, product.minQuantity);
+
+  if (!product.priceTiers || product.priceTiers.length === 0) {
+    return {
+      unitPrice: product.pricePerM2,
+      totalPrice: product.pricePerM2 * safeQuantity,
+      activeTier: null,
+    };
+  }
+
+  const activeTier =
+    product.priceTiers.find((tier) => {
+      if (tier.max === null) return safeQuantity >= tier.min;
+      return safeQuantity >= tier.min && safeQuantity <= tier.max;
+    }) || null;
+
+  const unitPrice = activeTier?.price ?? product.pricePerM2;
+
+  return {
+    unitPrice,
+    totalPrice: unitPrice * safeQuantity,
+    activeTier,
+  };
+}
+
 export function generateSlug(text: string): string {
   return text
     .toLowerCase()
@@ -25,20 +80,20 @@ export function generateSlug(text: string): string {
     .trim();
 }
 
-export function generateWhatsAppMessage(items: { name: string; quantity: number; total: number }[], total: number): string {
-  const phone = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '595992588770';
-  
+export function generateWhatsAppMessage(
+  items: { name: string; quantity: number; total: number; unit: Product['unit'] }[],
+  total: number
+): string {
   let message = 'Hola, quiero solicitar un presupuesto:\n\n';
   
   items.forEach((item, index) => {
     message += `${index + 1}. ${item.name}\n`;
-    message += `   Cantidad: ${item.quantity} m²\n`;
+    message += `   Cantidad: ${item.quantity} ${formatUnit(item.unit)}\n`;
     message += `   Precio estimado: ${formatPrice(item.total)}\n\n`;
   });
   
   message += `Total estimado: ${formatPrice(total)}\n\n`;
   message += '¡Gracias!';
   
-  const encodedMessage = encodeURIComponent(message);
-  return `https://wa.me/${phone}?text=${encodedMessage}`;
+  return getWhatsAppUrl(message);
 }

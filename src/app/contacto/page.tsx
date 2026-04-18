@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Phone, Mail, MapPin, Clock } from 'lucide-react';
 import type { Metadata } from 'next';
+import { getWhatsAppUrl } from '@/lib/utils';
 
 export const metadata: Metadata = {
   title: 'Contacto - Corpicia | Césped Natural en Paraguay',
@@ -17,7 +18,7 @@ const contactInfo = [
     icon: Phone,
     title: 'Teléfono / WhatsApp',
     content: '+595 992 588 770',
-    link: 'https://wa.me/595992588770',
+    link: getWhatsAppUrl(),
   },
   {
     icon: Mail,
@@ -160,7 +161,7 @@ export default function ContactPage() {
                   Respondemos más rápido por mensaje
                 </p>
                 <a
-                  href="https://wa.me/595992588770"
+                  href={getWhatsAppUrl()}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

@@ -2,6 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Leaf, Droplets, TreePine, Home, ArrowRight } from 'lucide-react';
 import type { Metadata } from 'next';
+import { getWhatsAppUrl } from '@/lib/utils';
 
 export const metadata: Metadata = {
   title: 'Servicios - Corpicia | Instalación y Mantenimiento',
@@ -103,7 +104,7 @@ export default function ServicesPage() {
                   </div>
                   <div className="px-6 pb-6">
                     <a
-                      href="https://wa.me/595992588770"
+                      href={getWhatsAppUrl()}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -131,7 +132,7 @@ export default function ServicesPage() {
             Atendemos proyectos residenciales y comerciales en todo Paraguay.
           </p>
           <a
-            href="https://wa.me/595992588770"
+            href={getWhatsAppUrl()}
             target="_blank"
             rel="noopener noreferrer"
           >
