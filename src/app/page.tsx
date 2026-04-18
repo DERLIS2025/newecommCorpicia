@@ -1,16 +1,14 @@
-import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
 import { Card, CardContent } from '@/components/ui/card';
 import { ProductCard } from '@/components/ProductCard';
 import { Leaf, Truck, Phone, Shield } from 'lucide-react';
-import { homeHeroBanners } from '@/data/banners';
 import { productsCatalog } from './productos/[slug]/productsData';
 
 export const metadata: Metadata = {
   title: 'Césped natural y jardinería en Paraguay | Corpicia',
   description:
-    'Comprá césped en Paraguay, accesorios de riego y soluciones de jardinería. Cotizá online y enviá tu presupuesto por WhatsApp.',
+    'Comprá césped en Paraguay, accesorios de riego y soluciones de jardinería.',
   alternates: {
     canonical: '/',
   },
@@ -48,54 +46,58 @@ const benefits = [
   { icon: Shield, title: 'Compra Segura', description: 'Transparencia total.' },
 ];
 
-const activeHeroBanners = homeHeroBanners.filter((banner) => banner.active).sort((a, b) => a.order - b.order);
-const heroMain = activeHeroBanners[0];
-const heroSideOne = activeHeroBanners[1];
-const heroSideTwo = activeHeroBanners[2];
-const sideBanners = [heroSideOne, heroSideTwo].filter(
-  (banner): banner is (typeof homeHeroBanners)[number] => Boolean(banner)
-);
+const whatsappHref = 'https://wa.me/595992588770';
 
 export default function HomePage() {
   return (
     <div className="bg-white">
-      {/* HERO */}
       <section className="border-b">
         <div className="container mx-auto px-4 py-4 sm:py-6">
           <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-            {heroMain && (
-              <Link href={heroMain.link} className="block">
-                <div className="relative w-full aspect-[16/9] lg:h-[500px] rounded-xl overflow-hidden bg-[#f5fbf6]">
-                  <Image
-                    src={heroMain.imageDesktop}
-                    alt={heroMain.title}
-                    fill
-                    className="object-cover"
-                    priority
-                  />
-                </div>
-              </Link>
-            )}
+            <a
+              href={whatsappHref}
+              target="_blank"
+              rel="noreferrer"
+              className="block"
+            >
+              <div className="relative w-full aspect-[16/9] lg:h-[500px] rounded-xl overflow-hidden bg-[#f5fbf6]">
+                <Image
+                  src="/banners/hero-main-desktop.webp"
+                  alt="Banner principal"
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
+            </a>
 
             <div className="grid gap-4">
-              {sideBanners.map((banner, index) => (
-                <Link href={banner.link} key={banner.title + index}>
-                  <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-[#f5fbf6]">
-                    <Image
-                      src={banner.imageDesktop}
-                      alt={banner.title}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                </Link>
-              ))}
+              <a href={whatsappHref} target="_blank" rel="noreferrer">
+                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-[#f5fbf6]">
+                  <Image
+                    src="/banners/hero-side-1.webp"
+                    alt="Banner lateral 1"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              </a>
+
+              <a href={whatsappHref} target="_blank" rel="noreferrer">
+                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-[#f5fbf6]">
+                  <Image
+                    src="/banners/hero-side-2.jpg"
+                    alt="Banner lateral 2"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              </a>
             </div>
           </div>
         </div>
       </section>
 
-      {/* BENEFICIOS */}
       <section className="py-6 sm:py-8 bg-gray-50 border-b">
         <div className="container mx-auto px-4">
           <div className="flex gap-3 overflow-x-auto pb-2 md:grid md:grid-cols-4 md:gap-4">
@@ -115,10 +117,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* DESTACADOS */}
       <section className="py-10">
         <div className="container mx-auto px-4">
-          <h2 className="text-xl sm:text-2xl font-bold mb-6">Productos destacados</h2>
+          <h2 className="text-xl sm:text-2xl font-bold mb-6">
+            Productos destacados
+          </h2>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {featuredProducts.map((p) => (
@@ -128,21 +131,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* BLOQUE MIXTO */}
       <section className="pb-10">
         <div className="container mx-auto px-4">
           <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
             <div className="grid gap-4">
-              <Link href="/servicios/">
+              <a href={whatsappHref} target="_blank" rel="noreferrer">
                 <div className="relative w-full aspect-[16/9] lg:h-[500px] rounded-xl overflow-hidden bg-[#f5fbf6]">
                   <Image
                     src="/banners/mixed-banner-desktop.jpg"
-                    alt="Banner soluciones de riego"
+                    alt="Banner riego automático"
                     fill
-                    className="object-cover"
+                    className="object-contain"
                   />
                 </div>
-              </Link>
+              </a>
 
               <div className="grid grid-cols-2 gap-4">
                 {underBannerProducts.map((p) => (
@@ -152,7 +154,9 @@ export default function HomePage() {
             </div>
 
             <div className="grid gap-4">
-              <h2 className="text-xl sm:text-2xl font-bold">Riego Automático</h2>
+              <h2 className="text-xl sm:text-2xl font-bold">
+                Riego Automático
+              </h2>
               {mixedProducts.map((p) => (
                 <ProductCard key={p!.id} product={p!} />
               ))}
@@ -161,7 +165,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* PAISAJISMO */}
       <section className="pb-14">
         <div className="container mx-auto px-4">
           <h2 className="text-xl sm:text-2xl font-bold mb-6">Paisajismo</h2>

@@ -8,62 +8,84 @@ import { Button } from '@/components/ui/button';
 import { formatPrice, formatUnit } from '@/lib/utils';
 import { Product } from '@/types';
 import { ShoppingCart } from 'lucide-react';
+import { useBudgetStore } from '@/store/budgetStore';
+import { trackAddToBudget } from '@/lib/tracking';
 
 interface ProductCardProps {
   product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const addItem = useBudgetStore((state) => state.addItem);
+
+  const handleAddToBudget = () => {
+    addItem(product, product.minQuantity);
+    trackAddToBudget(product.name, product.minQuantity);
+  };
+
   return (
     <Card className="group flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 transition-shadow hover:shadow-md">
-      <Link href={`/productos/${product.slug}/`}>
-        <div className="aspect-[4/3] sm:aspect-square bg-gray-100 relative overflow-hidden">
+
+      <Link href={`/productos/${product.slug}/`} className="block">
+        <div className="relative aspect-square bg-gray-100 overflow-hidden">
           {product.images && product.images.length > 0 ? (
             <Image
               src={product.images[0]}
               alt={product.name}
               fill
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-300">
-              <svg className="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+            <div className="flex h-full w-full items-center justify-center text-gray-300">
+              <ShoppingCart />
             </div>
           )}
+
           {product.isFeatured && (
-            <Badge className="absolute top-2 left-2 bg-amber-500 text-[10px] sm:text-xs px-2 py-0.5">
+            <Badge className="absolute left-2 top-2 bg-amber-500 text-xs">
               Destacado
             </Badge>
           )}
         </div>
       </Link>
 
-      <CardContent className="p-3 sm:p-4 flex-1 flex flex-col">
+      <CardContent className="flex flex-1 flex-col p-3 sm:p-4">
+
         <Link href={`/productos/${product.slug}/`}>
-          <h3 className="font-semibold text-gray-900 text-sm sm:text-base line-clamp-2 mb-1 sm:mb-2 min-h-[2.6rem] group-hover:text-corpicia-green transition-colors">
+          <h3 className="text-sm sm:text-base font-semibold line-clamp-2 mb-2 group-hover:text-corpicia-green">
             {product.name}
           </h3>
         </Link>
-        
-        <p className="text-xs sm:text-sm text-gray-500 line-clamp-2 mb-2 sm:mb-3 min-h-[2.6rem]">
+
+        <p className="text-xs sm:text-sm text-gray-500 line-clamp-2 mb-3">
           {product.shortDescription || product.description}
         </p>
 
-        <div className="flex items-baseline gap-1 mb-2 sm:mb-4">
+        <div className="mb-3 flex items-baseline gap-1">
           <span className="text-base sm:text-lg font-bold text-corpicia-green">
             {formatPrice(product.pricePerM2)}
           </span>
-          <span className="text-xs sm:text-sm text-gray-400">/ {formatUnit(product.unit)}</span>
+          <span className="text-xs text-gray-400">
+            / {formatUnit(product.unit)}
+          </span>
         </div>
 
-        <Link href={`/productos/${product.slug}/`} className="mt-auto">
-          <Button className="w-full gap-1.5 h-9 sm:h-10 text-xs sm:text-sm">
-            <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+        {product.priceTiers && product.priceTiers.length > 0 && (
+          <p className="text-xs text-gray-500 mb-3">
+            Precios por volumen disponibles
+          </p>
+        )}
+
+        <div className="mt-auto">
+          <Button
+            onClick={handleAddToBudget}
+            className="w-full h-9 sm:h-10 text-xs sm:text-sm"
+          >
+            <ShoppingCart className="w-4 h-4 mr-1" />
             Agregar al Presupuesto
           </Button>
-        </Link>
+        </div>
+
       </CardContent>
     </Card>
   );
