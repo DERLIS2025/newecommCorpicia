@@ -1,3 +1,5 @@
+// (VERSIÓN LIMPIA Y COMPLETA – SIN CONFLICTOS)
+
 import type { Product } from '@/types';
 
 export type ProductDetail = Product & {
@@ -11,16 +13,15 @@ const baseProductsCatalog: ProductDetail[] = [
     id: '1',
     name: 'Césped Esmeralda m²',
     slug: 'cesped-esmeralda',
-    description:
-      'Césped de alta densidad y color intenso, ideal para jardines residenciales en Paraguay y zonas de alto tránsito moderado.',
-    shortDescription: 'Césped natural premium para jardines en Paraguay',
-    pricePerM2: 31000,
+    description: 'Césped de alta densidad y color intenso.',
+    shortDescription: 'Césped premium',
+    pricePerM2: 32000,
     unit: 'm2',
-    minQuantity: 1,
+    minQuantity: 10,
     priceTiers: [
-      { min: 1, max: 25, price: 48000, label: '1 a 25 m²' },
-      { min: 26, max: 50, price: 43000, label: '26 a 50 m²' },
-      { min: 51, max: null, price: 31000, label: 'Más de 50 m²', isPromo: true },
+      { min: 10, max: 24, price: 36000, label: '10 a 24 m²' },
+      { min: 25, max: 49, price: 34000, label: '25 a 49 m²' },
+      { min: 50, max: null, price: 32000, label: '50+ m²', isPromo: true },
     ],
     images: [],
     category: 'cesped-natural',
@@ -28,74 +29,57 @@ const baseProductsCatalog: ProductDetail[] = [
     isFeatured: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    features: [
-      'Color verde uniforme',
-      'Recuperación rápida',
-      'Ideal para Asunción y Gran Asunción',
-      'Bajo mantenimiento',
-    ],
+    features: ['Color uniforme', 'Alta calidad'],
     relatedSlugs: ['cesped-siempre-verde', 'cesped-kavaju'],
-    specifications: {
-      Tipo: 'Césped natural',
-      Presentación: 'm²',
-      Resistencia: 'Alta',
-      Uso: 'Residencial y comercial',
-    },
+    specifications: { Tipo: 'Césped' },
   },
 
   {
     id: '2',
     name: 'Césped Siempre Verde m²',
     slug: 'cesped-siempre-verde',
-    description:
-      'Variedad versátil con excelente adaptación al clima cálido.',
-    shortDescription: 'Cobertura verde constante',
-    pricePerM2: 25000,
+    description: 'Césped adaptable',
+    shortDescription: 'Cobertura verde',
+    pricePerM2: 30000,
     unit: 'm2',
-    minQuantity: 1,
+    minQuantity: 10,
     images: [],
     category: 'cesped-natural',
     isActive: true,
     isFeatured: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    features: ['Alta adaptabilidad', 'Textura agradable'],
+    features: ['Alta adaptabilidad'],
     relatedSlugs: ['cesped-esmeralda'],
-    specifications: {
-      Tipo: 'Césped natural',
-      Presentación: 'm²',
-    },
+    specifications: { Tipo: 'Césped' },
   },
 
   {
     id: '3',
     name: 'Césped Kavaju m²',
     slug: 'cesped-kavaju',
-    description: 'Césped rústico de gran cobertura.',
-    shortDescription: 'Césped resistente',
+    description: 'Césped resistente',
+    shortDescription: 'Rústico',
     pricePerM2: 28000,
     unit: 'm2',
-    minQuantity: 1,
+    minQuantity: 15,
     images: [],
     category: 'cesped-natural',
     isActive: true,
     isFeatured: false,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    features: ['Alta resistencia'],
+    features: ['Resistente'],
     relatedSlugs: ['cesped-esmeralda'],
-    specifications: {
-      Tipo: 'Césped natural',
-      Presentación: 'm²',
-    },
+    specifications: { Tipo: 'Césped' },
   },
 
   {
     id: '4',
     name: 'Piso Ecológico 40x60',
     slug: 'piso-ecologico-40x60',
-    description: 'Piso drenante para exteriores.',
-    shortDescription: 'Piso exterior',
+    description: 'Piso drenante',
+    shortDescription: 'Exterior',
     pricePerM2: 85000,
     unit: 'm2',
     minQuantity: 1,
@@ -105,14 +89,13 @@ const baseProductsCatalog: ProductDetail[] = [
     isFeatured: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    features: ['Alta durabilidad'],
-    specifications: {
-      Tipo: 'Piso ecológico',
-    },
+    features: ['Durable'],
+    relatedSlugs: [],
+    specifications: { Tipo: 'Piso' },
   },
 ];
 
-// 🔥 ESTO ES LO QUE ARREGLA LAS IMÁGENES
+// 🔥 IMÁGENES AUTOMÁTICAS
 const withImages = (product: ProductDetail): ProductDetail => ({
   ...product,
   images:
@@ -127,16 +110,19 @@ export const productsData: Record<string, ProductDetail> = Object.fromEntries(
   productsCatalog.map((p) => [p.slug, p])
 );
 
-// 🔥 ESTO ARREGLA LOS PRODUCTOS RELACIONADOS
+// 🔥 RELACIONADOS SIN DUPLICADOS
 export function getRelatedProducts(product: ProductDetail, limit = 4): ProductDetail[] {
-  const related =
-    product.relatedSlugs?.map((slug) => productsData[slug]).filter(Boolean) || [];
+  const unique = new Map<string, ProductDetail>();
 
-  if (related.length >= limit) return related.slice(0, limit);
+  (product.relatedSlugs || []).forEach((slug) => {
+    const p = productsData[slug];
+    if (p && p.slug !== product.slug) unique.set(p.slug, p);
+  });
 
-  const fallback = productsCatalog.filter(
-    (p) => p.slug !== product.slug && p.category === product.category
-  );
+  productsCatalog.forEach((p) => {
+    if (unique.size >= limit) return;
+    if (p.slug !== product.slug) unique.set(p.slug, p);
+  });
 
-  return [...related, ...fallback].slice(0, limit);
+  return Array.from(unique.values()).slice(0, limit);
 }
