@@ -82,6 +82,7 @@ export function ProductCard({ product }: ProductCardProps) {
             / {formatUnit(product.unit)}
           </span>
         </div>
+
         {product.priceTiers && product.priceTiers.length > 0 && (
           <p className="mb-3 text-xs text-gray-500">
             Precios por volumen disponibles

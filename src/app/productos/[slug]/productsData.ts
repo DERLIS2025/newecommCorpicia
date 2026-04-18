@@ -34,6 +34,7 @@ const baseProductsCatalog: ProductDetail[] = [
       'Ideal para Asunción y Gran Asunción',
       'Bajo mantenimiento',
     ],
+    relatedSlugs: ['cesped-siempre-verde', 'cesped-kavaju'],
     specifications: {
       Tipo: 'Césped natural',
       Presentación: 'm²',
@@ -47,40 +48,71 @@ const baseProductsCatalog: ProductDetail[] = [
     name: 'Césped Siempre Verde m²',
     slug: 'cesped-siempre-verde',
     description:
-      'Variedad versátil con excelente adaptación al clima cálido, recomendada para cobertura uniforme durante todo el año.',
-    shortDescription: 'Cobertura verde constante para jardines familiares',
+      'Variedad versátil con excelente adaptación al clima cálido.',
+    shortDescription: 'Cobertura verde constante',
     pricePerM2: 25000,
     unit: 'm2',
     minQuantity: 1,
-    priceTiers: [
-      { min: 1, max: 25, price: 38000, label: '1 a 25 m²' },
-      { min: 26, max: 50, price: 34000, label: '26 a 50 m²' },
-      { min: 51, max: null, price: 25000, label: 'Más de 50 m²', isPromo: true },
-    ],
     images: [],
     category: 'cesped-natural',
     isActive: true,
     isFeatured: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    features: [
-      'Alta adaptabilidad',
-      'Textura agradable',
-      'Crecimiento uniforme',
-      'Buena tolerancia al sol',
-    ],
+    features: ['Alta adaptabilidad', 'Textura agradable'],
+    relatedSlugs: ['cesped-esmeralda'],
     specifications: {
       Tipo: 'Césped natural',
       Presentación: 'm²',
-      Resistencia: 'Media/Alta',
-      Uso: 'Residencial',
     },
   },
 
-  // (continúa igual… TODO el resto del archivo queda igual que tu versión main)
+  {
+    id: '3',
+    name: 'Césped Kavaju m²',
+    slug: 'cesped-kavaju',
+    description: 'Césped rústico de gran cobertura.',
+    shortDescription: 'Césped resistente',
+    pricePerM2: 28000,
+    unit: 'm2',
+    minQuantity: 1,
+    images: [],
+    category: 'cesped-natural',
+    isActive: true,
+    isFeatured: false,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    features: ['Alta resistencia'],
+    relatedSlugs: ['cesped-esmeralda'],
+    specifications: {
+      Tipo: 'Césped natural',
+      Presentación: 'm²',
+    },
+  },
+
+  {
+    id: '4',
+    name: 'Piso Ecológico 40x60',
+    slug: 'piso-ecologico-40x60',
+    description: 'Piso drenante para exteriores.',
+    shortDescription: 'Piso exterior',
+    pricePerM2: 85000,
+    unit: 'm2',
+    minQuantity: 1,
+    images: [],
+    category: 'pisos-exteriores',
+    isActive: true,
+    isFeatured: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    features: ['Alta durabilidad'],
+    specifications: {
+      Tipo: 'Piso ecológico',
+    },
+  },
 ];
 
-// función automática de imágenes
+// 🔥 ESTO ES LO QUE ARREGLA LAS IMÁGENES
 const withImages = (product: ProductDetail): ProductDetail => ({
   ...product,
   images:
@@ -89,39 +121,22 @@ const withImages = (product: ProductDetail): ProductDetail => ({
       : [`/productos/${product.slug}.jpg`],
 });
 
-// catálogo final con imágenes automáticas
-export const productsCatalog: ProductDetail[] = baseProductsCatalog.map(withImages);
+export const productsCatalog = baseProductsCatalog.map(withImages);
 
 export const productsData: Record<string, ProductDetail> = Object.fromEntries(
-  productsCatalog.map((product) => [product.slug, product])
+  productsCatalog.map((p) => [p.slug, p])
 );
 
-export const defaultProduct: ProductDetail = {
-  id: '0',
-  name: 'Producto Corpicia',
-  slug: 'producto-corpicia',
-  description: 'Descripción del producto',
-  shortDescription: 'Producto disponible en Corpicia',
-  pricePerM2: 0,
-  unit: 'm2',
-  minQuantity: 1,
-  images: ['/productos/default.jpg'],
-  category: 'general',
-  isActive: true,
-  isFeatured: false,
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
-  features: [],
-  specifications: {},
-};
+// 🔥 ESTO ARREGLA LOS PRODUCTOS RELACIONADOS
+export function getRelatedProducts(product: ProductDetail, limit = 4): ProductDetail[] {
+  const related =
+    product.relatedSlugs?.map((slug) => productsData[slug]).filter(Boolean) || [];
 
-export const productCategories = [
-  { id: 'all', name: 'Todos', slug: 'all' },
-  { id: 'cesped-natural', name: 'Césped Natural', slug: 'cesped-natural' },
-  { id: 'ornamentales', name: 'Ornamentales', slug: 'ornamentales' },
-  { id: 'decorativos', name: 'Decorativos', slug: 'decorativos' },
-  { id: 'insumos-jardin', name: 'Insumos de Jardín', slug: 'insumos-jardin' },
-  { id: 'pisos-exteriores', name: 'Pisos Exteriores', slug: 'pisos-exteriores' },
-  { id: 'riego', name: 'Riego', slug: 'riego' },
-  { id: 'servicios', name: 'Servicios', slug: 'servicios' },
-];
+  if (related.length >= limit) return related.slice(0, limit);
+
+  const fallback = productsCatalog.filter(
+    (p) => p.slug !== product.slug && p.category === product.category
+  );
+
+  return [...related, ...fallback].slice(0, limit);
+}
