@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useBudgetStore } from '@/store/budgetStore';
 import { formatPrice, formatUnit, generateWhatsAppMessage } from '@/lib/utils';
+import { trackWhatsAppClick } from '@/lib/tracking';
 import { Minus, Plus, Trash2, ShoppingCart, X, MessageCircle } from 'lucide-react';
 
 export function BudgetDrawer() {
@@ -12,6 +13,7 @@ export function BudgetDrawer() {
   const { items, removeItem, updateQuantity, getTotal, clearBudget } = useBudgetStore();
 
   const handleWhatsAppClick = () => {
+    trackWhatsAppClick('budget_drawer', 'enviar-presupuesto');
     const messageItems = items.map(item => ({
       name: item.product.name,
       quantity: item.quantity,

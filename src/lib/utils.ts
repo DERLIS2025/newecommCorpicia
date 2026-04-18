@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { Product } from "@/types";
+import { Product, PriceTier } from "@/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -25,6 +25,8 @@ export function formatUnit(unit: Product['unit']): string {
       return 'unidad';
     case 'visita':
       return 'visita';
+    case 'servicio':
+      return 'servicio';
     default:
       return 'm²';
   }
@@ -34,6 +36,38 @@ export function getWhatsAppUrl(message?: string): string {
   const phone = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '595992588770';
   const encodedMessage = message ? `?text=${encodeURIComponent(message)}` : '';
   return `https://wa.me/${phone}${encodedMessage}`;
+}
+
+export function getPriceForQuantity(
+  quantity: number,
+  priceTiers: PriceTier[] | undefined,
+  basePrice: number
+): {
+  price: number;
+  tier: PriceTier | null;
+  isPromo: boolean;
+} {
+  if (!priceTiers || priceTiers.length === 0) {
+    return { price: basePrice, tier: null, isPromo: false };
+  }
+
+  const safeQuantity = Math.max(1, quantity);
+  const activeTier = priceTiers.find((tier) => {
+    if (tier.max === null) {
+      return safeQuantity >= tier.min;
+    }
+    return safeQuantity >= tier.min && safeQuantity <= tier.max;
+  }) || null;
+
+  if (!activeTier) {
+    return { price: basePrice, tier: null, isPromo: false };
+  }
+
+  return {
+    price: activeTier.price,
+    tier: activeTier,
+    isPromo: Boolean(activeTier.isPromo),
+  };
 }
 
 export function generateSlug(text: string): string {

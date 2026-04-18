@@ -1,53 +1,44 @@
-import Link from 'next/link';
+import Image from 'next/image';
 import type { Metadata } from 'next';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ProductCard } from '@/components/ProductCard';
-import {
-  ArrowRight,
-  Leaf,
-  Truck,
-  Phone,
-  Shield,
-  ChevronRight,
-  Sparkles,
-} from 'lucide-react';
-import { homeHeroBanners } from '@/data/banners';
+import { Leaf, Truck, Phone, Shield } from 'lucide-react';
 import { productsCatalog } from './productos/[slug]/productsData';
 
 export const metadata: Metadata = {
   title: 'Césped natural y jardinería en Paraguay | Corpicia',
   description:
-    'Comprá césped en Paraguay, accesorios de riego y soluciones de jardinería. Cotizá online y enviá tu presupuesto por WhatsApp.',
+    'Comprá césped en Paraguay, accesorios de riego y soluciones de jardinería.',
   alternates: {
     canonical: '/',
   },
 };
 
-const featuredProducts = productsCatalog
-  .filter((product) => product.isFeatured)
-  .slice(0, 4);
+// ORDEN
+const featuredProducts = [
+  productsCatalog.find((p) => p.slug === 'cesped-esmeralda'),
+  productsCatalog.find((p) => p.slug === 'cesped-siempre-verde'),
+  productsCatalog.find((p) => p.slug === 'cesped-kavaju'),
+  productsCatalog.find((p) => p.slug === 'cesped-mani-docena'),
+].filter(Boolean);
 
-const promoBlocks = [
-  {
-    title: 'Comprá por categoría',
-    description: 'Encontrá rápidamente césped, insumos y complementos.',
-    cta: 'Explorar catálogo',
-    link: '/productos/',
-  },
-  {
-    title: 'Cotizá sin fricción',
-    description: 'Calculá por m² y enviá por WhatsApp en minutos.',
-    cta: 'Ir a presupuesto',
-    link: '/presupuesto/',
-  },
-  {
-    title: 'Te acompañamos',
-    description: 'Desde la elección hasta la instalación.',
-    cta: 'Ver servicios',
-    link: '/servicios/',
-  },
-];
+const mixedProducts = [
+  productsCatalog.find((p) => p.slug === 'mini-rotor-rain-bird-3500'),
+  productsCatalog.find((p) => p.slug === 'difusor-riego'),
+].filter(Boolean);
+
+const underBannerProducts = [
+  productsCatalog.find((p) => p.slug === 'valvula-riego-rain-bird'),
+  productsCatalog.find((p) => p.slug === 'aspersor-rain-bird-5004'),
+].filter(Boolean);
+
+const secondaryProducts = [
+  productsCatalog.find((p) => p.slug === 'piso-ecologico-40x60'),
+  productsCatalog.find((p) => p.slug === 'separador-cesped-caminos'),
+  productsCatalog.find((p) => p.slug === 'pisos-imitacion-madera'),
+  productsCatalog.find((p) => p.slug === 'granza-blanca-fina-decorativa'),
+  productsCatalog.find((p) => p.slug === 'canto-rodado'),
+].filter(Boolean);
 
 const benefits = [
   { icon: Leaf, title: 'Calidad Premium', description: 'Productos duraderos.' },
@@ -56,90 +47,141 @@ const benefits = [
   { icon: Shield, title: 'Compra Segura', description: 'Transparencia total.' },
 ];
 
-const activeHeroBanners = homeHeroBanners
-  .filter((banner) => banner.active)
-  .sort((a, b) => a.order - b.order);
+const whatsappHref = 'https://wa.me/595992588770';
 
 export default function HomePage() {
   return (
     <div className="bg-white">
       {/* HERO */}
-      <section className="bg-gradient-to-b from-[#f5fbf6] to-white border-b">
-        <div className="container mx-auto px-4 py-10">
-          <div className="grid lg:grid-cols-[2fr_1fr] gap-4">
-            {activeHeroBanners.map((banner, index) => (
-              <Card key={banner.title} className={`${index === 0 ? 'lg:row-span-2' : ''}`}>
-                <CardContent className="p-0">
-                  <div className="p-8 bg-gradient-to-br from-corpicia-green to-[#025c17] text-white h-full flex flex-col justify-between">
-                    <div>
-                      <span className="text-xs mb-3 inline-flex items-center gap-2">
-                        <Sparkles className="w-4 h-4" /> Destacado
-                      </span>
-                      {index === 0 ? (
-                        <h1 className="text-3xl font-bold">{banner.title}</h1>
-                      ) : (
-                        <h2 className="text-3xl font-bold">{banner.title}</h2>
-                      )}
-                      <p className="mt-2 text-white/90">{banner.subtitle}</p>
-                    </div>
+      <section className="border-b">
+        <div className="container mx-auto px-4 py-4 sm:py-6">
+          <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
+            {/* HERO PRINCIPAL */}
+            <a
+              href={whatsappHref}
+              target="_blank"
+              rel="noreferrer"
+              className="block"
+            >
+              <div className="relative w-full aspect-[16/9] lg:h-[500px] rounded-xl overflow-hidden bg-[#f5fbf6]">
+                <Image
+                  src="/banners/hero-main-desktop.webp"
+                  alt="Banner principal"
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
+            </a>
 
-                    <Link href={banner.link}>
-                      <Button className="bg-white text-corpicia-green mt-4">
-                        {banner.CTA}
-                        <ArrowRight className="ml-2 w-4 h-4" />
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
+            {/* BANNERS LATERALES */}
+            <div className="grid gap-4">
+              <a href={whatsappHref} target="_blank" rel="noreferrer">
+                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-[#f5fbf6]">
+                  <Image
+                    src="/banners/hero-side-1.webp"
+                    alt="Banner lateral 1"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              </a>
+
+              <a href={whatsappHref} target="_blank" rel="noreferrer">
+                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-[#f5fbf6]">
+                  <Image
+                    src="/banners/hero-side-2.jpg"
+                    alt="Banner lateral 2"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* BENEFICIOS */}
+      <section className="py-6 sm:py-8 bg-gray-50 border-b">
+        <div className="container mx-auto px-4">
+          <div className="flex gap-3 overflow-x-auto pb-2 md:grid md:grid-cols-4 md:gap-4">
+            {benefits.map((b) => {
+              const Icon = b.icon;
+              return (
+                <Card key={b.title} className="min-w-[80%] md:min-w-0">
+                  <CardContent className="p-4">
+                    <Icon className="text-corpicia-green mb-2 w-5 h-5" />
+                    <h3 className="font-semibold">{b.title}</h3>
+                    <p className="text-sm text-gray-600">{b.description}</p>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* DESTACADOS */}
+      <section className="py-10">
+        <div className="container mx-auto px-4">
+          <h2 className="text-xl sm:text-2xl font-bold mb-6">
+            Productos destacados
+          </h2>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {featuredProducts.map((p) => (
+              <ProductCard key={p!.id} product={p!} />
             ))}
           </div>
         </div>
       </section>
 
-      {/* PROMOS */}
-      <section className="py-10">
-        <div className="container mx-auto px-4 grid md:grid-cols-3 gap-4">
-          {promoBlocks.map((promo) => (
-            <Card key={promo.title}>
-              <CardContent className="p-6">
-                <h2 className="font-bold text-lg">{promo.title}</h2>
-                <p className="text-sm text-gray-600 mt-2">{promo.description}</p>
-                <Link href={promo.link} className="text-corpicia-green mt-3 inline-flex">
-                  {promo.cta}
-                  <ChevronRight className="ml-1 w-4 h-4" />
-                </Link>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* BENEFICIOS */}
-      <section className="py-10 bg-gray-50">
-        <div className="container mx-auto px-4 grid md:grid-cols-4 gap-4">
-          {benefits.map((b) => {
-            const Icon = b.icon;
-            return (
-              <Card key={b.title}>
-                <CardContent className="p-5">
-                  <Icon className="text-corpicia-green mb-2" />
-                  <h3 className="font-semibold">{b.title}</h3>
-                  <p className="text-sm text-gray-600">{b.description}</p>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* PRODUCTOS */}
-      <section className="py-14">
+      {/* BLOQUE MIXTO */}
+      <section className="pb-10">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold mb-6">Productos destacados</h2>
-          <div className="grid md:grid-cols-4 gap-6">
-            {featuredProducts.map((p) => (
-              <ProductCard key={p.id} product={p} />
+          <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
+            <div className="grid gap-4">
+              <a href={whatsappHref} target="_blank" rel="noreferrer">
+                <div className="relative w-full aspect-[16/9] lg:h-[500px] rounded-xl overflow-hidden bg-[#f5fbf6]">
+                  <Image
+                    src="/banners/mixed-banner-desktop.jpg"
+                    alt="Banner riego automático"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              </a>
+
+              <div className="grid grid-cols-2 gap-4">
+                {underBannerProducts.map((p) => (
+                  <ProductCard key={p!.id} product={p!} />
+                ))}
+              </div>
+            </div>
+
+            <div className="grid gap-4">
+              <h2 className="text-xl sm:text-2xl font-bold">
+                Riego Automático
+              </h2>
+              {mixedProducts.map((p) => (
+                <ProductCard key={p!.id} product={p!} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* PAISAJISMO */}
+      <section className="pb-14">
+        <div className="container mx-auto px-4">
+          <h2 className="text-xl sm:text-2xl font-bold mb-6">Paisajismo</h2>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 justify-items-center">
+            {secondaryProducts.map((p) => (
+              <div className="w-full max-w-[260px]" key={p!.id}>
+                <ProductCard product={p!} />
+              </div>
             ))}
           </div>
         </div>
