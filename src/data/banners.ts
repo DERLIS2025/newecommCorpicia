@@ -1,3 +1,5 @@
+import { getWhatsAppUrl } from '@/lib/utils';
+
 export type HomeBanner = {
   title: string;
   subtitle: string;
@@ -49,7 +51,7 @@ export const homeSecondaryBanners: HomeBanner[] = [
     imageDesktop: '/banners/instalacion-desktop.jpg',
     imageMobile: '/banners/instalacion-mobile.jpg',
     CTA: 'Solicitar asesoría',
-    link: 'https://wa.me/595992588770',
+    link: getWhatsAppUrl(),
     active: true,
     order: 1,
   },

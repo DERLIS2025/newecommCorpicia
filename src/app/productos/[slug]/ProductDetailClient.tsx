@@ -6,36 +6,19 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { QuantitySelector } from '@/components/QuantitySelector';
+import { ProductCard } from '@/components/ProductCard';
 import { useBudgetStore } from '@/store/budgetStore';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, formatUnit, getWhatsAppUrl } from '@/lib/utils';
 import { trackAddToBudget, trackProductView, trackWhatsAppClick } from '@/lib/tracking';
-import { Check, ArrowLeft, ShoppingCart, Phone, Leaf, Truck, Shield, Star } from 'lucide-react';
-import { defaultProduct, productsCatalog, productsData } from './productsData';
+import { Check, ArrowLeft, ShoppingCart, Phone, Leaf, Truck, Shield } from 'lucide-react';
+import { getRelatedProducts, productsData } from './productsData';
 
 type ProductDetailClientProps = {
   slug: string;
 };
 
-const mockReviews = [
-  {
-    name: 'Carlos R.',
-    city: 'Asunción',
-    text: 'Excelente atención y el césped llegó en perfectas condiciones. El presupuesto por WhatsApp fue rapidísimo.',
-  },
-  {
-    name: 'María G.',
-    city: 'Luque',
-    text: 'Me ayudaron a elegir la mejor opción para mi patio. Muy buena experiencia y cumplimiento en tiempos.',
-  },
-  {
-    name: 'Diego F.',
-    city: 'San Lorenzo',
-    text: 'Compré césped y accesorios de riego. Todo bien explicado y la instalación quedó impecable.',
-  },
-];
-
 export default function ProductDetailClient({ slug }: ProductDetailClientProps) {
-  const product = productsData[slug] || defaultProduct;
+  const product = productsData[slug];
 
   const [quantity, setQuantity] = useState(product.minQuantity);
   const addItem = useBudgetStore((state) => state.addItem);
@@ -44,20 +27,7 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
     trackProductView(product.name, product.slug);
   }, [product.name, product.slug]);
 
-  const relatedProducts = useMemo(
-    () =>
-      productsCatalog
-        .filter((item) => item.slug !== product.slug && item.category === product.category)
-        .slice(0, 4),
-    [product.category, product.slug]
-  );
-
-  const fallbackRelated = useMemo(
-    () => productsCatalog.filter((item) => item.slug !== product.slug).slice(0, 4),
-    [product.slug]
-  );
-
-  const productsToShow = relatedProducts.length > 0 ? relatedProducts : fallbackRelated;
+  const productsToShow = useMemo(() => getRelatedProducts(product, 4), [product]);
 
   const handleAddToBudget = () => {
     trackAddToBudget(product.name, quantity);
@@ -80,9 +50,9 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8 md:py-10">
-        <div className="grid lg:grid-cols-[1.1fr_1fr] gap-8 lg:gap-10 items-start">
-          <div className="space-y-4 lg:sticky lg:top-24">
+      <div className="container mx-auto px-4 py-8 md:py-10 lg:py-12">
+        <section className="grid xl:grid-cols-[1.35fr_1fr] gap-8 lg:gap-10 xl:gap-12 items-start">
+          <div className="space-y-4">
             <Card className="overflow-hidden border border-gray-200 shadow-sm rounded-2xl">
               <CardContent className="p-0">
                 <div className="aspect-square bg-gradient-to-br from-[#edf8ef] to-white flex items-center justify-center">
@@ -110,7 +80,7 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-5">
             <Card className="border border-gray-200 rounded-2xl shadow-sm">
               <CardContent className="p-6 md:p-7 space-y-5">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -137,12 +107,12 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
                       <span className="text-3xl font-bold text-corpicia-green">
                         {formatPrice(product.pricePerM2)}
                       </span>
-                      <span className="text-gray-500 pb-1">/ m²</span>
+                      <span className="text-gray-500 pb-1">/ {formatUnit(product.unit)}</span>
                     </div>
 
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-gray-700">
-                        Cantidad (m²) - Mínimo: {product.minQuantity}m²
+                        Cantidad ({formatUnit(product.unit)}) - Mínimo: {product.minQuantity} {formatUnit(product.unit)}
                       </label>
                       <QuantitySelector
                         quantity={quantity}
@@ -168,7 +138,7 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
                       </Button>
 
                       <a
-                        href="https://wa.me/595992588770"
+                        href={getWhatsAppUrl()}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="block"
@@ -185,35 +155,33 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
               </CardContent>
             </Card>
 
-            <div className="grid md:grid-cols-2 gap-4">
-              <Card className="border border-gray-200 rounded-2xl shadow-sm">
-                <CardContent className="p-5">
-                  <h2 className="font-semibold text-gray-900 mb-3">Características</h2>
-                  <ul className="space-y-2">
-                    {product.features.map((feature: string, index: number) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <Check className="w-5 h-5 text-corpicia-green flex-shrink-0 mt-0.5" />
-                        <span className="text-gray-600 text-sm">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+            <Card className="border border-gray-200 rounded-2xl shadow-sm">
+              <CardContent className="p-5">
+                <h2 className="font-semibold text-gray-900 mb-3">Características</h2>
+                <ul className="space-y-2">
+                  {product.features.map((feature: string, index: number) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <Check className="w-5 h-5 text-corpicia-green flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-600 text-sm">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
 
-              <Card className="border border-gray-200 rounded-2xl shadow-sm">
-                <CardContent className="p-5">
-                  <h2 className="font-semibold text-gray-900 mb-3">Especificaciones</h2>
-                  <div className="space-y-2">
-                    {Object.entries(product.specifications).map(([key, value]) => (
-                      <div key={key} className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
-                        <span className="text-xs text-gray-500 uppercase">{key}</span>
-                        <p className="font-medium text-gray-900 text-sm">{value as string}</p>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            <Card className="border border-gray-200 rounded-2xl shadow-sm">
+              <CardContent className="p-5">
+                <h2 className="font-semibold text-gray-900 mb-3">Especificaciones</h2>
+                <div className="space-y-2">
+                  {Object.entries(product.specifications).map(([key, value]) => (
+                    <div key={key} className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
+                      <span className="text-xs text-gray-500 uppercase">{key}</span>
+                      <p className="font-medium text-gray-900 text-sm">{value as string}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
 
             <Card className="border border-gray-200 rounded-2xl shadow-sm">
               <CardContent className="p-5">
@@ -235,57 +203,13 @@ export default function ProductDetailClient({ slug }: ProductDetailClientProps) 
               </CardContent>
             </Card>
           </div>
-        </div>
-
-        <section className="mt-12 md:mt-14">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-5">También te puede interesar</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {productsToShow.map((item) => (
-              <Card key={item.id} className="border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-                <CardContent className="p-4 space-y-3">
-                  <div className="aspect-square rounded-xl bg-gray-100 flex items-center justify-center text-gray-300">
-                    <Leaf className="w-8 h-8" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900 leading-snug">{item.name}</p>
-                    <p className="text-corpicia-green font-bold mt-1">{formatPrice(item.pricePerM2)}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Link href={`/productos/${item.slug}/`} className="flex-1">
-                      <Button variant="outline" className="w-full">Ver</Button>
-                    </Link>
-                    <Button
-                      onClick={() => {
-                        trackAddToBudget(item.name, item.minQuantity);
-                        addItem(item, item.minQuantity);
-                      }}
-                      className="flex-1"
-                    >
-                      Agregar
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
         </section>
 
-        <section className="mt-12 md:mt-14 pb-8">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-5">Opiniones de clientes</h2>
-          <div className="grid md:grid-cols-3 gap-4">
-            {mockReviews.map((review) => (
-              <Card key={review.name} className="border border-gray-200 rounded-2xl shadow-sm">
-                <CardContent className="p-5">
-                  <div className="flex items-center gap-1 text-amber-500 mb-3">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-current" />
-                    ))}
-                  </div>
-                  <p className="text-gray-600 text-sm leading-relaxed">“{review.text}”</p>
-                  <p className="mt-4 font-semibold text-gray-900">{review.name}</p>
-                  <p className="text-xs text-gray-500">{review.city}</p>
-                </CardContent>
-              </Card>
+        <section className="mt-14 md:mt-16 pt-8 border-t border-gray-200/80">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-5">También te puede interesar</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+            {productsToShow.map((item) => (
+              <ProductCard key={item.id} product={item} />
             ))}
           </div>
         </section>

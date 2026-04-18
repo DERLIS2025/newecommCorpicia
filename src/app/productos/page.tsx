@@ -1,9 +1,7 @@
 import { ProductCard } from '@/components/ProductCard';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Sparkles } from 'lucide-react';
 import type { Metadata } from 'next';
-import { productCategories, productsCatalog } from './[slug]/productsData';
+import { productsCatalog } from './[slug]/productsData';
 
 export const metadata: Metadata = {
   title: 'Productos de césped y jardinería en Paraguay | Corpicia',
@@ -36,30 +34,8 @@ export default function ProductsPage() {
         </div>
       </section>
 
-      <div className="container mx-auto px-4 py-10 grid lg:grid-cols-[250px_1fr] gap-6">
-
-        {/* FILTROS */}
-        <aside>
-          <div className="bg-white p-4 border rounded-lg">
-            <h2 className="font-bold mb-3">Categorías</h2>
-
-            {productCategories.map((c) => (
-              <label key={c.id} className="flex gap-2 text-sm">
-                <input type="checkbox" />
-                {c.name}
-              </label>
-            ))}
-          </div>
-        </aside>
-
-        {/* PRODUCTOS */}
+      <div className="container mx-auto px-4 py-10">
         <section>
-
-          <div className="flex gap-2 mb-4">
-            <Input placeholder="Buscar productos..." />
-            <Button>Buscar</Button>
-          </div>
-
           <p className="text-sm text-gray-500 mb-4">
             {productsCatalog.length} productos
           </p>
