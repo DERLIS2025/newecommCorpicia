@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { PriceTier, Product } from "@/types";
+import { Product, PriceTier } from "@/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -25,6 +25,8 @@ export function formatUnit(unit: Product['unit']): string {
       return 'unidad';
     case 'visita':
       return 'visita';
+    case 'servicio':
+      return 'servicio';
     default:
       return 'm²';
   }
@@ -85,15 +87,15 @@ export function generateWhatsAppMessage(
   total: number
 ): string {
   let message = 'Hola, quiero solicitar un presupuesto:\n\n';
-  
+
   items.forEach((item, index) => {
     message += `${index + 1}. ${item.name}\n`;
     message += `   Cantidad: ${item.quantity} ${formatUnit(item.unit)}\n`;
     message += `   Precio estimado: ${formatPrice(item.total)}\n\n`;
   });
-  
+
   message += `Total estimado: ${formatPrice(total)}\n\n`;
   message += '¡Gracias!';
-  
+
   return getWhatsAppUrl(message);
 }

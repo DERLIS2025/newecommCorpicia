@@ -2,48 +2,43 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Script from 'next/script';
 import ProductDetailClient from './ProductDetailClient';
-import { productsData } from './productsData';
+import { productsData, productsCatalog } from './productsData';
 
-type ProductDetailPageProps = {
+type ProductPageProps = {
   params: {
     slug: string;
   };
 };
 
-export function generateStaticParams() {
-  return Object.keys(productsData).map((slug) => ({ slug }));
+const siteUrl = 'https://corpicia.com';
+
+export async function generateStaticParams() {
+  return productsCatalog.map((product) => ({
+    slug: product.slug,
+  }));
 }
 
-export function generateMetadata({ params }: ProductDetailPageProps): Metadata {
+export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const product = productsData[params.slug];
 
   if (!product) {
     return {
       title: 'Producto no encontrado | Corpicia',
-      description: 'El producto solicitado no está disponible en el catálogo de Corpicia.',
-      alternates: { canonical: `/productos/${params.slug}/` },
+      description: 'El producto solicitado no existe.',
     };
   }
 
   return {
-    title: `${product.name} en Paraguay | Corpicia`,
-    description: `${product.shortDescription || product.description} Comprá en Corpicia con cobertura en Asunción y todo Paraguay.`,
+    title: `${product.name} | Corpicia`,
+    description: product.shortDescription || product.description,
     alternates: {
       canonical: `/productos/${product.slug}/`,
-    },
-    openGraph: {
-      title: `${product.name} | Corpicia`,
-      description: product.shortDescription || product.description,
-      type: 'website',
-      locale: 'es_PY',
-      url: `/productos/${product.slug}/`,
     },
   };
 }
 
-export default function ProductDetailPage({ params }: ProductDetailPageProps) {
+export default function ProductPage({ params }: ProductPageProps) {
   const product = productsData[params.slug];
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://corpicia.com';
 
   if (!product) {
     notFound();
@@ -71,7 +66,11 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
 
   return (
     <>
-      <Script id={`product-schema-${params.slug}`} type="application/ld+json" strategy="afterInteractive">
+      <Script
+        id={`product-schema-${params.slug}`}
+        type="application/ld+json"
+        strategy="afterInteractive"
+      >
         {JSON.stringify(productSchema)}
       </Script>
       <ProductDetailClient slug={params.slug} />
