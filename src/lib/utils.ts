@@ -39,35 +39,34 @@ export function getWhatsAppUrl(message?: string): string {
 }
 
 export function getPriceForQuantity(
-  product: Product,
-  quantity: number
+  quantity: number,
+  priceTiers: PriceTier[] | undefined,
+  basePrice: number
 ): {
-  unitPrice: number;
-  totalPrice: number;
-  activeTier: PriceTier | null;
+  price: number;
+  tier: PriceTier | null;
+  isPromo: boolean;
 } {
-  const safeQuantity = Math.max(quantity, product.minQuantity);
-
-  if (!product.priceTiers || product.priceTiers.length === 0) {
-    return {
-      unitPrice: product.pricePerM2,
-      totalPrice: product.pricePerM2 * safeQuantity,
-      activeTier: null,
-    };
+  if (!priceTiers || priceTiers.length === 0) {
+    return { price: basePrice, tier: null, isPromo: false };
   }
 
-  const activeTier =
-    product.priceTiers.find((tier) => {
-      if (tier.max === null) return safeQuantity >= tier.min;
-      return safeQuantity >= tier.min && safeQuantity <= tier.max;
-    }) || null;
+  const safeQuantity = Math.max(1, quantity);
+  const activeTier = priceTiers.find((tier) => {
+    if (tier.max === null) {
+      return safeQuantity >= tier.min;
+    }
+    return safeQuantity >= tier.min && safeQuantity <= tier.max;
+  }) || null;
 
-  const unitPrice = activeTier?.price ?? product.pricePerM2;
+  if (!activeTier) {
+    return { price: basePrice, tier: null, isPromo: false };
+  }
 
   return {
-    unitPrice,
-    totalPrice: unitPrice * safeQuantity,
-    activeTier,
+    price: activeTier.price,
+    tier: activeTier,
+    isPromo: Boolean(activeTier.isPromo),
   };
 }
 
@@ -87,15 +86,15 @@ export function generateWhatsAppMessage(
   total: number
 ): string {
   let message = 'Hola, quiero solicitar un presupuesto:\n\n';
-
+  
   items.forEach((item, index) => {
     message += `${index + 1}. ${item.name}\n`;
     message += `   Cantidad: ${item.quantity} ${formatUnit(item.unit)}\n`;
     message += `   Precio estimado: ${formatPrice(item.total)}\n\n`;
   });
-
+  
   message += `Total estimado: ${formatPrice(total)}\n\n`;
   message += '¡Gracias!';
-
+  
   return getWhatsAppUrl(message);
 }
