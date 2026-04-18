@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   },
 };
 
+// ORDEN
 const featuredProducts = [
   productsCatalog.find((p) => p.slug === 'cesped-esmeralda'),
   productsCatalog.find((p) => p.slug === 'cesped-siempre-verde'),
@@ -51,15 +52,14 @@ const whatsappHref = 'https://wa.me/595992588770';
 export default function HomePage() {
   return (
     <div className="bg-white">
+
+      {/* HERO */}
       <section className="border-b">
         <div className="container mx-auto px-4 py-4 sm:py-6">
           <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-            <a
-              href={whatsappHref}
-              target="_blank"
-              rel="noreferrer"
-              className="block"
-            >
+
+            {/* HERO PRINCIPAL */}
+            <a href={whatsappHref} target="_blank" className="block">
               <div className="relative w-full aspect-[16/9] lg:h-[500px] rounded-xl overflow-hidden bg-[#f5fbf6]">
                 <Image
                   src="/banners/hero-main-desktop.webp"
@@ -71,33 +71,37 @@ export default function HomePage() {
               </div>
             </a>
 
+            {/* BANNERS LATERALES */}
             <div className="grid gap-4">
-              <a href={whatsappHref} target="_blank" rel="noreferrer">
+
+              <a href={whatsappHref} target="_blank">
                 <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-[#f5fbf6]">
                   <Image
                     src="/banners/hero-side-1.webp"
-                    alt="Banner lateral 1"
+                    alt=""
                     fill
                     className="object-contain"
                   />
                 </div>
               </a>
 
-              <a href={whatsappHref} target="_blank" rel="noreferrer">
+              <a href={whatsappHref} target="_blank">
                 <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-[#f5fbf6]">
                   <Image
                     src="/banners/hero-side-2.jpg"
-                    alt="Banner lateral 2"
+                    alt=""
                     fill
                     className="object-contain"
                   />
                 </div>
               </a>
+
             </div>
           </div>
         </div>
       </section>
 
+      {/* BENEFICIOS */}
       <section className="py-6 sm:py-8 bg-gray-50 border-b">
         <div className="container mx-auto px-4">
           <div className="flex gap-3 overflow-x-auto pb-2 md:grid md:grid-cols-4 md:gap-4">
@@ -117,11 +121,10 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* DESTACADOS */}
       <section className="py-10">
         <div className="container mx-auto px-4">
-          <h2 className="text-xl sm:text-2xl font-bold mb-6">
-            Productos destacados
-          </h2>
+          <h2 className="text-xl sm:text-2xl font-bold mb-6">Productos destacados</h2>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {featuredProducts.map((p) => (
@@ -131,15 +134,17 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* BLOQUE MIXTO */}
       <section className="pb-10">
         <div className="container mx-auto px-4">
           <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
+
             <div className="grid gap-4">
-              <a href={whatsappHref} target="_blank" rel="noreferrer">
+              <a href={whatsappHref} target="_blank">
                 <div className="relative w-full aspect-[16/9] lg:h-[500px] rounded-xl overflow-hidden bg-[#f5fbf6]">
                   <Image
                     src="/banners/mixed-banner-desktop.jpg"
-                    alt="Banner riego automático"
+                    alt=""
                     fill
                     className="object-contain"
                   />
@@ -154,17 +159,17 @@ export default function HomePage() {
             </div>
 
             <div className="grid gap-4">
-              <h2 className="text-xl sm:text-2xl font-bold">
-                Riego Automático
-              </h2>
+              <h2 className="text-xl sm:text-2xl font-bold">Riego Automático</h2>
               {mixedProducts.map((p) => (
                 <ProductCard key={p!.id} product={p!} />
               ))}
             </div>
+
           </div>
         </div>
       </section>
 
+      {/* PAISAJISMO */}
       <section className="pb-14">
         <div className="container mx-auto px-4">
           <h2 className="text-xl sm:text-2xl font-bold mb-6">Paisajismo</h2>
@@ -178,6 +183,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
     </div>
   );
 }
