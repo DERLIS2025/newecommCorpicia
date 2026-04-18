@@ -5,6 +5,7 @@ import type { Product } from '@/types';
 export type ProductDetail = Product & {
   features: string[];
   specifications: Record<string, string>;
+  recommendations: string[];
   relatedSlugs?: string[];
 };
 
@@ -13,8 +14,10 @@ const baseProductsCatalog: ProductDetail[] = [
     id: '1',
     name: 'Césped Esmeralda m²',
     slug: 'cesped-esmeralda',
-    description: 'Césped de alta densidad y color intenso.',
-    shortDescription: 'Césped premium',
+    description:
+      'Césped natural premium de alta densidad y color verde intenso, ideal para jardines residenciales y zonas decorativas que buscan una apariencia uniforme, elegante y de rápida cobertura.',
+    shortDescription:
+      'Césped premium de color intenso, cobertura uniforme y excelente presentación visual.',
     pricePerM2: 32000,
     unit: 'm2',
     minQuantity: 10,
@@ -32,14 +35,22 @@ const baseProductsCatalog: ProductDetail[] = [
     features: ['Color uniforme', 'Alta calidad'],
     relatedSlugs: ['cesped-siempre-verde', 'cesped-kavaju'],
     specifications: { Tipo: 'Césped' },
+    recommendations: [
+      'Uso ideal en jardines frontales, patios sociales y zonas ornamentales con buen drenaje.',
+      'Se recomienda instalar sobre superficie nivelada y con riego regular durante las primeras semanas.',
+      'Combina muy bien con bordes en piedra, senderos ecológicos y pisos exteriores drenantes.',
+      'Realiza corte de mantenimiento periódico para conservar altura pareja y color uniforme.',
+    ],
   },
 
   {
     id: '2',
     name: 'Césped Siempre Verde m²',
     slug: 'cesped-siempre-verde',
-    description: 'Césped adaptable',
-    shortDescription: 'Cobertura verde',
+    description:
+      'Césped natural versátil y adaptable para proyectos residenciales y comerciales, diseñado para mantener una cobertura verde constante con buena respuesta en diferentes condiciones de uso.',
+    shortDescription:
+      'Césped adaptable con cobertura estable y apariencia verde durante todo el año.',
     pricePerM2: 30000,
     unit: 'm2',
     minQuantity: 10,
@@ -52,14 +63,22 @@ const baseProductsCatalog: ProductDetail[] = [
     features: ['Alta adaptabilidad'],
     relatedSlugs: ['cesped-esmeralda'],
     specifications: { Tipo: 'Césped' },
+    recommendations: [
+      'Ideal para áreas de tránsito moderado como zonas comunes, jardines familiares y áreas recreativas.',
+      'Funciona mejor en superficies con exposición solar parcial o completa y suelo aireado.',
+      'Puede combinarse con césped Esmeralda en sectores decorativos para mayor contraste visual.',
+      'Riego y fertilización programada ayudan a sostener su color y densidad en el tiempo.',
+    ],
   },
 
   {
     id: '3',
     name: 'Césped Kavaju m²',
     slug: 'cesped-kavaju',
-    description: 'Césped resistente',
-    shortDescription: 'Rústico',
+    description:
+      'Césped natural de perfil rústico y alta resistencia, recomendado para zonas exigentes que requieren una opción durable, funcional y de fácil adaptación en exteriores.',
+    shortDescription:
+      'Césped rústico y resistente para zonas de uso exigente y mantenimiento práctico.',
     pricePerM2: 28000,
     unit: 'm2',
     minQuantity: 15,
@@ -72,14 +91,22 @@ const baseProductsCatalog: ProductDetail[] = [
     features: ['Resistente'],
     relatedSlugs: ['cesped-esmeralda'],
     specifications: { Tipo: 'Césped' },
+    recommendations: [
+      'Uso recomendado en áreas amplias, fincas, jardines de alto uso y zonas con desgaste frecuente.',
+      'Para mejor desempeño, instala sobre base compacta y capa de tierra fértil bien nivelada.',
+      'Se complementa con pisos ecológicos en accesos para reducir barro y mejorar circulación.',
+      'Mantenimiento básico con riego regular y cortes menos frecuentes según crecimiento.',
+    ],
   },
 
   {
     id: '4',
     name: 'Piso Ecológico 40x60',
     slug: 'piso-ecologico-40x60',
-    description: 'Piso drenante',
-    shortDescription: 'Exterior',
+    description:
+      'Piso ecológico drenante 40x60 para exteriores, ideal para controlar escorrentías, mejorar seguridad al caminar y aportar un acabado funcional en terrazas, jardines y senderos.',
+    shortDescription:
+      'Piso drenante para exteriores con excelente funcionalidad, seguridad y fácil integración.',
     pricePerM2: 85000,
     unit: 'm2',
     minQuantity: 1,
@@ -92,6 +119,12 @@ const baseProductsCatalog: ProductDetail[] = [
     features: ['Durable'],
     relatedSlugs: [],
     specifications: { Tipo: 'Piso' },
+    recommendations: [
+      'Ideal para senderos de jardín, terrazas, accesos peatonales y áreas exteriores húmedas.',
+      'Se recomienda instalar sobre base firme y nivelada para garantizar estabilidad y drenaje.',
+      'Combina perfectamente con césped natural para crear zonas verdes funcionales y estéticas.',
+      'Limpia periódicamente con agua a presión moderada para conservar textura y rendimiento.',
+    ],
   },
 ];
 
