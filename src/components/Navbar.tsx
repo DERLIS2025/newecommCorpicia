@@ -33,34 +33,57 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur-md">
-      {/* TOP BAR */}
-      <div className="border-b border-gray-100 bg-[#f8fbf8]">
-        <div className="container mx-auto px-4 py-2 flex items-center justify-between text-xs sm:text-sm text-gray-600">
-          <p className="hidden md:block">
-            Envíos a todo Paraguay · Asunción y Gran Asunción
-          </p>
-          
-          {/* BOTÓN WHATSAPP - DESKTOP Y MOBILE */}
-          <a
-            href={getWhatsAppUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="
-              inline-flex items-center gap-2 
-              bg-corpicia-green hover:bg-green-700 
-              text-white font-semibold 
-              px-4 py-2 rounded-full 
-              text-xs sm:text-sm
-              transition-all duration-300
-              animate-pulse-slow
-              hover:scale-105 hover:shadow-lg
-              ml-auto
-            "
-          >
-            <WhatsAppIcon className="w-4 h-4" />
-            <span className="hidden sm:inline">HABLAR CON UN ASESOR</span>
-            <span className="sm:hidden">ASESOR🙋🏻‍♂️</span>
-          </a>
+      {/* TOP BAR - MARQUEE DE OFERTAS */}
+      <div className="bg-red-600 text-white overflow-hidden">
+        <div className="container mx-auto px-4 py-2">
+          <div className="flex items-center">
+            {/* Desktop: marquee scrolleable */}
+            <div className="hidden md:block overflow-hidden flex-1">
+              <div className="animate-marquee whitespace-nowrap flex gap-8">
+                <span className="inline-flex items-center gap-2">
+                  🔥 <strong>CÉSPED ESMERALDA + INSTALACIÓN: Gs. 32.000/m²</strong> · APROVECHÁ AHORA
+                </span>
+                <span className="inline-flex items-center gap-2">
+                  🌱 <strong>CÉSPED SIEMPRE VERDE</strong> resistente todo el año
+                </span>
+                <span className="inline-flex items-center gap-2">
+                  🏡 <strong>INSTALACIÓN PROFESIONAL</strong> garantizada en Asunción
+                </span>
+                {/* Duplicado para loop suave */}
+                <span className="inline-flex items-center gap-2">
+                  🔥 <strong>CÉSPED ESMERALDA + INSTALACIÓN: Gs. 32.000/m²</strong> · APROVECHÁ AHORA
+                </span>
+                <span className="inline-flex items-center gap-2">
+                  🌱 <strong>CÉSPED SIEMPRE VERDE</strong> resistente todo el año
+                </span>
+              </div>
+            </div>
+            
+            {/* Mobile: solo la oferta principal */}
+            <div className="md:hidden flex-1 text-center text-xs font-bold">
+              🔥 CÉSPED + INSTALACIÓN: Gs. 32.000/m²
+            </div>
+
+            {/* Botón WhatsApp siempre visible */}
+            <a
+              href={getWhatsAppUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="
+                inline-flex items-center gap-1.5 
+                bg-white text-red-600 
+                font-bold 
+                px-3 py-1.5 rounded-full 
+                text-xs
+                transition-all duration-300
+                hover:scale-105 hover:shadow-lg
+                ml-2 flex-shrink-0
+              "
+            >
+              <WhatsAppIcon className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">WHATSAPP</span>
+            </a>
+          </div>
         </div>
       </div>
 
