@@ -24,7 +24,6 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur-md">
-      
       {/* TOP BAR */}
       <div className="border-b border-gray-100 bg-[#f8fbf8]">
         <div className="container mx-auto px-4 py-2 flex items-center justify-between text-xs sm:text-sm text-gray-600">
@@ -46,24 +45,30 @@ export function Navbar() {
       {/* MAIN NAV */}
       <div className="container mx-auto px-4">
         <div className="relative flex items-center justify-between h-16 lg:h-[72px] px-3">
-
           {/* LOGO */}
-          <Link href="/" className="flex items-center flex-shrink-0">
+          <Link
+            href="/"
+            className="
+              absolute left-1/2 -translate-x-1/2
+              lg:static lg:translate-x-0
+              flex items-center
+            "
+          >
             <Image
-  src="/logo-corpicia.png"
-  alt="Corpicia"
-  width={160}
-  height={50}
-  priority
-  className="
-    h-[44px]
-    sm:h-[50px]
-    md:h-[56px]
-    lg:h-[60px]
-    w-auto
-    object-contain
-  "
-/>
+              src="/logo-corpicia.png"
+              alt="Corpicia"
+              width={160}
+              height={50}
+              priority
+              className="
+                h-[44px]
+                sm:h-[50px]
+                md:h-[56px]
+                lg:h-[60px]
+                w-auto
+                object-contain
+              "
+            />
           </Link>
 
           {/* SEARCH DESKTOP */}
@@ -95,7 +100,7 @@ export function Navbar() {
           </nav>
 
           {/* ACTIONS */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 ml-auto">
             <Link href="/presupuesto/">
               <Button variant="outline" size="icon" className="relative rounded-full border-gray-200">
                 <ShoppingCart className="w-5 h-5" />
@@ -127,7 +132,6 @@ export function Navbar() {
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-gray-100 bg-white">
           <div className="container mx-auto px-4 py-4">
-
             {/* SEARCH MOBILE */}
             <div className="relative mb-4">
               <form action="/productos/" method="get" className="relative">
