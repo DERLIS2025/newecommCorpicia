@@ -165,17 +165,45 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ✅ SECCIÓN PAISAJISMO CORREGIDA */}
+      {/* ✅ SECCIÓN PAISAJISMO - CARRUSEL EN DESKTOP */}
       <section className="pb-14">
         <div className="container mx-auto px-4">
           <h2 className="text-xl sm:text-2xl font-bold mb-6">Paisajismo</h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+          {/* Mobile: Grid de 2 columnas */}
+          <div className="grid grid-cols-2 gap-4 md:hidden">
             {secondaryProducts.map((p) => (
               <div className="w-full" key={p!.id}>
                 <ProductCard product={p!} />
               </div>
             ))}
+          </div>
+
+          {/* Desktop: Carrusel horizontal con scroll */}
+          <div className="hidden md:block relative">
+            <div 
+              className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {secondaryProducts.map((p) => (
+                <div 
+                  className="flex-shrink-0 w-[280px]" 
+                  key={p!.id}
+                >
+                  <ProductCard product={p!} />
+                </div>
+              ))}
+            </div>
+            
+            {/* Indicador de scroll */}
+            <div className="flex justify-center gap-2 mt-2">
+              {secondaryProducts.map((_, i) => (
+                <div 
+                  key={i} 
+                  className="w-2 h-2 rounded-full bg-gray-300"
+                />
+              ))}
+            </div>
           </div>
         </div>
       </section>
