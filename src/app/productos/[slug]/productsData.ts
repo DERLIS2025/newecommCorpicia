@@ -159,3 +159,8 @@ export function getRelatedProducts(product: ProductDetail, limit = 4): ProductDe
 
   return Array.from(unique.values()).slice(0, limit);
 }
+export const productCategories = [
+  { id: 'all', name: 'Todos', slug: 'all' },
+  { id: 'cesped-natural', name: 'Césped Natural', slug: 'cesped-natural' },
+  { id: 'pisos-exteriores', name: 'Pisos Exteriores', slug: 'pisos-exteriores' },
+];
