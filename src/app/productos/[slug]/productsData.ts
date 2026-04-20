@@ -403,7 +403,7 @@ const baseProductsCatalog: ProductDetail[] = [
       'Aspersor de alto rendimiento para sistemas de riego residencial y comercial con cobertura uniforme y regulación precisa.',
     shortDescription:
       'Aspersor Rain Bird para riego automático eficiente y cobertura uniforme.',
-    pricePerM2: 31000,
+    pricePerM2: 310000,
     unit: 'unidad',
     minQuantity: 1,
     images: [],
@@ -444,7 +444,7 @@ const baseProductsCatalog: ProductDetail[] = [
       'Válvula para control de sectores de riego con excelente desempeño, confiabilidad y funcionamiento estable.',
     shortDescription:
       'Válvula de riego profesional para controlar sectores con precisión.',
-    pricePerM2: 35000,
+    pricePerM2: 350000,
     unit: 'unidad',
     minQuantity: 1,
     images: [],
@@ -485,7 +485,7 @@ const baseProductsCatalog: ProductDetail[] = [
       'Difusor para cobertura puntual en zonas de jardinería de pequeño y mediano tamaño, ideal para canteros y césped.',
     shortDescription:
       'Difusor de riego para cobertura puntual en jardines, canteros y áreas verdes.',
-    pricePerM2: 23000,
+    pricePerM2: 230000,
     unit: 'unidad',
     minQuantity: 1,
     images: [],
@@ -526,7 +526,7 @@ const baseProductsCatalog: ProductDetail[] = [
       'Mini rotor para cobertura uniforme en jardines medianos, con regulación de alcance y sector para un riego técnico más eficiente.',
     shortDescription:
       'Mini rotor Rain Bird para riego técnico uniforme en jardines medianos.',
-    pricePerM2: 35000,
+    pricePerM2: 350000,
     unit: 'unidad',
     minQuantity: 1,
     images: [],
