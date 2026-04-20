@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 import { Menu, X, ShoppingCart, Phone, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -23,6 +24,8 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur-md">
+      
+      {/* TOP BAR */}
       <div className="border-b border-gray-100 bg-[#f8fbf8]">
         <div className="container mx-auto px-4 py-2 flex items-center justify-between text-xs sm:text-sm text-gray-600">
           <p className="hidden md:block">
@@ -40,18 +43,33 @@ export function Navbar() {
         </div>
       </div>
 
+      {/* MAIN NAV */}
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 lg:h-[74px] gap-3">
+
+          {/* LOGO */}
           <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
-            <div className="w-10 h-10 bg-corpicia-green rounded-xl flex items-center justify-center shadow-sm">
-              <span className="text-white font-bold text-xl">C</span>
-            </div>
+            <Image
+              src="/logo-corpicia.png"
+              alt="Corpicia"
+              width={160}
+              height={48}
+              className="h-auto w-[110px] sm:w-[130px] md:w-[150px] object-contain"
+              priority
+            />
+
+            {/* TEXTO (opcional, podés ocultarlo si querés más minimalismo) */}
             <div className="hidden sm:block">
-              <p className="text-[11px] uppercase tracking-[0.16em] text-gray-500 leading-none">Corpicia</p>
-              <p className="text-base font-semibold text-gray-900 leading-tight">Césped & Jardinería</p>
+              <p className="text-[11px] uppercase tracking-[0.16em] text-gray-500 leading-none">
+                Corpicia
+              </p>
+              <p className="text-base font-semibold text-gray-900 leading-tight">
+                Césped & Jardinería
+              </p>
             </div>
           </Link>
 
+          {/* SEARCH DESKTOP */}
           <div className="hidden md:flex flex-1 max-w-xl mx-2 lg:mx-6">
             <form action="/productos/" method="get" className="relative w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -66,6 +84,7 @@ export function Navbar() {
             </form>
           </div>
 
+          {/* NAV LINKS */}
           <nav className="hidden lg:flex items-center gap-5">
             {navLinks.map((link) => (
               <Link
@@ -78,6 +97,7 @@ export function Navbar() {
             ))}
           </nav>
 
+          {/* ACTIONS */}
           <div className="flex items-center gap-2">
             <Link href="/presupuesto/">
               <Button variant="outline" size="icon" className="relative rounded-full border-gray-200">
@@ -106,9 +126,12 @@ export function Navbar() {
         </div>
       </div>
 
+      {/* MOBILE MENU */}
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-gray-100 bg-white">
           <div className="container mx-auto px-4 py-4">
+
+            {/* SEARCH MOBILE */}
             <div className="relative mb-4">
               <form action="/productos/" method="get" className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -123,6 +146,7 @@ export function Navbar() {
               </form>
             </div>
 
+            {/* LINKS MOBILE */}
             <nav className="flex flex-col gap-1">
               {navLinks.map((link) => (
                 <Link
