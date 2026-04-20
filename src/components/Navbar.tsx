@@ -45,23 +45,25 @@ export function Navbar() {
 
       {/* MAIN NAV */}
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16 lg:h-[76px] gap-3">
+        <div className="flex items-center justify-between h-14 lg:h-[64px] gap-3">
 
-         <Image
-  src="/logo-corpicia.png"
-  alt="Corpicia"
-  width={150}
-  height={50}
-  priority
-  className="
-    h-[36px] 
-    sm:h-[40px] 
-    md:h-[44px] 
-    lg:h-[48px] 
-    w-auto 
-    object-contain
-  "
-/>
+          {/* LOGO */}
+          <Link href="/" className="flex items-center flex-shrink-0">
+            <Image
+              src="/logo-corpicia.png"
+              alt="Corpicia"
+              width={150}
+              height={50}
+              priority
+              className="
+                h-[34px] 
+                sm:h-[38px] 
+                md:h-[42px] 
+                lg:h-[46px] 
+                w-auto 
+                object-contain
+              "
+            />
           </Link>
 
           {/* SEARCH DESKTOP */}
@@ -74,7 +76,7 @@ export function Navbar() {
                 placeholder="Buscar productos..."
                 value={desktopQuery}
                 onChange={(event) => setDesktopQuery(event.target.value)}
-                className="w-full h-11 pl-10 pr-4 rounded-full border border-gray-200 bg-white focus:outline-none focus:border-corpicia-green focus:ring-2 focus:ring-corpicia-green/20"
+                className="w-full h-10 pl-10 pr-4 rounded-full border border-gray-200 bg-white focus:outline-none focus:border-corpicia-green focus:ring-2 focus:ring-corpicia-green/20"
               />
             </form>
           </div>
@@ -136,7 +138,7 @@ export function Navbar() {
                   placeholder="Buscar productos..."
                   value={mobileQuery}
                   onChange={(event) => setMobileQuery(event.target.value)}
-                  className="w-full h-11 pl-10 pr-4 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-corpicia-green/20 focus:border-corpicia-green"
+                  className="w-full h-10 pl-10 pr-4 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-corpicia-green/20 focus:border-corpicia-green"
                 />
               </form>
             </div>
