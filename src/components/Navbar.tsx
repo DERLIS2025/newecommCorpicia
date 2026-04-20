@@ -37,31 +37,26 @@ export function Navbar() {
       <div className="bg-red-600 text-white overflow-hidden">
         <div className="container mx-auto px-4 py-2">
           <div className="flex items-center">
-            {/* Desktop: marquee scrolleable */}
-            <div className="hidden md:block overflow-hidden flex-1">
+            {/* Desktop y Mobile: marquee scrolleable */}
+            <div className="overflow-hidden flex-1">
               <div className="animate-marquee whitespace-nowrap flex gap-8">
-                <span className="inline-flex items-center gap-2">
+                <span className="inline-flex items-center gap-2 text-xs sm:text-sm">
                   🔥 <strong>CÉSPED ESMERALDA + INSTALACIÓN: Gs. 32.000/m²</strong> · APROVECHÁ AHORA
                 </span>
-                <span className="inline-flex items-center gap-2">
+                <span className="inline-flex items-center gap-2 text-xs sm:text-sm">
                   🌱 <strong>CÉSPED SIEMPRE VERDE</strong> resistente todo el año
                 </span>
-                <span className="inline-flex items-center gap-2">
+                <span className="inline-flex items-center gap-2 text-xs sm:text-sm">
                   🏡 <strong>INSTALACIÓN PROFESIONAL</strong> garantizada en Asunción
                 </span>
                 {/* Duplicado para loop suave */}
-                <span className="inline-flex items-center gap-2">
+                <span className="inline-flex items-center gap-2 text-xs sm:text-sm">
                   🔥 <strong>CÉSPED ESMERALDA + INSTALACIÓN: Gs. 32.000/m²</strong> · APROVECHÁ AHORA
                 </span>
-                <span className="inline-flex items-center gap-2">
+                <span className="inline-flex items-center gap-2 text-xs sm:text-sm">
                   🌱 <strong>CÉSPED SIEMPRE VERDE</strong> resistente todo el año
                 </span>
               </div>
-            </div>
-            
-            {/* Mobile: solo la oferta principal */}
-            <div className="md:hidden flex-1 text-center text-xs font-bold">
-              🔥 CÉSPED + INSTALACIÓN: Gs. 32.000/m²
             </div>
 
             {/* Botón WhatsApp siempre visible */}
