@@ -68,9 +68,8 @@ export default function ProductDetailClient({ slug }: Props) {
 
         <div className="grid lg:grid-cols-[1.2fr_1fr] gap-8 lg:gap-10">
 
-          {/* GALERÍA */}
           <div>
-            <div className="relative aspect-square rounded-xl overflow-hidden bg-white">
+            <div className="relative aspect-square rounded-xl overflow-hidden bg-white shadow-sm">
               <Image src={selectedImage} alt={product.name} fill className="object-cover" />
             </div>
 
@@ -85,7 +84,6 @@ export default function ProductDetailClient({ slug }: Props) {
             </div>
           </div>
 
-          {/* INFO */}
           <div className="space-y-5 md:space-y-6">
 
             <div className="space-y-2">
@@ -94,7 +92,7 @@ export default function ProductDetailClient({ slug }: Props) {
               <p className="text-gray-700 leading-relaxed">{product.description}</p>
             </div>
 
-            <div className="border rounded-xl p-5 md:p-6 bg-white space-y-5">
+            <div className="border rounded-xl p-5 md:p-6 bg-white space-y-5 shadow-sm">
 
               <div className="space-y-1">
                 <p className="text-xs uppercase tracking-wide text-gray-500">Precio por unidad</p>
@@ -146,7 +144,7 @@ export default function ProductDetailClient({ slug }: Props) {
 
             </div>
 
-            <div className="border rounded-xl bg-white p-5 md:p-6 space-y-4">
+            <div className="border rounded-xl bg-white p-5 md:p-6 space-y-4 shadow-sm">
               <h2 className="text-lg font-semibold">Características y especificaciones</h2>
 
               <div className="space-y-2">
@@ -181,7 +179,6 @@ export default function ProductDetailClient({ slug }: Props) {
           </div>
         </div>
 
-        {/* RELACIONADOS */}
         <div className="mt-14">
           <h2 className="text-xl font-bold mb-4">También te puede interesar</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
