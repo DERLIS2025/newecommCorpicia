@@ -50,20 +50,20 @@ export function Navbar() {
           {/* LOGO */}
           <Link href="/" className="flex items-center flex-shrink-0">
             <Image
-              src="/logo-corpicia.png"
-              alt="Corpicia"
-              width={150}
-              height={50}
-              priority
-              className="
-                h-[34px] 
-                sm:h-[38px] 
-                md:h-[42px] 
-                lg:h-[46px] 
-                w-auto 
-                object-contain
-              "
-            />
+  src="/logo-corpicia.png"
+  alt="Corpicia"
+  width={150}
+  height={50}
+  priority
+  className="
+    h-[44px]
+    sm:h-[50px]
+    md:h-[56px]
+    lg:h-[60px]
+    w-auto
+    object-contain
+  "
+/>
           </Link>
 
           {/* SEARCH DESKTOP */}
