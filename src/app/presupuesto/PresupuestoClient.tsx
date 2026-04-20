@@ -136,6 +136,18 @@ export default function PresupuestoClient() {
                 <span>{formatPrice(getTotal())}</span>
               </div>
 
+              {/* ✅ NOTAS DE ACLARACIÓN - NUEVO */}
+              <div className="text-xs text-gray-500 space-y-1 border-t border-gray-200 pt-3">
+                <p className="flex items-start gap-1">
+                  <span>•</span>
+                  <span>Los precios no incluyen IVA</span>
+                </p>
+                <p className="flex items-start gap-1">
+                  <span>•</span>
+                  <span>Empastado e instalación de riego: el precio no incluye preparación del terreno</span>
+                </p>
+              </div>
+
               <Button onClick={handleWhatsAppClick} className="w-full">
                 <MessageCircle className="mr-2" />
                 Enviar por WhatsApp
