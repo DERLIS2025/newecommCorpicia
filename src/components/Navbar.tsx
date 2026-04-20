@@ -57,9 +57,9 @@ export function Navbar() {
               priority
               className="
                 w-[110px] 
-                sm:w-[100px] 
-                md:w-[120px] 
-                lg:w-[130px] 
+                sm:w-[90px] 
+                md:w-[100px] 
+                lg:w-[100px] 
                 h-auto 
                 object-contain
               "
