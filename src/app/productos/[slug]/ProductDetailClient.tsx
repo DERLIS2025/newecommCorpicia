@@ -129,18 +129,24 @@ export default function ProductDetailClient({ slug }: Props) {
                 Total: {formatPrice(totalPrice)}
               </div>
 
-              <Button onClick={handleAdd}>
-                <ShoppingCart /> Agregar
-              </Button>
+              {/* ✅ BOTONES CORREGIDOS: Con gap y responsive */}
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <Button onClick={handleAdd} className="flex-1">
+                  <ShoppingCart className="mr-2" size={18} /> Agregar al Presupuesto
+                </Button>
 
-              <a
-                href={getWhatsAppUrl(`Hola quiero ${product.name}`)}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => trackWhatsAppClick('pdp', product.slug)}
-              >
-                <Button variant="outline">WhatsApp</Button>
-              </a>
+                <a
+                  href={getWhatsAppUrl(`Hola quiero ${product.name}`)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackWhatsAppClick('pdp', product.slug)}
+                  className="flex-1"
+                >
+                  <Button variant="outline" className="w-full">
+                    WhatsApp
+                  </Button>
+                </a>
+              </div>
 
             </div>
 
