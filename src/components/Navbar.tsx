@@ -52,7 +52,7 @@ export function Navbar() {
             <Image
   src="/logo-corpicia.png"
   alt="Corpicia"
-  width={150}
+  width={160}
   height={50}
   priority
   className="
