@@ -101,32 +101,37 @@ export function Navbar() {
             </Button>
           </div>
 
-          {/* LOGO - CENTRO, MUCHO MÁS GRANDE EN MOBILE */}
+          {/* LOGO - CENTRO, MÁS GRANDE EN MOBILE CON SCALE */}
           <Link
             href="/"
             className="
               flex items-center justify-center
               flex-1 min-w-0
               lg:flex-none lg:justify-start
+              overflow-visible
             "
           >
             <Image
-              src="/logo-corpicia-navbar.png"
+              src="/logo-corpicia.png"
               alt="Corpicia"
               width={400}
               height={200}
               priority
               className="
-                h-[76px]
-                sm:h-[84px]
-                md:h-[60px]
-                lg:h-[64px]
+                h-[64px]
+                sm:h-[72px]
+                md:h-[56px]
+                lg:h-[60px]
                 w-auto
-                min-w-[200px]
-                sm:min-w-[260px]
-                md:min-w-[160px]
-                lg:min-w-[180px]
+                min-w-[220px]
+                sm:min-w-[280px]
+                md:min-w-[180px]
+                lg:min-w-[200px]
                 object-contain
+                scale-125
+                sm:scale-140
+                md:scale-100
+                origin-center
               "
             />
           </Link>
