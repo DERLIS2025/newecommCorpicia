@@ -45,28 +45,25 @@ export function Navbar() {
 
       {/* MAIN NAV */}
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16 lg:h-[74px] gap-3">
+        <div className="flex items-center justify-between h-16 lg:h-[76px] gap-3">
 
           {/* LOGO */}
-          <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
+          <Link href="/" className="flex items-center flex-shrink-0">
             <Image
               src="/logo-corpicia.png"
               alt="Corpicia"
-              width={160}
-              height={48}
-              className="h-auto w-[110px] sm:w-[130px] md:w-[150px] object-contain"
+              width={180}
+              height={60}
               priority
+              className="
+                w-[110px] 
+                sm:w-[130px] 
+                md:w-[150px] 
+                lg:w-[170px] 
+                h-auto 
+                object-contain
+              "
             />
-
-            {/* TEXTO (opcional, podés ocultarlo si querés más minimalismo) */}
-            <div className="hidden sm:block">
-              <p className="text-[11px] uppercase tracking-[0.16em] text-gray-500 leading-none">
-                Corpicia
-              </p>
-              <p className="text-base font-semibold text-gray-900 leading-tight">
-                Césped & Jardinería
-              </p>
-            </div>
           </Link>
 
           {/* SEARCH DESKTOP */}
