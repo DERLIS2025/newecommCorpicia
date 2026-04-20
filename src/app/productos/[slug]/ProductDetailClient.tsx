@@ -38,7 +38,7 @@ export default function ProductDetailClient({ slug }: Props) {
 
   const safeQuantity = Math.max(quantity, product.minQuantity);
 
-  const { unitPrice, totalPrice, activeTier } = useMemo(
+  const { unitPrice, totalPrice } = useMemo(
     () => getPriceForQuantity(product, quantity),
     [product, quantity]
   );
@@ -68,7 +68,6 @@ export default function ProductDetailClient({ slug }: Props) {
 
         <div className="grid lg:grid-cols-[1.2fr_1fr] gap-8 lg:gap-10">
 
-          {/* GALERÍA */}
           <div>
             <div className="relative aspect-square rounded-xl overflow-hidden bg-white shadow-sm">
               <Image src={selectedImage} alt={product.name} fill className="object-cover" />
@@ -76,8 +75,8 @@ export default function ProductDetailClient({ slug }: Props) {
 
             <div className="grid grid-cols-4 gap-2 mt-4">
               {images.map((img, i) => (
-                <button key={i} onClick={() => setSelectedImageIndex(i)}>
-                  <div className="relative aspect-square">
+                <button key={i} onClick={() => setSelectedImageIndex(i)} aria-label={`Ver imagen ${i + 1} de ${product.name}`}>
+                  <div className={`relative aspect-square ${selectedImageIndex === i ? 'ring-2 ring-green-600 rounded' : ''}`}>
                     <Image src={img} alt="" fill className="object-cover rounded" />
                   </div>
                 </button>
@@ -85,11 +84,11 @@ export default function ProductDetailClient({ slug }: Props) {
             </div>
           </div>
 
-          {/* INFO */}
           <div className="space-y-5 md:space-y-6">
 
             <div className="space-y-2">
               <h1 className="text-3xl font-bold leading-tight">{product.name}</h1>
+              <p className="text-sm text-green-700 font-medium">{product.shortDescription}</p>
               <p className="text-gray-700 leading-relaxed">{product.description}</p>
             </div>
 
@@ -137,6 +136,7 @@ export default function ProductDetailClient({ slug }: Props) {
               <a
                 href={getWhatsAppUrl(`Hola quiero ${product.name}`)}
                 target="_blank"
+                rel="noopener noreferrer"
                 onClick={() => trackWhatsAppClick('pdp', product.slug)}
               >
                 <Button variant="outline">WhatsApp</Button>
@@ -179,7 +179,6 @@ export default function ProductDetailClient({ slug }: Props) {
           </div>
         </div>
 
-        {/* RELACIONADOS */}
         <div className="mt-14">
           <h2 className="text-xl font-bold mb-4">También te puede interesar</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
