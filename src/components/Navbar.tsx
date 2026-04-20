@@ -84,29 +84,31 @@ export function Navbar() {
 
       {/* MAIN NAV */}
       <div className="container mx-auto px-4">
-        <div className="relative flex items-center justify-between h-20 lg:h-[72px] px-3">
-          {/* LOGO - MÁS GRANDE EN MOBILE */}
+        <div className="flex items-center justify-between h-20 lg:h-[72px] px-3">
+          {/* LOGO - MÁS GRANDE Y CON MÁS ESPACIO EN MOBILE */}
           <Link
             href="/"
             className="
-              absolute left-1/2 -translate-x-1/2
-              lg:static lg:translate-x-0
-              flex items-center
-              z-10
+              flex items-center flex-1 justify-center
+              lg:flex-none lg:justify-start
             "
           >
             <Image
               src="/logo-corpicia.png"
               alt="Corpicia"
-              width={200}
-              height={70}
+              width={280}
+              height={90}
               priority
               className="
-                h-[68px]
-                sm:h-[72px]
-                md:h-[64px]
-                lg:h-[68px]
+                h-[64px]
+                sm:h-[68px]
+                md:h-[60px]
+                lg:h-[64px]
                 w-auto
+                max-w-[200px]
+                sm:max-w-[220px]
+                md:max-w-[180px]
+                lg:max-w-[200px]
                 object-contain
               "
             />
@@ -141,7 +143,7 @@ export function Navbar() {
           </nav>
 
           {/* ACTIONS */}
-          <div className="flex items-center gap-2 ml-auto z-10">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <Link href="/presupuesto/">
               <Button variant="outline" size="icon" className="relative rounded-full border-gray-200">
                 <ShoppingCart className="w-5 h-5" />
