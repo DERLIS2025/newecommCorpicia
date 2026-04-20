@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { BudgetState, Product } from '@/types';
+import { getPriceForQuantity } from '@/lib/utils';
 
 export const useBudgetStore = create<BudgetState>()(
   persist(
@@ -15,14 +16,18 @@ export const useBudgetStore = create<BudgetState>()(
 
           if (existingItem) {
             const newQuantity = existingItem.quantity + quantity;
+            const { unitPrice, totalPrice } = getPriceForQuantity(product, newQuantity);
+            
             return {
               items: state.items.map((item) =>
                 item.product.id === product.id
-                  ? { ...item, quantity: newQuantity, total: product.pricePerM2 * newQuantity }
+                  ? { ...item, quantity: newQuantity, unitPrice, total: totalPrice }
                   : item
               ),
             };
           }
+
+          const { unitPrice, totalPrice } = getPriceForQuantity(product, quantity);
 
           return {
             items: [
@@ -30,7 +35,8 @@ export const useBudgetStore = create<BudgetState>()(
               {
                 product,
                 quantity,
-                total: product.pricePerM2 * quantity,
+                unitPrice,
+                total: totalPrice,
               },
             ],
           };
@@ -45,11 +51,18 @@ export const useBudgetStore = create<BudgetState>()(
 
       updateQuantity: (productId: string, quantity: number) => {
         set((state) => ({
-          items: state.items.map((item) =>
-            item.product.id === productId
-              ? { ...item, quantity, total: item.product.pricePerM2 * quantity }
-              : item
-          ),
+          items: state.items.map((item) => {
+            if (item.product.id !== productId) return item;
+            
+            const { unitPrice, totalPrice } = getPriceForQuantity(item.product, quantity);
+            
+            return {
+              ...item,
+              quantity,
+              unitPrice,
+              total: totalPrice,
+            };
+          }),
         }));
       },
 
