@@ -1,8 +1,9 @@
-export interface BudgetItem {
-  product: Product;
-  quantity: number;
-  unitPrice: number;  // ← NUEVO: precio unitario aplicado según tier
-  total: number;
+export interface PriceTier {
+  min: number;
+  max: number | null;
+  price: number;
+  label: string;
+  isPromo?: boolean;
 }
 
 export interface Product {
@@ -36,6 +37,7 @@ export interface Category {
 export interface BudgetItem {
   product: Product;
   quantity: number;
+  unitPrice: number;  // ← precio unitario aplicado según tier
   total: number;
 }
 
