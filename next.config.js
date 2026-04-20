@@ -5,13 +5,13 @@ const nextConfig = {
   // 🔒 Seguridad: Ocultar versión de Next.js
   poweredByHeader: false,
   
-  // 🌐 SEO: Trailing slash consistente (evita contenido duplicado)
+  // 🌐 SEO: Trailing slash consistente
   trailingSlash: true,
   
   // 📦 Compresión para Core Web Vitals
   compress: true,
   
-  // 🖼️ Imágenes: Dominios permitidos (NO uses '**')
+  // 🖼️ Imágenes: Dominios permitidos
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
@@ -23,31 +23,21 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'www.corpicia.com',
       },
-      // Agregá acá si usás CDN externo (ej: Cloudinary, AWS S3)
-      // {
-      //   protocol: 'https',
-      //   hostname: 'tu-cdn.com',
-      // },
     ],
     minimumCacheTTL: 60,
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
 
-  // 🌍 Internacionalización (para SEO global)
+  // 🌍 Internacionalización
   i18n: {
     locales: ['es'],
     defaultLocale: 'es',
-    // Cuando expandas a otros países:
-    // locales: ['es', 'es-AR', 'es-UY', 'pt-BR'],
-    // defaultLocale: 'es',
   },
 
   // 🔀 Redirects críticos para SEO
   async redirects() {
     return [
-      // Redirect www ↔ non-www (elegí uno y mantenelo)
-      // Si tu dominio principal es www.corpicia.com:
       {
         source: '/:path*',
         has: [
@@ -59,8 +49,6 @@ const nextConfig = {
         destination: 'https://www.corpicia.com/:path*',
         permanent: true,
       },
-      // Redirect HTTP → HTTPS (si Vercel no lo hace automático)
-      // Vercel ya lo hace, pero por las dudas:
     ];
   },
 
@@ -94,7 +82,6 @@ const nextConfig = {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=(self)',
           },
-          // CSP básico (ajustar según scripts de terceros)
           {
             key: 'Content-Security-Policy',
             value: [
@@ -109,9 +96,9 @@ const nextConfig = {
           },
         ],
       },
+      // ✅ CORREGIDO: Sin capturing groups en la regex
       {
-        // Cache para assets estáticos
-        source: '/(.*\\.(js|css|svg|png|jpg|jpeg|gif|webp|avif|ico|woff|woff2))',
+        source: '/:all*(js|css|svg|png|jpg|jpeg|gif|webp|avif|ico|woff|woff2)',
         headers: [
           {
             key: 'Cache-Control',
@@ -122,11 +109,9 @@ const nextConfig = {
     ];
   },
 
-  // 🔧 Experimental (Next.js 14+)
+  // 🔧 Experimental
   experimental: {
-    // Optimización de imágenes
     optimizePackageImports: ['lucide-react'],
-    // Server Actions (si los usás)
     serverActions: {
       bodySizeLimit: '2mb',
     },
