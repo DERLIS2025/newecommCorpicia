@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useBudgetStore } from '@/store/budgetStore';
-import { formatPrice, formatUnit, generateWhatsAppMessage, getAppliedTier, getPriceForQuantity } from '@/lib/utils';
+import { formatPrice, formatUnit, generateWhatsAppMessage, getPriceForQuantity } from '@/lib/utils';
 import { trackWhatsAppClick } from '@/lib/tracking';
 import {
   Minus,
@@ -41,7 +41,7 @@ export default function PresupuestoClient() {
   const getTierMessage = (item: typeof items[0]) => {
     if (!item.product.priceTiers || item.product.priceTiers.length === 0) return null;
     
-    const currentTier = getAppliedTier(item.product, item.quantity);
+    const { activeTier: currentTier } = getPriceForQuantity(item.product, item.quantity);
     const nextTier = item.product.priceTiers.find(t => t.min > item.quantity);
     
     if (!nextTier) {
@@ -104,7 +104,9 @@ export default function PresupuestoClient() {
           {items.map((item) => {
             const isM2 = item.product.unit === 'm2';
             const hasTiers = item.product.priceTiers && item.product.priceTiers.length > 0;
-            const currentTier = hasTiers ? getAppliedTier(item.product, item.quantity) : null;
+            const { activeTier: currentTier } = hasTiers 
+              ? getPriceForQuantity(item.product, item.quantity) 
+              : { activeTier: null };
 
             return (
               <Card key={item.product.id}>
