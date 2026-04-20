@@ -84,7 +84,7 @@ export function Navbar() {
 
       {/* MAIN NAV */}
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-20 lg:h-[72px]">
+        <div className="flex items-center justify-between h-[88px] lg:h-[72px]">
           {/* MENÚ HAMBURGUESA - IZQUIERDA EN MOBILE */}
           <div className="flex items-center lg:hidden flex-shrink-0 w-10">
             <Button
@@ -101,7 +101,7 @@ export function Navbar() {
             </Button>
           </div>
 
-          {/* LOGO - CENTRO, MUY ANCHO EN MOBILE */}
+          {/* LOGO - CENTRO, MUCHO MÁS GRANDE EN MOBILE */}
           <Link
             href="/"
             className="
@@ -111,21 +111,21 @@ export function Navbar() {
             "
           >
             <Image
-              src="/logo-corpicia.png"
+              src="/logo-corpicia-navbar.png"
               alt="Corpicia"
               width={400}
-              height={120}
+              height={200}
               priority
               className="
-                h-[56px]
-                sm:h-[64px]
-                md:h-[56px]
-                lg:h-[60px]
-                w-full
-                max-w-[260px]
-                sm:max-w-[300px]
-                md:max-w-[200px]
-                lg:max-w-[220px]
+                h-[76px]
+                sm:h-[84px]
+                md:h-[60px]
+                lg:h-[64px]
+                w-auto
+                min-w-[200px]
+                sm:min-w-[260px]
+                md:min-w-[160px]
+                lg:min-w-[180px]
                 object-contain
               "
             />
