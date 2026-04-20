@@ -77,12 +77,14 @@ export function ProductCard({ product }: ProductCardProps) {
         )}
 
         <div className="mt-auto">
+          {/* ✅ BOTÓN CORREGIDO: Texto corto en mobile, largo en desktop */}
           <Button
             onClick={handleAddToBudget}
-            className="w-full h-9 sm:h-10 text-xs sm:text-sm"
+            className="w-full h-9 sm:h-10 text-xs sm:text-sm px-2 sm:px-4"
           >
-            <ShoppingCart className="w-4 h-4 mr-1" />
-            Agregar al Presupuesto
+            <ShoppingCart className="w-4 h-4 mr-1 flex-shrink-0" />
+            <span className="hidden sm:inline">Agregar al Presupuesto</span>
+            <span className="sm:hidden">Agregar</span>
           </Button>
         </div>
 
