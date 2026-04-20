@@ -2,7 +2,8 @@ import { MetadataRoute } from 'next';
 import { productsCatalog } from './productos/[slug]/productsData';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://corpicia.com';
+  // ✅ CORREGIDO: Sin espacio al final
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.corpicia.com';
 
   const staticRoutes: MetadataRoute.Sitemap = [
     {
