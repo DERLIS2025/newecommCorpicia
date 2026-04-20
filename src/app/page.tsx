@@ -165,13 +165,14 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ✅ SECCIÓN PAISAJISMO CORREGIDA */}
       <section className="pb-14">
         <div className="container mx-auto px-4">
           <h2 className="text-xl sm:text-2xl font-bold mb-6">Paisajismo</h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 justify-items-center">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
             {secondaryProducts.map((p) => (
-              <div className="w-full max-w-[260px]" key={p!.id}>
+              <div className="w-full" key={p!.id}>
                 <ProductCard product={p!} />
               </div>
             ))}
