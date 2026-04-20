@@ -84,31 +84,48 @@ export function Navbar() {
 
       {/* MAIN NAV */}
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-20 lg:h-[72px] px-3">
-          {/* LOGO - MÁS GRANDE Y CON MÁS ESPACIO EN MOBILE */}
+        <div className="flex items-center justify-between h-20 lg:h-[72px]">
+          {/* MENÚ HAMBURGUESA - IZQUIERDA EN MOBILE */}
+          <div className="flex items-center lg:hidden flex-shrink-0 w-10">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
+            </Button>
+          </div>
+
+          {/* LOGO - CENTRO, MUY ANCHO EN MOBILE */}
           <Link
             href="/"
             className="
-              flex items-center flex-1 justify-center
+              flex items-center justify-center
+              flex-1 min-w-0
               lg:flex-none lg:justify-start
             "
           >
             <Image
               src="/logo-corpicia.png"
               alt="Corpicia"
-              width={280}
-              height={90}
+              width={400}
+              height={120}
               priority
               className="
-                h-[64px]
-                sm:h-[68px]
-                md:h-[60px]
-                lg:h-[64px]
-                w-auto
-                max-w-[200px]
-                sm:max-w-[220px]
-                md:max-w-[180px]
-                lg:max-w-[200px]
+                h-[56px]
+                sm:h-[64px]
+                md:h-[56px]
+                lg:h-[60px]
+                w-full
+                max-w-[260px]
+                sm:max-w-[300px]
+                md:max-w-[200px]
+                lg:max-w-[220px]
                 object-contain
               "
             />
@@ -142,9 +159,9 @@ export function Navbar() {
             ))}
           </nav>
 
-          {/* ACTIONS */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <Link href="/presupuesto/">
+          {/* ACTIONS - DERECHA */}
+          <div className="flex items-center gap-2 flex-shrink-0 w-10 justify-end lg:w-auto">
+            <Link href="/presupuesto/" className="hidden sm:block">
               <Button variant="outline" size="icon" className="relative rounded-full border-gray-200">
                 <ShoppingCart className="w-5 h-5" />
                 {itemCount > 0 && (
@@ -154,19 +171,18 @@ export function Navbar() {
                 )}
               </Button>
             </Link>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              className="lg:hidden rounded-full"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? (
-                <X className="w-6 h-6" />
-              ) : (
-                <Menu className="w-6 h-6" />
-              )}
-            </Button>
+            
+            {/* Carrito visible solo en mobile */}
+            <Link href="/presupuesto/" className="sm:hidden">
+              <Button variant="outline" size="icon" className="relative rounded-full border-gray-200 w-9 h-9">
+                <ShoppingCart className="w-4 h-4" />
+                {itemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-corpicia-green text-white text-[10px] rounded-full flex items-center justify-center">
+                    {itemCount}
+                  </span>
+                )}
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
