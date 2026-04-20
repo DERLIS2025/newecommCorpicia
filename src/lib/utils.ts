@@ -97,5 +97,7 @@ export function generateWhatsAppMessage(
   message += `Total estimado: ${formatPrice(total)}\n\n`;
   message += '¡Gracias!';
 
-  return getWhatsAppUrl(message);
+  // ✅ CORREGIDO: Usar api.whatsapp.com en vez de wa.me (evita bloqueo FortiGate)
+  const phone = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '595992588770';
+  return `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
 }
