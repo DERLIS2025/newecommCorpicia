@@ -12,18 +12,12 @@ type ProductPageProps = {
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.corpicia.com';
 
-// ============================================
-// GENERACIÓN DE RUTAS ESTÁTICAS
-// ============================================
 export async function generateStaticParams() {
   return productsCatalog.map((product) => ({
     slug: product.slug,
   }));
 }
 
-// ============================================
-// METADATA DINÁMICA POR PRODUCTO
-// ============================================
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const product = productsData[params.slug];
 
@@ -36,20 +30,17 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   }
 
   const productUrl = `${siteUrl}/productos/${product.slug}/`;
-  const productImage = product.image 
-    ? `${siteUrl}${product.image}` 
+  
+  // ✅ CORREGIDO: product.images[0] en vez de product.image
+  const productImage = product.images && product.images.length > 0
+    ? `${siteUrl}${product.images[0]}`
     : `${siteUrl}/og-image.jpg`;
 
   return {
-    // Title optimizado: Nombre del producto + marca + categoría
     title: `${product.name} - ${product.category} | Corpicia Paraguay`,
-    
-    // Description con precio y CTA (máx 160 chars)
     description: product.shortDescription 
-      ? `${product.shortDescription}. Precio: Gs. ${product.pricePerM2?.toLocaleString('es-PY')} por m². Envíos a todo Paraguay.`
-      : `${product.description?.substring(0, 120)}... Precio: Gs. ${product.pricePerM2?.toLocaleString('es-PY')} por m².`,
-    
-    // Keywords específicas del producto
+      ? `${product.shortDescription}. Precio: Gs. ${product.pricePerM2?.toLocaleString('es-PY')} por ${product.unit}. Envíos a todo Paraguay.`
+      : `${product.description?.substring(0, 120)}... Precio: Gs. ${product.pricePerM2?.toLocaleString('es-PY')} por ${product.unit}.`,
     keywords: [
       product.name,
       product.category,
@@ -60,13 +51,9 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
       'comprar césped',
       product.slug.replace(/-/g, ' '),
     ],
-    
-    // Canonical absoluto
     alternates: {
       canonical: `/productos/${product.slug}/`,
     },
-    
-    // Robots: indexar y seguir
     robots: {
       index: true,
       follow: true,
@@ -77,8 +64,6 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
         'max-snippet': -1,
       },
     },
-    
-    // Open Graph para compartir producto (WhatsApp, Facebook)
     openGraph: {
       title: `${product.name} | Corpicia`,
       description: product.shortDescription || product.description,
@@ -95,28 +80,20 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
         },
       ],
     },
-    
-    // Twitter/X Cards
     twitter: {
       card: 'summary_large_image',
       title: `${product.name} | Corpicia`,
       description: product.shortDescription || product.description,
       images: [productImage],
     },
-    
-    // Category para Google
     category: product.category,
   };
 }
 
-// Viewport específico (hereda del layout pero puede sobreescribir)
 export const viewport: Viewport = {
   themeColor: '#16a34a',
 };
 
-// ============================================
-// COMPONENTE PDP
-// ============================================
 export default function ProductPage({ params }: ProductPageProps) {
   const product = productsData[params.slug];
 
@@ -125,44 +102,34 @@ export default function ProductPage({ params }: ProductPageProps) {
   }
 
   const productUrl = `${siteUrl}/productos/${product.slug}/`;
-  const productImage = product.image ? `${siteUrl}${product.image}` : `${siteUrl}/og-image.jpg`;
   
-  // Precio formateado
+  // ✅ CORREGIDO: product.images[0] en vez de product.image
+  const productImage = product.images && product.images.length > 0
+    ? `${siteUrl}${product.images[0]}`
+    : `${siteUrl}/og-image.jpg`;
+  
   const priceFormatted = product.pricePerM2?.toString() || '0';
   
-  // Fecha límite de precio (6 meses desde hoy)
   const priceValidUntil = new Date();
   priceValidUntil.setMonth(priceValidUntil.getMonth() + 6);
   const priceValidUntilStr = priceValidUntil.toISOString().split('T')[0];
 
-  // ==========================================
-  // SCHEMA.ORG - PRODUCT (Ecommerce completo)
-  // ==========================================
   const productSchema = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
     description: product.shortDescription || product.description,
-    image: [
-      productImage,
-      // Si tenés más imágenes, agregalas acá:
-      // `${siteUrl}/productos/${product.slug}/imagen-2.jpg`,
-    ],
+    // ✅ CORREGIDO: product.images (array completo)
+    image: product.images && product.images.length > 0
+      ? product.images.map(img => `${siteUrl}${img}`)
+      : [`${siteUrl}/og-image.jpg`],
     sku: product.id,
-    mpn: product.mpn || product.id, // Código de fabricante
+    mpn: product.id,
     brand: {
       '@type': 'Brand',
-      name: product.brand || 'Corpicia',
+      name: 'Corpicia',
     },
     category: product.category,
-    // Reviews/Rating (cuando tengas sistema de reviews)
-    // aggregateRating: product.rating ? {
-    //   '@type': 'AggregateRating',
-    //   ratingValue: product.rating.toString(),
-    //   reviewCount: product.reviewsCount?.toString() || '0',
-    //   bestRating: '5',
-    //   worstRating: '1',
-    // } : undefined,
     offers: {
       '@type': 'Offer',
       url: productUrl,
@@ -171,13 +138,11 @@ export default function ProductPage({ params }: ProductPageProps) {
       priceValidUntil: priceValidUntilStr,
       availability: 'https://schema.org/InStock',
       itemCondition: 'https://schema.org/NewCondition',
-      // Vendedor
       seller: {
         '@type': 'Organization',
         name: 'Corpicia',
         url: siteUrl,
       },
-      // Envío
       shippingDetails: {
         '@type': 'OfferShippingDetails',
         shippingRate: {
@@ -205,22 +170,13 @@ export default function ProductPage({ params }: ProductPageProps) {
           },
         },
       },
-      // Política de devolución
       hasMerchantReturnPolicy: {
         '@type': 'MerchantReturnPolicy',
         returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted',
-        // Cuando tengas política de devolución, cambiar a:
-        // returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
-        // merchantReturnDays: 7,
-        // returnMethod: 'https://schema.org/ReturnByMail',
-        // returnFees: 'https://schema.org/FreeReturn',
       },
     },
   };
 
-  // ==========================================
-  // SCHEMA.ORG - BREADCRUMB LIST
-  // ==========================================
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -252,9 +208,6 @@ export default function ProductPage({ params }: ProductPageProps) {
     ],
   };
 
-  // ==========================================
-  // SCHEMA.ORG - FAQ PAGE (Preguntas frecuentes)
-  // ==========================================
   const faqSchema = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
@@ -264,7 +217,7 @@ export default function ProductPage({ params }: ProductPageProps) {
         name: `¿Cuánto cuesta el ${product.name}?`,
         acceptedAnswer: {
           '@type': 'Answer',
-          text: `El ${product.name} tiene un precio de Gs. ${product.pricePerM2?.toLocaleString('es-PY')} por metro cuadrado. Ofrecemos descuentos por volumen para proyectos grandes.`,
+          text: `El ${product.name} tiene un precio de Gs. ${product.pricePerM2?.toLocaleString('es-PY')} por ${product.unit}. Ofrecemos descuentos por volumen para proyectos grandes.`,
         },
       },
       {
@@ -296,7 +249,6 @@ export default function ProductPage({ params }: ProductPageProps) {
 
   return (
     <>
-      {/* SCHEMA: Producto */}
       <Script
         id={`product-schema-${params.slug}`}
         type="application/ld+json"
@@ -305,7 +257,6 @@ export default function ProductPage({ params }: ProductPageProps) {
         {JSON.stringify(productSchema)}
       </Script>
 
-      {/* SCHEMA: Breadcrumbs */}
       <Script
         id={`breadcrumb-schema-${params.slug}`}
         type="application/ld+json"
@@ -314,7 +265,6 @@ export default function ProductPage({ params }: ProductPageProps) {
         {JSON.stringify(breadcrumbSchema)}
       </Script>
 
-      {/* SCHEMA: FAQ */}
       <Script
         id={`faq-schema-${params.slug}`}
         type="application/ld+json"
@@ -323,7 +273,6 @@ export default function ProductPage({ params }: ProductPageProps) {
         {JSON.stringify(faqSchema)}
       </Script>
 
-      {/* CLIENT COMPONENT */}
       <ProductDetailClient slug={params.slug} />
     </>
   );
