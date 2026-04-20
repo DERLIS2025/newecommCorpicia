@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
-import { Menu, X, ShoppingCart, Phone, Search } from 'lucide-react';
+import { Menu, X, ShoppingCart, Phone, Search, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useBudgetStore } from '@/store/budgetStore';
 import { getWhatsAppUrl } from '@/lib/utils';
@@ -30,14 +30,27 @@ export function Navbar() {
           <p className="hidden md:block">
             Envíos a todo Paraguay · Asunción y Gran Asunción
           </p>
+          
+          {/* BOTÓN WHATSAPP - DESKTOP Y MOBILE */}
           <a
             href={getWhatsAppUrl()}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 ml-auto font-medium text-corpicia-green hover:underline"
+            className="
+              inline-flex items-center gap-2 
+              bg-corpicia-green hover:bg-green-700 
+              text-white font-semibold 
+              px-4 py-2 rounded-full 
+              text-xs sm:text-sm
+              transition-all duration-300
+              animate-pulse-slow
+              hover:scale-105 hover:shadow-lg
+              ml-auto
+            "
           >
-            <Phone className="w-4 h-4" />
-            +595 992 588 770
+            <MessageCircle className="w-4 h-4" />
+            <span className="hidden sm:inline">HABLAR CON UN ASESOR</span>
+            <span className="sm:hidden">Asesor</span>
           </a>
         </div>
       </div>
@@ -160,6 +173,24 @@ export function Navbar() {
                 </Link>
               ))}
             </nav>
+
+            {/* BOTÓN WHATSAPP EN MENÚ MÓVIL */}
+            <a
+              href={getWhatsAppUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="
+                mt-4 flex items-center justify-center gap-2 
+                bg-corpicia-green hover:bg-green-700 
+                text-white font-semibold 
+                px-4 py-3 rounded-xl 
+                transition-all duration-300
+                animate-pulse-slow
+              "
+            >
+              <MessageCircle className="w-5 h-5" />
+              HABLAR CON UN ASESOR
+            </a>
           </div>
         </div>
       )}
