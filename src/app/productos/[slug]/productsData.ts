@@ -157,7 +157,7 @@ const baseProductsCatalog: ProductDetail[] = [
       'Planta tapizante ornamental ideal para cubrir espacios decorativos, canteros y bordes verdes de bajo porte con una presentación prolija y natural.',
     shortDescription:
       'Tapizante ornamental por docena para canteros, bordes y espacios decorativos.',
-    pricePerM2: 18000,
+    pricePerM2: 30000,
     unit: 'docena',
     minQuantity: 1,
     images: [],
@@ -198,7 +198,7 @@ const baseProductsCatalog: ProductDetail[] = [
       'Piedra decorativa blanca para diseño de jardines modernos, senderos y terminaciones de paisajismo con un acabado limpio, luminoso y elegante.',
     shortDescription:
       'Piedra decorativa blanca para paisajismo moderno y terminaciones premium.',
-    pricePerM2: 45000,
+    pricePerM2: 20000,
     unit: 'm2',
     minQuantity: 2,
     images: [],
@@ -239,7 +239,7 @@ const baseProductsCatalog: ProductDetail[] = [
       'Piedra redondeada para drenajes, decoración de jardines y terminaciones en zonas de alto tránsito con aspecto natural y gran durabilidad.',
     shortDescription:
       'Piedra versátil para jardín, drenaje y terminaciones paisajísticas durables.',
-    pricePerM2: 42000,
+    pricePerM2: 35000,
     unit: 'm2',
     minQuantity: 2,
     images: [],
@@ -280,7 +280,7 @@ const baseProductsCatalog: ProductDetail[] = [
       'Perfil separador para definir bordes entre césped, canteros y caminos con un acabado profesional, ordenado y funcional.',
     shortDescription:
       'Separador para bordes prolijos entre césped, caminos y canteros.',
-    pricePerM2: 25000,
+    pricePerM2: 15000,
     unit: 'unidad',
     minQuantity: 2,
     images: [],
@@ -403,7 +403,7 @@ const baseProductsCatalog: ProductDetail[] = [
       'Aspersor de alto rendimiento para sistemas de riego residencial y comercial con cobertura uniforme y regulación precisa.',
     shortDescription:
       'Aspersor Rain Bird para riego automático eficiente y cobertura uniforme.',
-    pricePerM2: 105000,
+    pricePerM2: 31000,
     unit: 'unidad',
     minQuantity: 1,
     images: [],
@@ -444,7 +444,7 @@ const baseProductsCatalog: ProductDetail[] = [
       'Válvula para control de sectores de riego con excelente desempeño, confiabilidad y funcionamiento estable.',
     shortDescription:
       'Válvula de riego profesional para controlar sectores con precisión.',
-    pricePerM2: 89000,
+    pricePerM2: 35000,
     unit: 'unidad',
     minQuantity: 1,
     images: [],
@@ -485,7 +485,7 @@ const baseProductsCatalog: ProductDetail[] = [
       'Difusor para cobertura puntual en zonas de jardinería de pequeño y mediano tamaño, ideal para canteros y césped.',
     shortDescription:
       'Difusor de riego para cobertura puntual en jardines, canteros y áreas verdes.',
-    pricePerM2: 55000,
+    pricePerM2: 23000,
     unit: 'unidad',
     minQuantity: 1,
     images: [],
@@ -526,7 +526,7 @@ const baseProductsCatalog: ProductDetail[] = [
       'Mini rotor para cobertura uniforme en jardines medianos, con regulación de alcance y sector para un riego técnico más eficiente.',
     shortDescription:
       'Mini rotor Rain Bird para riego técnico uniforme en jardines medianos.',
-    pricePerM2: 76000,
+    pricePerM2: 35000,
     unit: 'unidad',
     minQuantity: 1,
     images: [],
