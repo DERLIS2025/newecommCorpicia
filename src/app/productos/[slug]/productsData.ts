@@ -198,9 +198,9 @@ const baseProductsCatalog: ProductDetail[] = [
       'Piedra decorativa blanca para diseño de jardines modernos, senderos y terminaciones de paisajismo con un acabado limpio, luminoso y elegante.',
     shortDescription:
       'Piedra decorativa blanca para paisajismo moderno y terminaciones premium.',
-    pricePerM2: 20000,
-    unit: 'm2',
-    minQuantity: 2,
+   pricePerM2: 20000,
+unit: 'unidad', // o 'bolsa' (mejor)
+minQuantity: 1, // recomendable
     images: [],
     category: 'decorativos',
     isActive: true,
@@ -240,8 +240,8 @@ const baseProductsCatalog: ProductDetail[] = [
     shortDescription:
       'Piedra versátil para jardín, drenaje y terminaciones paisajísticas durables.',
     pricePerM2: 35000,
-    unit: 'm2',
-    minQuantity: 2,
+unit: 'unidad', // o 'bolsa' (mejor)
+minQuantity: 1, // recomendable
     images: [],
     category: 'decorativos',
     isActive: true,
@@ -322,8 +322,8 @@ const baseProductsCatalog: ProductDetail[] = [
     shortDescription:
       'Piso drenante para exteriores con excelente funcionalidad, seguridad y fácil integración.',
     pricePerM2: 85000,
-    unit: 'm2',
-    minQuantity: 1,
+unit: 'unidad', // o 'bolsa' (mejor)
+minQuantity: 1, // recomendable
     images: [],
     category: 'pisos-exteriores',
     isActive: true,
@@ -363,8 +363,8 @@ const baseProductsCatalog: ProductDetail[] = [
     shortDescription:
       'Piso exterior símil madera con estética cálida y resistencia al uso diario.',
     pricePerM2: 97000,
-    unit: 'm2',
-    minQuantity: 1,
+unit: 'unidad', // o 'bolsa' (mejor)
+minQuantity: 1, // recomendable
     images: [],
     category: 'pisos-exteriores',
     isActive: true,
