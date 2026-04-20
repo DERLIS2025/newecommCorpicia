@@ -189,7 +189,7 @@ export function Navbar() {
               "
             >
               <MessageCircle className="w-5 h-5" />
-              HABLAR CON UN ASESOR
+             WHATSAPP
             </a>
           </div>
         </div>
