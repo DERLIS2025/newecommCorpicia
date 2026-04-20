@@ -24,7 +24,7 @@ const config: Config = {
       },
       animation: {
         'pulse-slow': 'pulse-slow 3s ease-in-out infinite',
-        'marquee': 'marquee 20s linear infinite',
+        'marquee': 'marquee 10s linear infinite',
       },
       keyframes: {
         'pulse-slow': {
