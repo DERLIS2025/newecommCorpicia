@@ -101,10 +101,10 @@ export function Navbar() {
               height={50}
               priority
               className="
-                h-[44px]
-                sm:h-[50px]
-                md:h-[56px]
-                lg:h-[60px]
+                h-[52px]
+                sm:h-[56px]
+                md:h-[60px]
+                lg:h-[64px]
                 w-auto
                 object-contain
               "
