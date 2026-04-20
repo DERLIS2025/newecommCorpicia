@@ -47,23 +47,21 @@ export function Navbar() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 lg:h-[76px] gap-3">
 
-          {/* LOGO */}
-          <Link href="/" className="flex items-center flex-shrink-0">
-            <Image
-              src="/logo-corpicia.png"
-              alt="Corpicia"
-              width={150}
-              height={50}
-              priority
-              className="
-                w-[100px] 
-                sm:w-[70px] 
-                md:w-[90px] 
-                lg:w-[90px] 
-                h-auto 
-                object-contain
-              "
-            />
+         <Image
+  src="/logo-corpicia.png"
+  alt="Corpicia"
+  width={150}
+  height={50}
+  priority
+  className="
+    h-[36px] 
+    sm:h-[40px] 
+    md:h-[44px] 
+    lg:h-[48px] 
+    w-auto 
+    object-contain
+  "
+/>
           </Link>
 
           {/* SEARCH DESKTOP */}
