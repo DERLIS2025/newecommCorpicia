@@ -20,9 +20,9 @@ export const metadata: Metadata = {
   
   // Títulos optimizados para CTR en Google
   title: {
-    default: 'Corpicia | Césped Natural, Riego y Jardinería en Paraguay',
-    template: '%s | Corpicia - Jardinería Premium',
-  },
+  default: 'Césped Natural, Riego & Jardinería en Paraguay | Corpicia',
+  template: '%s | Corpicia',
+},
   
   // Description con keywords y CTA (máx 160 caracteres)
   description:
@@ -95,7 +95,7 @@ export const metadata: Metadata = {
   
   // Open Graph (Facebook, WhatsApp, LinkedIn)
   openGraph: {
-    title: 'Corpicia | Césped Natural y Jardinería en Paraguay',
+    title: 'Césped Natural, Riego y Jardinería en Paraguay | Corpicia',
     description:
       'Especialistas en césped natural, riego automático y paisajismo. Envíos a todo Paraguay. Solicitá tu presupuesto.',
     type: 'website',
