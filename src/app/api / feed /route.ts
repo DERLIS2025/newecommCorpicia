@@ -1,4 +1,4 @@
-import { productsCatalog } from '@/app/productos/[slug]/productsData';
+import { productsCatalog } from '../../productos/[slug]/productsData';
 
 const SITE_URL = 'https://corpicia.com';
 
@@ -23,9 +23,11 @@ export function GET(): Response {
     .map((product) => {
       const link = `${SITE_URL}/productos/${product.slug}`;
       const imagePath = product.images?.[0] || '/productos/default.jpg';
+
       const imageLink = imagePath.startsWith('http')
         ? imagePath
         : `${SITE_URL}${imagePath}`;
+
       const price = product.pricePerM2 ?? 0;
 
       return `    <item>
