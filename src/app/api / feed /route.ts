@@ -1,4 +1,4 @@
-import { productsCatalog } from '../../productos/[slug]/productsData';
+import { productsCatalog } from '@/data/productsData';
 
 const SITE_URL = 'https://corpicia.com';
 
