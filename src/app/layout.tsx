@@ -333,6 +333,23 @@ export default function RootLayout({
         )}
 
         {/* ========================================== */}
+        {/* GOOGLE MERCHANT TAG */}
+        {/* ========================================== */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=GT-MJBJH7FQ"
+          strategy="afterInteractive"
+        />
+        <Script id="google-merchant-tag" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            window.gtag = gtag;
+            gtag('js', new Date());
+            gtag('config', 'GT-MJBJH7FQ');
+          `}
+        </Script>
+
+        {/* ========================================== */}
         {/* GOOGLE TAG MANAGER */}
         {/* ========================================== */}
         {gtmId && (
