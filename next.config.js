@@ -1,86 +1,62 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  
-  // 🔒 Seguridad: Ocultar versión de Next.js
   poweredByHeader: false,
-  
-  // 🌐 SEO: Trailing slash consistente
   trailingSlash: true,
-  
-  // 📦 Compresión para Core Web Vitals
   compress: true,
-  
-  // 🖼️ Imágenes: Dominios permitidos
+
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'corpicia.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'www.corpicia.com',
-      },
+      { protocol: 'https', hostname: 'corpicia.com' },
+      { protocol: 'https', hostname: 'www.corpicia.com' },
+      // ✅ AGREGAR: Tu proyecto Supabase para imágenes
+      { protocol: 'https', hostname: '*.supabase.co' },
     ],
     minimumCacheTTL: 60,
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
 
-  // 🌍 Internacionalización
-  i18n: {
-    locales: ['es'],
-    defaultLocale: 'es',
-  },
+  // ✅ ELIMINADO: i18n no funciona en App Router
+  // Usá middleware.ts o carpetas [lang] si necesitás multi-idioma
 
-  // 🔀 Redirects críticos para SEO
   async redirects() {
     return [
+      // ✅ CORREGIDO: Sin espacio en :path*
+      // Opción A: Forzar www → sin www (si tu dominio principal es corpicia.com)
       {
         source: '/:path*',
-        has: [
-          {
-            type: 'host',
-            value: 'corpicia.com',
-          },
-        ],
-        destination: 'https://www.corpicia.com/:path*',
+        has: [{ type: 'host', value: 'www.corpicia.com' }],
+        destination: 'https://corpicia.com/:path*',
+        permanent: true,
+      },
+      // Opción B: Forzar HTTP → HTTPS (backup por si Vercel falla)
+      {
+        source: '/:path*',
+        has: [{ type: 'header', key: 'x-forwarded-proto', value: 'http' }],
+        destination: 'https://corpicia.com/:path*',
         permanent: true,
       },
     ];
   },
 
-  // 📋 Headers de seguridad y SEO
   async headers() {
     return [
       {
         source: '/:path*',
         headers: [
-          {
-            key: 'X-DNS-Prefetch-Control',
-            value: 'on',
+          { key: 'X-DNS-Prefetch-Control', value: 'on' },
+          { 
+            key: 'Strict-Transport-Security', 
+            value: 'max-age=63072000; includeSubDomains; preload' 
           },
-          {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=63072000; includeSubDomains; preload',
-          },
-          {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
-          },
-          {
-            key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=(self)',
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { 
+            key: 'Permissions-Policy', 
+            value: 'camera=(), microphone=(), geolocation=(self)' 
           },
           {
             key: 'Content-Security-Policy',
@@ -88,33 +64,29 @@ const nextConfig = {
               "default-src 'self'",
               "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net",
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' blob: data: https://www.google-analytics.com https://www.googletagmanager.com",
+              // ✅ AGREGADO: blob, data, y dominios de imágenes
+              "img-src 'self' blob: data: https://www.google-analytics.com https://www.googletagmanager.com https://*.supabase.co",
               "font-src 'self'",
-              "connect-src 'self' https://www.google-analytics.com https://analytics.google.com",
+              // ✅ AGREGADO: Supabase en connect-src
+              "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://*.supabase.co",
               "frame-src https://www.googletagmanager.com",
+              "media-src 'self'",
             ].join('; '),
           },
         ],
       },
-      // ✅ CORREGIDO: Sin capturing groups en la regex
       {
         source: '/:all*(js|css|svg|png|jpg|jpeg|gif|webp|avif|ico|woff|woff2)',
         headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
         ],
       },
     ];
   },
 
-  // 🔧 Experimental
   experimental: {
     optimizePackageImports: ['lucide-react'],
-    serverActions: {
-      bodySizeLimit: '2mb',
-    },
+    serverActions: { bodySizeLimit: '2mb' },
   },
 };
 
