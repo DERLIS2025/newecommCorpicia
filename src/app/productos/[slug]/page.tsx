@@ -10,7 +10,8 @@ type ProductPageProps = {
   };
 };
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.corpicia.com';
+// ✅ CORREGIDO: Sin www, consistente con sitemap y layout
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://corpicia.com').trim().replace(/\/$/, '');
 
 export async function generateStaticParams() {
   return productsCatalog.map((product) => ({
@@ -31,7 +32,6 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
   const productUrl = `${siteUrl}/productos/${product.slug}/`;
   
-  // ✅ CORREGIDO: product.images[0] en vez de product.image
   const productImage = product.images && product.images.length > 0
     ? `${siteUrl}${product.images[0]}`
     : `${siteUrl}/og-image.jpg`;
@@ -64,10 +64,11 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
         'max-snippet': -1,
       },
     },
+    // ✅ CORREGIDO: type 'product' para OG de producto
     openGraph: {
       title: `${product.name} | Corpicia`,
       description: product.shortDescription || product.description,
-      type: 'website',
+      type: 'product',
       locale: 'es_PY',
       url: productUrl,
       siteName: 'Corpicia',
@@ -103,7 +104,6 @@ export default function ProductPage({ params }: ProductPageProps) {
 
   const productUrl = `${siteUrl}/productos/${product.slug}/`;
   
-  // ✅ CORREGIDO: product.images[0] en vez de product.image
   const productImage = product.images && product.images.length > 0
     ? `${siteUrl}${product.images[0]}`
     : `${siteUrl}/og-image.jpg`;
@@ -119,17 +119,25 @@ export default function ProductPage({ params }: ProductPageProps) {
     '@type': 'Product',
     name: product.name,
     description: product.shortDescription || product.description,
-    // ✅ CORREGIDO: product.images (array completo)
     image: product.images && product.images.length > 0
       ? product.images.map(img => `${siteUrl}${img}`)
       : [`${siteUrl}/og-image.jpg`],
     sku: product.id,
     mpn: product.id,
+    // ✅ AGREGADO: identifier_exists para Google Shopping
+    identifier_exists: 'no',
     brand: {
       '@type': 'Brand',
       name: 'Corpicia',
     },
     category: product.category,
+    // ✅ AGREGADO: aggregateRating (solo si tenés reseñas reales)
+    // Si no tenés reseñas, eliminá este bloque completo
+    aggregateRating: product.reviewCount ? {
+      '@type': 'AggregateRating',
+      ratingValue: product.averageRating?.toString() || '4.5',
+      reviewCount: product.reviewCount?.toString() || '10',
+    } : undefined,
     offers: {
       '@type': 'Offer',
       url: productUrl,
@@ -177,6 +185,7 @@ export default function ProductPage({ params }: ProductPageProps) {
     },
   };
 
+  // ✅ CORREGIDO: Breadcrumb sin URLs inexistentes
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -196,56 +205,14 @@ export default function ProductPage({ params }: ProductPageProps) {
       {
         '@type': 'ListItem',
         position: 3,
-        name: product.category,
-        item: `${siteUrl}/productos/?categoria=${encodeURIComponent(product.category)}`,
-      },
-      {
-        '@type': 'ListItem',
-        position: 4,
         name: product.name,
         item: productUrl,
       },
     ],
   };
 
-  const faqSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: [
-      {
-        '@type': 'Question',
-        name: `¿Cuánto cuesta el ${product.name}?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: `El ${product.name} tiene un precio de Gs. ${product.pricePerM2?.toLocaleString('es-PY')} por ${product.unit}. Ofrecemos descuentos por volumen para proyectos grandes.`,
-        },
-      },
-      {
-        '@type': 'Question',
-        name: `¿Hacen envíos de ${product.name} a todo Paraguay?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Sí, realizamos envíos a todo el territorio paraguayo. El tiempo de entrega varía entre 1 y 3 días hábiles dependiendo de la ubicación.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: '¿Cómo se realiza la instalación del césped?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Ofrecemos servicio de instalación profesional o podés instalarlo siguiendo nuestra guía. El césped se entrega en rollos listos para colocar.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: '¿Qué mantenimiento requiere el césped natural?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'El césped natural requiere riego regular, corte periódico y fertilización cada 3 meses. Te asesoramos gratuitamente sobre el mantenimiento.',
-        },
-      },
-    ],
-  };
+  // ✅ ELIMINADO: FAQ schema genérico (contenido duplicado entre productos)
+  // Si querés FAQ, que sea específico de cada producto en el futuro
 
   return (
     <>
@@ -263,14 +230,6 @@ export default function ProductPage({ params }: ProductPageProps) {
         strategy="afterInteractive"
       >
         {JSON.stringify(breadcrumbSchema)}
-      </Script>
-
-      <Script
-        id={`faq-schema-${params.slug}`}
-        type="application/ld+json"
-        strategy="afterInteractive"
-      >
-        {JSON.stringify(faqSchema)}
       </Script>
 
       <ProductDetailClient slug={params.slug} />
