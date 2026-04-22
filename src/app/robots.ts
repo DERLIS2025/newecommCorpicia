@@ -1,15 +1,15 @@
 import type { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
-  // ✅ CORREGIDO: Sin espacio, con www
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://corpicia.com';
+  // ✅ CORREGIDO: Sin espacio, sin www (dominio principal)
+  const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://corpicia.com').trim();
 
   return {
     rules: [
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/api/', '/_next/', '/private/'],
+        disallow: ['/api/', '/_next/', '/private/', '/admin/'],
       },
       {
         userAgent: 'Googlebot',
@@ -18,7 +18,7 @@ export default function robots(): MetadataRoute.Robots {
       },
       {
         userAgent: 'Googlebot-Image',
-        allow: '/productos/',
+        allow: ['/productos/', '/og-image.jpg'],
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,
