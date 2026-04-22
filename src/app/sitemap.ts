@@ -2,12 +2,12 @@ import { MetadataRoute } from 'next';
 import { productsCatalog } from './productos/[slug]/productsData';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  // ✅ CORREGIDO: Sin espacio al final
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.corpicia.com';
+  // ✅ CORREGIDO: Sin espacio, sin www (dominio principal)
+  const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://corpicia.com').trim().replace(/\/$/, '');
 
   const staticRoutes: MetadataRoute.Sitemap = [
     {
-      url: baseUrl,
+      url: `${baseUrl}/`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 1,
@@ -58,7 +58,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const productRoutes: MetadataRoute.Sitemap = productsCatalog.map((product) => ({
     url: `${baseUrl}/productos/${product.slug}/`,
-    lastModified: new Date(product.updatedAt),
+    lastModified: new Date(product.updatedAt || Date.now()),
     changeFrequency: 'weekly',
     priority: 0.8,
   }));
