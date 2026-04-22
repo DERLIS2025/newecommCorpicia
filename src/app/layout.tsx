@@ -18,17 +18,14 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.corpicia.com';
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   
-  // Títulos optimizados para CTR en Google
   title: {
-  default: 'Césped Natural, Riego & Jardinería en Paraguay | Corpicia',
-  template: '%s | Corpicia',
-},
+    default: 'Césped Natural, Riego & Jardinería en Paraguay | Corpicia',
+    template: '%s | Corpicia',
+  },
   
-  // Description con keywords y CTA (máx 160 caracteres)
   description:
     'Venta e instalación de césped natural en Paraguay. Riego automático, paisajismo y asesoría experta. Presupuesto por WhatsApp. Envíos a todo el país.',
   
-  // Keywords (Google ya no las usa mucho, pero otras sí)
   keywords: [
     'césped natural Paraguay',
     'jardinería Asunción',
@@ -40,20 +37,16 @@ export const metadata: Metadata = {
     'productos jardín',
   ],
   
-  // Autor y publisher
   authors: [{ name: 'Corpicia', url: siteUrl }],
   creator: 'Corpicia',
   publisher: 'Corpicia',
   
-  // Categoría para Google
   category: 'Ecommerce - Jardinería y Paisajismo',
   
-  // Canonical base
   alternates: {
     canonical: '/',
   },
   
-  // Robots: indexar todo, seguir links, mostrar snippets
   robots: {
     index: true,
     follow: true,
@@ -68,14 +61,10 @@ export const metadata: Metadata = {
     },
   },
   
-  // Verificación Google Search Console (agregá tu código acá)
   verification: {
     google: process.env.NEXT_PUBLIC_GSC_VERIFICATION,
-    // yandex: 'tu-codigo',
-    // bing: 'tu-codigo',
   },
   
-  // Iconos para todos los dispositivos
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
@@ -90,10 +79,8 @@ export const metadata: Metadata = {
     shortcut: '/favicon.ico',
   },
   
-  // Manifest para PWA
   manifest: '/site.webmanifest',
   
-  // Open Graph (Facebook, WhatsApp, LinkedIn)
   openGraph: {
     title: 'Césped Natural, Riego y Jardinería en Paraguay | Corpicia',
     description:
@@ -102,7 +89,6 @@ export const metadata: Metadata = {
     locale: 'es_PY',
     url: siteUrl,
     siteName: 'Corpicia',
-    // IMAGEN OG: Debe ser 1200x630px, máx 8MB
     images: [
       {
         url: '/og-image.jpg',
@@ -113,32 +99,24 @@ export const metadata: Metadata = {
     ],
   },
   
-  // Twitter/X Cards
   twitter: {
     card: 'summary_large_image',
     title: 'Corpicia | Césped Natural y Jardinería',
     description: 'Especialistas en césped natural y riego automático en Paraguay.',
     images: ['/og-image.jpg'],
-    creator: '@corpicia', // Tu usuario de Twitter si tenés
+    creator: '@corpicia',
     site: '@corpicia',
   },
-  
-  // Archivos RSS o alternativos
-  // alternates: {
-  //   types: {
-  //     'application/rss+xml': `${siteUrl}/rss.xml`,
-  //   },
-  // },
 };
 
 // ============================================
-// VIEWPORT (separado en Next.js 14+)
+// VIEWPORT
 // ============================================
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 5, // Permitir zoom para accesibilidad
-  themeColor: '#16a34a', // Color verde de tu marca (barra móvil)
+  maximumScale: 5,
+  themeColor: '#16a34a',
   colorScheme: 'light',
 };
 
@@ -146,7 +124,6 @@ export const viewport: Viewport = {
 // SCHEMAS JSON-LD (Structured Data)
 // ============================================
 
-// 1. ORGANIZATION (Marca)
 const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
@@ -164,10 +141,9 @@ const organizationSchema = {
   description:
     'Especialistas en césped natural, riego automático y paisajismo en Paraguay.',
   sameAs: [
-    'https://www.facebook.com/corpicia', // Agregá tus redes
+    'https://www.facebook.com/corpicia',
     'https://www.instagram.com/corpicia',
     'https://wa.me/595992588770',
-    // 'https://www.linkedin.com/company/corpicia',
   ],
   contactPoint: {
     '@type': 'ContactPoint',
@@ -178,7 +154,6 @@ const organizationSchema = {
   },
 };
 
-// 2. LOCAL BUSINESS (Google Maps / Local SEO)
 const localBusinessSchema = {
   '@context': 'https://schema.org',
   '@type': 'LocalBusiness',
@@ -187,13 +162,13 @@ const localBusinessSchema = {
   image: `${siteUrl}/og-image.jpg`,
   url: siteUrl,
   telephone: '+595-992-588-770',
-  email: 'corpicia@gmail.com', // Agregá tu email real
+  email: 'corpicia@gmail.com',
   priceRange: '$$',
   currenciesAccepted: 'PYG',
   paymentAccepted: 'Efectivo, Transferencia',
   address: {
     '@type': 'PostalAddress',
-    streetAddress: 'Tu calle y número', // COMPLETAR
+    streetAddress: 'Tu calle y número',
     addressLocality: 'Asunción',
     addressRegion: 'Central',
     postalCode: '001001',
@@ -201,8 +176,8 @@ const localBusinessSchema = {
   },
   geo: {
     '@type': 'GeoCoordinates',
-    latitude: '-25.2637', // COMPLETAR con tu latitud real
-    longitude: '-57.5759', // COMPLETAR con tu longitud real
+    latitude: '-25.2637',
+    longitude: '-57.5759',
   },
   openingHoursSpecification: [
     {
@@ -230,7 +205,6 @@ const localBusinessSchema = {
   ],
 };
 
-// 3. WEBSITE (Search Box en Google)
 const websiteSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
@@ -248,7 +222,6 @@ const websiteSchema = {
   inLanguage: 'es-PY',
 };
 
-// 4. WEBPAGE (Homepage específica)
 const webPageSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebPage',
@@ -281,72 +254,53 @@ export default function RootLayout({
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
   const gadsId = process.env.NEXT_PUBLIC_GADS_ID;
+  const merchantId = process.env.NEXT_PUBLIC_GMC_ID || 'GT-MJBJH7FQ';
+
+  // Orden de prioridad para el ID principal de gtag
+  const primaryGtagId = gaId || gadsId || merchantId;
 
   return (
-    <html lang="es">
+    <html lang="es-PY">
       <body className={inter.className}>
         
         {/* ========================================== */}
-        {/* GOOGLE ADS (AW) - Conversión */}
+        {/* GTM noscript (usuarios sin JS) */}
         {/* ========================================== */}
-        {gadsId && (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${gadsId}`}
-              strategy="afterInteractive"
+        {gtmId && (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+              height="0"
+              width="0"
+              style={{ display: 'none', visibility: 'hidden' }}
             />
-            <Script id="google-ads" strategy="afterInteractive">
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                window.gtag = gtag;
-                gtag('js', new Date());
-                gtag('config', '${gadsId}');
-              `}
-            </Script>
-          </>
+          </noscript>
         )}
 
         {/* ========================================== */}
-        {/* GOOGLE ANALYTICS 4 */}
-        {/* ========================================== */}
-        {gaId && (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
-              strategy="afterInteractive"
-            />
-            <Script id="ga4-script" strategy="afterInteractive">
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                window.gtag = gtag;
-                gtag('js', new Date());
-                gtag('config', '${gaId}', {
-                  send_page_view: true,
-                  allow_google_signals: true,
-                  allow_ad_personalization_signals: true,
-                  cookie_flags: 'SameSite=None;Secure',
-                });
-              `}
-            </Script>
-          </>
-        )}
-
-        {/* ========================================== */}
-        {/* GOOGLE MERCHANT TAG */}
+        {/* GTAG ÚNICO (evita duplicación de dataLayer) */}
         {/* ========================================== */}
         <Script
-          src="https://www.googletagmanager.com/gtag/js?id=GT-MJBJH7FQ"
+          src={`https://www.googletagmanager.com/gtag/js?id=${primaryGtagId}`}
           strategy="afterInteractive"
         />
-        <Script id="google-merchant-tag" strategy="afterInteractive">
+        <Script id="gtag-init" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             window.gtag = gtag;
             gtag('js', new Date());
-            gtag('config', 'GT-MJBJH7FQ');
+            
+            ${gaId ? `gtag('config', '${gaId}', {
+              send_page_view: true,
+              allow_google_signals: true,
+              allow_ad_personalization_signals: true,
+              cookie_flags: 'SameSite=None;Secure',
+            });` : ''}
+            
+            ${gadsId ? `gtag('config', '${gadsId}');` : ''}
+            
+            gtag('config', '${merchantId}');
           `}
         </Script>
 
