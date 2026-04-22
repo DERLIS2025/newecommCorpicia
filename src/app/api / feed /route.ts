@@ -1,6 +1,5 @@
 import { productsCatalog } from '@/data/productsData';
 
-// ✅ CORREGIDO: Sin espacio al final
 const SITE_URL = 'https://corpicia.com';
 
 function escapeXml(str: string): string {
@@ -22,10 +21,8 @@ export function GET(): Response {
 
   const itemsXml = activeProducts
     .map((product) => {
-      // ✅ CORREGIDO: Con trailing slash
       const link = `${SITE_URL}/productos/${product.slug}/`;
       
-      // ✅ CORREGIDO: Mapeo de imágenes para productos con images vacío
       const imageMap: Record<string, string> = {
         'aspersor-rain-bird-5004': '/productos/aspersor-rain-bird-5004.jpg',
         'canto-rodado': '/productos/canto-rodado.jpg',
@@ -64,7 +61,6 @@ export function GET(): Response {
     })
     .join('\n');
 
-  // ✅ CORREGIDO: Sin espacio en xmlns:g
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
   <channel>
