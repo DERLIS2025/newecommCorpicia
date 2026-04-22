@@ -1,3 +1,4 @@
+```tsx
 import Image from 'next/image';
 import type { Metadata } from 'next';
 import { Card, CardContent } from '@/components/ui/card';
@@ -193,7 +194,8 @@ export default function HomePage() {
           <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
             <div className="grid gap-4">
               <a href={whatsappHref} target="_blank" rel="noreferrer">
-                <div className="relative w-full aspect-[16/9] lg:h-[500px] rounded-xl overflow-hidden bg-[#f5fbf6]">
+                {/* 🔥 ÚNICO CAMBIO AQUÍ */}
+                <div className="relative w-full aspect-[16/9] lg:h-[380px] rounded-xl overflow-hidden bg-[#f5fbf6]">
                   <Image
                     src="/banners/mixed-banner-desktop (2).jpg"
                     alt="Banner riego automático"
@@ -227,7 +229,6 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <h2 className="text-xl sm:text-2xl font-bold mb-6">Paisajismo</h2>
 
-          {/* Mobile: Grid de 2 columnas */}
           <div className="grid grid-cols-2 gap-4 md:hidden">
             {secondaryProducts.map((p) => (
               <div className="w-full" key={p!.id}>
@@ -236,7 +237,6 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* Desktop: Carrusel horizontal con scroll */}
           <div className="hidden md:block relative">
             <div 
               className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide"
@@ -252,7 +252,6 @@ export default function HomePage() {
               ))}
             </div>
             
-            {/* Indicador de scroll */}
             <div className="flex justify-center gap-2 mt-2">
               {secondaryProducts.map((_, i) => (
                 <div 
@@ -267,3 +266,4 @@ export default function HomePage() {
     </div>
   );
 }
+```
