@@ -10,7 +10,6 @@ const nextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'corpicia.com' },
       { protocol: 'https', hostname: 'www.corpicia.com' },
-      // ✅ AGREGAR: Tu proyecto Supabase para imágenes
       { protocol: 'https', hostname: '*.supabase.co' },
     ],
     minimumCacheTTL: 60,
@@ -18,27 +17,9 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
 
-  // ✅ ELIMINADO: i18n no funciona en App Router
-  // Usá middleware.ts o carpetas [lang] si necesitás multi-idioma
-
+  // ✅ SIN REDIRECTS DE DOMINIO - Vercel los maneja
   async redirects() {
-    return [
-      // ✅ CORREGIDO: Sin espacio en :path*
-      // Opción A: Forzar www → sin www (si tu dominio principal es corpicia.com)
-      {
-        source: '/:path*',
-        has: [{ type: 'host', value: 'www.corpicia.com' }],
-        destination: 'https://corpicia.com/:path*',
-        permanent: true,
-      },
-      // Opción B: Forzar HTTP → HTTPS (backup por si Vercel falla)
-      {
-        source: '/:path*',
-        has: [{ type: 'header', key: 'x-forwarded-proto', value: 'http' }],
-        destination: 'https://corpicia.com/:path*',
-        permanent: true,
-      },
-    ];
+    return [];
   },
 
   async headers() {
@@ -64,10 +45,8 @@ const nextConfig = {
               "default-src 'self'",
               "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net",
               "style-src 'self' 'unsafe-inline'",
-              // ✅ AGREGADO: blob, data, y dominios de imágenes
               "img-src 'self' blob: data: https://www.google-analytics.com https://www.googletagmanager.com https://*.supabase.co",
               "font-src 'self'",
-              // ✅ AGREGADO: Supabase en connect-src
               "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://*.supabase.co",
               "frame-src https://www.googletagmanager.com",
               "media-src 'self'",
