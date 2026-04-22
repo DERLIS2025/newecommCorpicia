@@ -1,4 +1,3 @@
-```tsx
 import Image from 'next/image';
 import type { Metadata } from 'next';
 import { Card, CardContent } from '@/components/ui/card';
@@ -76,9 +75,9 @@ export default function HomePage() {
 
             {/* Banners laterales en scroll horizontal en mobile */}
             <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory">
-              <a 
-                href={whatsappHref} 
-                target="_blank" 
+              <a
+                href={whatsappHref}
+                target="_blank"
                 rel="noreferrer"
                 className="block flex-shrink-0 w-[85%] snap-start"
               >
@@ -92,9 +91,9 @@ export default function HomePage() {
                 </div>
               </a>
 
-              <a 
-                href={whatsappHref} 
-                target="_blank" 
+              <a
+                href={whatsappHref}
+                target="_blank"
                 rel="noreferrer"
                 className="block flex-shrink-0 w-[85%] snap-start"
               >
@@ -194,7 +193,6 @@ export default function HomePage() {
           <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
             <div className="grid gap-4">
               <a href={whatsappHref} target="_blank" rel="noreferrer">
-                {/* 🔥 ÚNICO CAMBIO AQUÍ */}
                 <div className="relative w-full aspect-[16/9] lg:h-[380px] rounded-xl overflow-hidden bg-[#f5fbf6]">
                   <Image
                     src="/banners/mixed-banner-desktop (2).jpg"
@@ -238,24 +236,24 @@ export default function HomePage() {
           </div>
 
           <div className="hidden md:block relative">
-            <div 
+            <div
               className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
               {secondaryProducts.map((p) => (
-                <div 
-                  className="flex-shrink-0 w-[280px]" 
+                <div
+                  className="flex-shrink-0 w-[280px]"
                   key={p!.id}
                 >
                   <ProductCard product={p!} />
                 </div>
               ))}
             </div>
-            
+
             <div className="flex justify-center gap-2 mt-2">
               {secondaryProducts.map((_, i) => (
-                <div 
-                  key={i} 
+                <div
+                  key={i}
                   className="w-2 h-2 rounded-full bg-gray-300"
                 />
               ))}
@@ -266,4 +264,3 @@ export default function HomePage() {
     </div>
   );
 }
-```
