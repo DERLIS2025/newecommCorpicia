@@ -10,7 +10,6 @@ type ProductPageProps = {
   };
 };
 
-// ✅ CORREGIDO: Sin www, consistente con sitemap y layout
 const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://corpicia.com').trim().replace(/\/$/, '');
 
 export async function generateStaticParams() {
@@ -64,11 +63,10 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
         'max-snippet': -1,
       },
     },
-    // ✅ CORREGIDO: type 'product' para OG de producto
     openGraph: {
       title: `${product.name} | Corpicia`,
       description: product.shortDescription || product.description,
-      type: 'product',
+      type: 'website',  // ← ✅ SOLO ESTO CAMBIÓ
       locale: 'es_PY',
       url: productUrl,
       siteName: 'Corpicia',
@@ -124,15 +122,12 @@ export default function ProductPage({ params }: ProductPageProps) {
       : [`${siteUrl}/og-image.jpg`],
     sku: product.id,
     mpn: product.id,
-    // ✅ AGREGADO: identifier_exists para Google Shopping
     identifier_exists: 'no',
     brand: {
       '@type': 'Brand',
       name: 'Corpicia',
     },
     category: product.category,
-    // ✅ AGREGADO: aggregateRating (solo si tenés reseñas reales)
-    // Si no tenés reseñas, eliminá este bloque completo
     aggregateRating: product.reviewCount ? {
       '@type': 'AggregateRating',
       ratingValue: product.averageRating?.toString() || '4.5',
@@ -185,7 +180,6 @@ export default function ProductPage({ params }: ProductPageProps) {
     },
   };
 
-  // ✅ CORREGIDO: Breadcrumb sin URLs inexistentes
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -210,9 +204,6 @@ export default function ProductPage({ params }: ProductPageProps) {
       },
     ],
   };
-
-  // ✅ ELIMINADO: FAQ schema genérico (contenido duplicado entre productos)
-  // Si querés FAQ, que sea específico de cada producto en el futuro
 
   return (
     <>
