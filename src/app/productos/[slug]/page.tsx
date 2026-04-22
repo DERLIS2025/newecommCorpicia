@@ -66,7 +66,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     openGraph: {
       title: `${product.name} | Corpicia`,
       description: product.shortDescription || product.description,
-      type: 'website',  // ← ✅ SOLO ESTO CAMBIÓ
+      type: 'website',
       locale: 'es_PY',
       url: productUrl,
       siteName: 'Corpicia',
@@ -128,11 +128,7 @@ export default function ProductPage({ params }: ProductPageProps) {
       name: 'Corpicia',
     },
     category: product.category,
-    aggregateRating: product.reviewCount ? {
-      '@type': 'AggregateRating',
-      ratingValue: product.averageRating?.toString() || '4.5',
-      reviewCount: product.reviewCount?.toString() || '10',
-    } : undefined,
+    // ✅ ELIMINADO: aggregateRating hasta que agregues reviewCount/averageRating a ProductDetail
     offers: {
       '@type': 'Offer',
       url: productUrl,
