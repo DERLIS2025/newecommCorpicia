@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
   // ✅ CORREGIDO: Sin espacio, con www
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.corpicia.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://corpicia.com';
 
   return {
     rules: [
