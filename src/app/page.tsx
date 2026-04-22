@@ -195,7 +195,7 @@ export default function HomePage() {
               <a href={whatsappHref} target="_blank" rel="noreferrer">
                 <div className="relative w-full aspect-[16/9] lg:h-[500px] rounded-xl overflow-hidden bg-[#f5fbf6]">
                   <Image
-                    src="/banners/mixed-banner-desktop.jpg"
+                    src="/banners/mixed-banner-desktop (2).jpg"
                     alt="Banner riego automático"
                     fill
                     className="object-contain"
