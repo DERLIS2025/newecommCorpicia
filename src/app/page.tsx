@@ -51,16 +51,20 @@ const whatsappHref = 'https://wa.me/595992588770';
 export default function HomePage() {
   return (
     <div className="bg-white">
-      {/* BANNERS HERO */}
+      {/* ✅ BANNERS HERO - MEJORADO PARA MOBILE */}
       <section className="border-b">
         <div className="container mx-auto px-4 py-4 sm:py-6">
-
-          {/* MOBILE */}
+          {/* Mobile: Solo banner principal, laterales en scroll horizontal */}
           <div className="block md:hidden space-y-3">
-            <a href={whatsappHref} target="_blank" rel="noreferrer">
+            <a
+              href={whatsappHref}
+              target="_blank"
+              rel="noreferrer"
+              className="block"
+            >
               <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-[#f5fbf6]">
                 <Image
-                  src="/banners/mixed-banner-desktop (2).jpg"
+                  src="/banners/hero-main-desktop.webp"
                   alt="Banner principal"
                   fill
                   className="object-cover"
@@ -69,23 +73,34 @@ export default function HomePage() {
               </div>
             </a>
 
+            {/* Banners laterales en scroll horizontal en mobile */}
             <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory">
-              <a href={whatsappHref} target="_blank" rel="noreferrer" className="flex-shrink-0 w-[85%] snap-start">
-                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden">
+              <a 
+                href={whatsappHref} 
+                target="_blank" 
+                rel="noreferrer"
+                className="block flex-shrink-0 w-[85%] snap-start"
+              >
+                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-[#f5fbf6]">
                   <Image
                     src="/banners/hero-side-1.webp"
-                    alt=""
+                    alt="Instalamos riego automático"
                     fill
                     className="object-cover"
                   />
                 </div>
               </a>
 
-              <a href={whatsappHref} target="_blank" rel="noreferrer" className="flex-shrink-0 w-[85%] snap-start">
-                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden">
+              <a 
+                href={whatsappHref} 
+                target="_blank" 
+                rel="noreferrer"
+                className="block flex-shrink-0 w-[85%] snap-start"
+              >
+                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-[#f5fbf6]">
                   <Image
                     src="/banners/hero-side-2.jpg"
-                    alt=""
+                    alt="Diseñamos espacios verdes"
                     fill
                     className="object-cover"
                   />
@@ -94,12 +109,17 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* DESKTOP */}
+          {/* Desktop: Layout original de 2 columnas */}
           <div className="hidden md:grid gap-4 lg:grid-cols-[2fr_1fr]">
-            <a href={whatsappHref} target="_blank" rel="noreferrer">
-              <div className="relative w-full aspect-[16/9] lg:h-[500px] rounded-xl overflow-hidden">
+            <a
+              href={whatsappHref}
+              target="_blank"
+              rel="noreferrer"
+              className="block"
+            >
+              <div className="relative w-full aspect-[16/9] lg:h-[500px] rounded-xl overflow-hidden bg-[#f5fbf6]">
                 <Image
-                  src="/banners/mixed-banner-desktop (2).jpg"
+                  src="/banners/hero-main-desktop.webp"
                   alt="Banner principal"
                   fill
                   className="object-contain"
@@ -110,10 +130,10 @@ export default function HomePage() {
 
             <div className="grid gap-4">
               <a href={whatsappHref} target="_blank" rel="noreferrer">
-                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden">
+                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-[#f5fbf6]">
                   <Image
                     src="/banners/hero-side-1.webp"
-                    alt=""
+                    alt="Banner lateral 1"
                     fill
                     className="object-contain"
                   />
@@ -121,10 +141,10 @@ export default function HomePage() {
               </a>
 
               <a href={whatsappHref} target="_blank" rel="noreferrer">
-                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden">
+                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-[#f5fbf6]">
                   <Image
                     src="/banners/hero-side-2.jpg"
-                    alt=""
+                    alt="Banner lateral 2"
                     fill
                     className="object-contain"
                   />
@@ -135,14 +155,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* BENEFITS */}
       <section className="py-6 sm:py-8 bg-gray-50 border-b">
         <div className="container mx-auto px-4">
-          <div className="flex gap-3 overflow-x-auto md:grid md:grid-cols-4">
+          <div className="flex gap-3 overflow-x-auto pb-2 md:grid md:grid-cols-4 md:gap-4">
             {benefits.map((b) => {
               const Icon = b.icon;
               return (
-                <Card key={b.title}>
+                <Card key={b.title} className="min-w-[80%] md:min-w-0">
                   <CardContent className="p-4">
                     <Icon className="text-corpicia-green mb-2 w-5 h-5" />
                     <h3 className="font-semibold">{b.title}</h3>
@@ -155,14 +174,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* PRODUCTOS DESTACADOS */}
       <section className="py-10">
         <div className="container mx-auto px-4">
           <h2 className="text-xl sm:text-2xl font-bold mb-6">
             Productos destacados
           </h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {featuredProducts.map((p) => (
               <ProductCard key={p!.id} product={p!} />
             ))}
@@ -170,17 +188,15 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* BANNER + PRODUCTOS */}
       <section className="pb-10">
         <div className="container mx-auto px-4">
           <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-
             <div className="grid gap-4">
-              <a href={whatsappHref} target="_blank">
-                <div className="relative w-full aspect-[16/9] lg:h-[500px] rounded-xl overflow-hidden">
+              <a href={whatsappHref} target="_blank" rel="noreferrer">
+                <div className="relative w-full aspect-[16/9] lg:h-[500px] rounded-xl overflow-hidden bg-[#f5fbf6]">
                   <Image
-                    src="/banners/mixed-banner-desktop (2).jpg"
-                    alt=""
+                    src="/banners/mixed-banner-desktop.jpg"
+                    alt="Banner riego automático"
                     fill
                     className="object-contain"
                   />
@@ -194,12 +210,57 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div>
+            <div className="grid gap-4">
+              <h2 className="text-xl sm:text-2xl font-bold">
+                Riego Automático
+              </h2>
               {mixedProducts.map((p) => (
                 <ProductCard key={p!.id} product={p!} />
               ))}
             </div>
+          </div>
+        </div>
+      </section>
 
+      {/* ✅ SECCIÓN PAISAJISMO - CARRUSEL EN DESKTOP */}
+      <section className="pb-14">
+        <div className="container mx-auto px-4">
+          <h2 className="text-xl sm:text-2xl font-bold mb-6">Paisajismo</h2>
+
+          {/* Mobile: Grid de 2 columnas */}
+          <div className="grid grid-cols-2 gap-4 md:hidden">
+            {secondaryProducts.map((p) => (
+              <div className="w-full" key={p!.id}>
+                <ProductCard product={p!} />
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop: Carrusel horizontal con scroll */}
+          <div className="hidden md:block relative">
+            <div 
+              className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {secondaryProducts.map((p) => (
+                <div 
+                  className="flex-shrink-0 w-[280px]" 
+                  key={p!.id}
+                >
+                  <ProductCard product={p!} />
+                </div>
+              ))}
+            </div>
+            
+            {/* Indicador de scroll */}
+            <div className="flex justify-center gap-2 mt-2">
+              {secondaryProducts.map((_, i) => (
+                <div 
+                  key={i} 
+                  className="w-2 h-2 rounded-full bg-gray-300"
+                />
+              ))}
+            </div>
           </div>
         </div>
       </section>
