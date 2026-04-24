@@ -138,7 +138,7 @@ export default function AboutPage() {
     <div className="min-h-screen bg-gray-50">
       <OrganizationSchema />
 
-      {/* HERO LIMPIO */}
+      {/* HERO CON IMAGEN DEL EQUIPO */}
       <section className="relative bg-white overflow-hidden">
         <div className="absolute inset-0 z-0 opacity-[0.03]">
           <div className="absolute top-0 right-0 w-96 h-96 bg-corpicia-green rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
@@ -146,61 +146,84 @@ export default function AboutPage() {
         </div>
 
         <div className="container mx-auto px-4 py-16 md:py-24 relative z-10">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 bg-green-50 border border-green-100 px-4 py-2 rounded-full mb-6">
-              <span className="w-2 h-2 bg-corpicia-green rounded-full" />
-              <span className="text-sm font-medium text-corpicia-green">Conocé a Corpicia</span>
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* TEXTO */}
+            <div>
+              <div className="inline-flex items-center gap-2 bg-green-50 border border-green-100 px-4 py-2 rounded-full mb-6">
+                <span className="w-2 h-2 bg-corpicia-green rounded-full" />
+                <span className="text-sm font-medium text-corpicia-green">Conocé a Corpicia</span>
+              </div>
+
+              <h1 className="mb-5 text-4xl font-bold leading-tight md:text-5xl text-gray-900">
+                Especialistas en césped natural,{' '}
+                <span className="text-corpicia-green">riego y jardinería</span> en Paraguay
+              </h1>
+              
+              <p className="max-w-xl text-lg md:text-xl text-gray-600 leading-relaxed mb-8">
+                Ayudamos a familias, empresas y proyectos comerciales a transformar
+                sus espacios verdes con instalación profesional y resultados que duran años.
+              </p>
+
+              <div className="flex flex-wrap gap-4">
+                <a
+                  href={getWhatsAppUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-3 rounded-xl bg-[#25D366] px-6 py-4 font-semibold text-white shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
+                >
+                  <Image
+                    src="/icons/whatsapp-sticker.svg"
+                    alt="WhatsApp"
+                    width={24}
+                    height={24}
+                    className="w-6 h-6"
+                  />
+                  Solicitar presupuesto gratuito
+                </a>
+
+                <a
+                  href="#proyectos"
+                  className="inline-flex items-center gap-3 rounded-xl border-2 border-gray-200 px-6 py-4 font-semibold text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-all"
+                >
+                  <Image
+                    src="/icons/play-sticker.svg"
+                    alt="Ver trabajos"
+                    width={20}
+                    height={20}
+                    className="w-5 h-5"
+                  />
+                  Ver trabajos reales
+                </a>
+              </div>
+
+              {/* Stats debajo de los botones */}
+              <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-6 border-t border-gray-100 pt-8">
+                {stats.map((s) => (
+                  <div key={s.label}>
+                    <p className="text-2xl md:text-3xl font-bold text-corpicia-green">{s.value}</p>
+                    <p className="text-sm text-gray-500">{s.label}</p>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <h1 className="mb-5 text-4xl font-bold leading-tight md:text-5xl lg:text-6xl text-gray-900">
-              Especialistas en césped natural,{' '}
-              <span className="text-corpicia-green">riego y jardinería</span> en Paraguay
-            </h1>
-            
-            <p className="max-w-2xl text-lg md:text-xl text-gray-600 leading-relaxed mb-8">
-              Ayudamos a familias, empresas y proyectos comerciales a transformar
-              sus espacios verdes con instalación profesional y resultados que duran años.
-            </p>
-
-            <div className="flex flex-wrap gap-4">
-              <a
-                href={getWhatsAppUrl()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 rounded-xl bg-[#25D366] px-6 py-4 font-semibold text-white shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
-              >
+            {/* IMAGEN DEL EQUIPO */}
+            <div className="relative hidden lg:block">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl aspect-[3/4] max-w-md mx-auto">
                 <Image
-                  src="/icons/whatsapp-sticker.svg"
-                  alt="WhatsApp"
-                  width={24}
-                  height={24}
-                  className="w-6 h-6"
+                  src="/trabajos/equipo-corpicia.png"
+                  alt="Equipo Corpicia - Especialistas en jardinería Paraguay"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  priority
                 />
-                Solicitar presupuesto gratuito
-              </a>
-
-              <a
-                href="#proyectos"
-                className="inline-flex items-center gap-3 rounded-xl border-2 border-gray-200 px-6 py-4 font-semibold text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-all"
-              >
-                <Image
-                  src="/icons/play-sticker.svg"
-                  alt="Ver trabajos"
-                  width={20}
-                  height={20}
-                  className="w-5 h-5"
-                />
-                Ver trabajos reales
-              </a>
-            </div>
-
-            <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 border-t border-gray-100 pt-8">
-              {stats.map((s) => (
-                <div key={s.label}>
-                  <p className="text-2xl md:text-3xl font-bold text-corpicia-green">{s.value}</p>
-                  <p className="text-sm text-gray-500">{s.label}</p>
-                </div>
-              ))}
+              </div>
+              {/* Badge flotante */}
+              <div className="absolute -bottom-4 -left-4 bg-corpicia-green text-white p-4 rounded-2xl shadow-xl">
+                <p className="text-2xl font-bold">Desde 2014</p>
+                <p className="text-xs text-white/80">Transformando Paraguay</p>
+              </div>
             </div>
           </div>
         </div>
