@@ -6,13 +6,10 @@ import {
   Heart,
   Instagram,
   Facebook,
-  MessageCircle,
-  CheckCircle2,
   MapPin,
   Phone,
   Mail,
   ArrowRight,
-  Play,
 } from 'lucide-react';
 import type { Metadata } from 'next';
 import Image from 'next/image';
@@ -132,73 +129,82 @@ const processSteps = [
     title: 'Te guiamos después',
     desc: 'Te damos instrucciones de riego y mantenimiento para que tu césped se mantenga verde.',
   },
-];
+};
 
 export default function AboutPage() {
   const works = getWorks();
-  const heroImage = works.length > 0 ? works[0].image : null;
 
   return (
     <div className="min-h-screen bg-gray-50">
       <OrganizationSchema />
 
-      {/* HERO */}
-      <section className="relative bg-corpicia-green text-white overflow-hidden">
-        {heroImage && (
-          <div className="absolute inset-0 z-0">
-            <Image
-              src={heroImage}
-              alt="Trabajos Corpicia"
-              fill
-              className="object-cover opacity-25"
-              priority
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-corpicia-green/95 to-corpicia-green/70" />
-          </div>
-        )}
+      {/* ============================================
+          HERO LIMPIO — Sin verde intenso, fondo blanco/gris suave
+          ============================================ */}
+      <section className="relative bg-white overflow-hidden">
+        {/* Patrón sutil de fondo (opcional, muy limpio) */}
+        <div className="absolute inset-0 z-0 opacity-[0.03]">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-corpicia-green rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-green-200 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+        </div>
 
         <div className="container mx-auto px-4 py-16 md:py-24 relative z-10">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
-              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-              <span className="text-sm font-medium">Conocé a Corpicia</span>
+            <div className="inline-flex items-center gap-2 bg-green-50 border border-green-100 px-4 py-2 rounded-full mb-6">
+              <span className="w-2 h-2 bg-corpicia-green rounded-full" />
+              <span className="text-sm font-medium text-corpicia-green">Conocé a Corpicia</span>
             </div>
 
-            <h1 className="mb-5 text-4xl font-bold leading-tight md:text-5xl lg:text-6xl">
+            <h1 className="mb-5 text-4xl font-bold leading-tight md:text-5xl lg:text-6xl text-gray-900">
               Especialistas en césped natural,{' '}
-              <span className="text-green-300">riego y jardinería</span> en Paraguay
+              <span className="text-corpicia-green">riego y jardinería</span> en Paraguay
             </h1>
             
-            <p className="max-w-2xl text-lg md:text-xl text-white/90 leading-relaxed mb-8">
+            <p className="max-w-2xl text-lg md:text-xl text-gray-600 leading-relaxed mb-8">
               Ayudamos a familias, empresas y proyectos comerciales a transformar
               sus espacios verdes con instalación profesional y resultados que duran años.
             </p>
 
             <div className="flex flex-wrap gap-4">
+              {/* Botón WhatsApp con sticker real */}
               <a
                 href={getWhatsAppUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-4 font-semibold text-corpicia-green shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
+                className="inline-flex items-center gap-3 rounded-xl bg-[#25D366] px-6 py-4 font-semibold text-white shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
               >
-                <MessageCircle className="h-5 w-5" />
+                <Image
+                  src="/icons/whatsapp-sticker.svg"
+                  alt="WhatsApp"
+                  width={24}
+                  height={24}
+                  className="w-6 h-6"
+                />
                 Solicitar presupuesto gratuito
               </a>
 
+              {/* Botón Ver trabajos con icono play real */}
               <a
                 href="#proyectos"
-                className="inline-flex items-center gap-2 rounded-xl border-2 border-white/50 px-6 py-4 font-semibold text-white hover:bg-white/10 transition-all"
+                className="inline-flex items-center gap-3 rounded-xl border-2 border-gray-200 px-6 py-4 font-semibold text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-all"
               >
-                <Play className="h-5 w-5" />
+                <Image
+                  src="/icons/play-sticker.svg"
+                  alt="Ver trabajos"
+                  width={20}
+                  height={20}
+                  className="w-5 h-5"
+                />
                 Ver trabajos reales
               </a>
             </div>
 
-            <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 border-t border-white/20 pt-8">
+            {/* Stats en hero — fondo gris muy suave */}
+            <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 border-t border-gray-100 pt-8">
               {stats.map((s) => (
                 <div key={s.label}>
-                  <p className="text-2xl md:text-3xl font-bold text-white">{s.value}</p>
-                  <p className="text-sm text-white/70">{s.label}</p>
+                  <p className="text-2xl md:text-3xl font-bold text-corpicia-green">{s.value}</p>
+                  <p className="text-sm text-gray-500">{s.label}</p>
                 </div>
               ))}
             </div>
@@ -206,8 +212,8 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* HISTORIA — Badge ajustado para no tapar */}
-      <section className="bg-white py-16 md:py-20">
+      {/* HISTORIA */}
+      <section className="bg-gray-50 py-16 md:py-20">
         <div className="container mx-auto px-4">
           <div className="grid gap-12 lg:grid-cols-2 items-center">
             <div className="relative">
@@ -236,7 +242,6 @@ export default function AboutPage() {
                 )}
               </div>
               
-              {/* FIX: Badge más arriba, no tapa la imagen */}
               <div className="absolute -bottom-4 -right-4 md:-bottom-4 md:-right-4 bg-corpicia-green text-white p-4 md:p-5 rounded-2xl shadow-xl z-10">
                 <p className="text-2xl md:text-3xl font-bold">Desde 2014</p>
                 <p className="text-xs md:text-sm text-white/80">Transformando Paraguay</p>
@@ -247,7 +252,7 @@ export default function AboutPage() {
               <p className="mb-3 text-sm font-bold uppercase tracking-wider text-corpicia-green">
                 Nuestra historia
               </p>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6 leading-tight">
+              <h2 className="text-3xl md:text-4xl font-bold mb-6 leading-tight text-gray-900">
                 Crecimos trabajando en espacios reales, no en una oficina
               </h2>
               
@@ -275,7 +280,7 @@ export default function AboutPage() {
                   { label: 'Misión', text: 'Democratizar el acceso a césped natural de calidad en Paraguay.' },
                   { label: 'Visión', text: 'Ser la empresa líder en espacios verdes del Mercosur para 2030.' },
                 ].map((item) => (
-                  <div key={item.label} className="bg-gray-50 p-4 rounded-xl">
+                  <div key={item.label} className="bg-white p-4 rounded-xl shadow-sm">
                     <p className="font-bold text-corpicia-green mb-1">{item.label}</p>
                     <p className="text-sm text-gray-600">{item.text}</p>
                   </div>
@@ -287,13 +292,13 @@ export default function AboutPage() {
       </section>
 
       {/* TRUST ITEMS */}
-      <section className="py-16 md:py-20 bg-gray-50">
+      <section className="py-16 md:py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <p className="text-sm font-bold uppercase tracking-wider text-corpicia-green mb-3">
               Diferencia Corpicia
             </p>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
               ¿Por qué confiar en nosotros?
             </h2>
             <p className="text-gray-600">
@@ -304,12 +309,12 @@ export default function AboutPage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {trustItems.map((item) => (
-              <Card key={item.title} className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+              <Card key={item.title} className="border border-gray-100 shadow-sm hover:shadow-lg transition-shadow">
                 <CardContent className="p-6">
-                  <div className="w-12 h-12 bg-corpicia-green/10 rounded-xl flex items-center justify-center mb-4">
+                  <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center mb-4">
                     <item.icon className="w-6 h-6 text-corpicia-green" />
                   </div>
-                  <h3 className="font-bold text-lg mb-2">{item.title}</h3>
+                  <h3 className="font-bold text-lg mb-2 text-gray-900">{item.title}</h3>
                   <p className="text-gray-600 text-sm leading-relaxed">{item.description}</p>
                 </CardContent>
               </Card>
@@ -318,15 +323,15 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* PROYECTOS — FIX: Mejor espaciado del header */}
-      <section id="proyectos" className="py-16 md:py-20 bg-white">
+      {/* PROYECTOS */}
+      <section id="proyectos" className="py-16 md:py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
             <div>
               <p className="text-sm font-bold uppercase tracking-wider text-corpicia-green mb-2">
                 Galería de trabajos
               </p>
-              <h2 className="text-3xl md:text-4xl font-bold">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
                 Proyectos que hablan por sí solos
               </h2>
             </div>
@@ -358,7 +363,7 @@ export default function AboutPage() {
                     </div>
                   </div>
                   <CardContent className="p-5">
-                    <h3 className="font-bold text-lg mb-1 group-hover:text-corpicia-green transition-colors">
+                    <h3 className="font-bold text-lg mb-1 group-hover:text-corpicia-green transition-colors text-gray-900">
                       {work.title}
                     </h3>
                     <p className="text-sm text-gray-500 flex items-center gap-2">
@@ -370,7 +375,7 @@ export default function AboutPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 bg-gray-50 rounded-2xl">
+            <div className="text-center py-12 bg-white rounded-2xl">
               <p className="text-gray-500">
                 Próximamente mostraremos nuestros proyectos. Seguinos en Instagram para ver trabajos en tiempo real.
               </p>
@@ -393,14 +398,14 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* PROCESO — FIX: Flechas circulares entre cards */}
-      <section className="py-16 md:py-20 bg-gray-50">
+      {/* PROCESO */}
+      <section className="py-16 md:py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <p className="text-sm font-bold uppercase tracking-wider text-corpicia-green mb-3">
               Cómo trabajamos
             </p>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
               Instalación profesional en 4 pasos
             </h2>
             <p className="text-gray-600">
@@ -411,15 +416,14 @@ export default function AboutPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-2 mb-12">
             {processSteps.map((step, i) => (
               <div key={step.step} className="relative flex items-center">
-                <div className="bg-white p-6 rounded-2xl shadow-lg flex-1 h-full">
+                <div className="bg-gray-50 p-6 rounded-2xl flex-1 h-full border border-gray-100">
                   <span className="text-4xl font-bold text-corpicia-green/20 block mb-4">
                     {step.step}
                   </span>
-                  <h3 className="font-bold text-lg mb-2">{step.title}</h3>
+                  <h3 className="font-bold text-lg mb-2 text-gray-900">{step.title}</h3>
                   <p className="text-gray-600 text-sm leading-relaxed">{step.desc}</p>
                 </div>
                 
-                {/* FIX: Flecha circular centrada, solo en desktop entre cards */}
                 {i < 3 && (
                   <div className="hidden lg:flex items-center justify-center shrink-0 mx-1">
                     <div className="bg-corpicia-green text-white rounded-full p-2 shadow-md">
@@ -431,9 +435,9 @@ export default function AboutPage() {
             ))}
           </div>
 
-          {/* FIX 2: Video sin bordes negros — contenedor vertical centrado */}
+          {/* Video centrado, sin bordes negros */}
           <div className="max-w-[400px] mx-auto">
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-black">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-gray-900">
               <video
                 controls
                 className="w-full h-auto"
@@ -457,20 +461,17 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* FIX 3: ELIMINADA la segunda banda de stats duplicada */}
-      {/* Los stats solo están en el hero, no se repiten */}
-
-      {/* CTA FINAL — FIX: Alturas iguales con items-stretch */}
-      <section className="py-16 md:py-20 bg-white">
+      {/* CTA FINAL */}
+      <section className="py-16 md:py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-8 items-stretch">
             {/* Social */}
-            <div className="bg-gradient-to-br from-green-600 to-green-700 text-white p-8 md:p-10 rounded-3xl flex flex-col justify-between">
+            <div className="bg-white p-8 md:p-10 rounded-3xl shadow-sm border border-gray-100 flex flex-col justify-between">
               <div>
-                <h2 className="text-2xl md:text-3xl font-bold mb-4">
+                <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-900">
                   Ver más trabajos en tiempo real
                 </h2>
-                <p className="text-green-100 mb-8 leading-relaxed">
+                <p className="text-gray-600 mb-8 leading-relaxed">
                   Subimos fotos y videos de nuestros proyectos diariamente. 
                   Seguinos para ver el antes y después de cada instalación.
                 </p>
@@ -480,44 +481,62 @@ export default function AboutPage() {
                     href="https://www.instagram.com/corpi_y_ciaa/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 bg-white text-green-700 px-5 py-2.5 rounded-xl font-bold hover:shadow-lg transition-all"
+                    className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white px-5 py-2.5 rounded-xl font-bold hover:shadow-lg transition-all"
                   >
-                    <Instagram className="w-5 h-5" />
+                    <Image
+                      src="/icons/instagram-sticker.svg"
+                      alt="Instagram"
+                      width={20}
+                      height={20}
+                      className="w-5 h-5"
+                    />
                     Instagram
                   </a>
                   <a
                     href="https://www.facebook.com/corpi.jardin/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 bg-white/20 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-white/30 transition-all"
+                    className="inline-flex items-center gap-2 bg-[#1877F2] text-white px-5 py-2.5 rounded-xl font-bold hover:shadow-lg transition-all"
                   >
-                    <Facebook className="w-5 h-5" />
+                    <Image
+                      src="/icons/facebook-sticker.svg"
+                      alt="Facebook"
+                      width={20}
+                      height={20}
+                      className="w-5 h-5"
+                    />
                     Facebook
                   </a>
                 </div>
               </div>
 
-              <div className="mt-8 pt-6 border-t border-white/20">
-                <p className="text-sm text-green-200 mb-2">¿Preferís hablar directo?</p>
+              <div className="mt-8 pt-6 border-t border-gray-100">
+                <p className="text-sm text-gray-500 mb-2">¿Preferís hablar directo?</p>
                 <a
                   href={getWhatsAppUrl()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-white font-semibold hover:underline"
+                  className="inline-flex items-center gap-2 text-corpicia-green font-semibold hover:underline"
                 >
-                  <MessageCircle className="w-5 h-5" />
+                  <Image
+                    src="/icons/whatsapp-sticker.svg"
+                    alt="WhatsApp"
+                    width={18}
+                    height={18}
+                    className="w-[18px] h-[18px]"
+                  />
                   Escribinos por WhatsApp
                 </a>
               </div>
             </div>
 
             {/* Contacto */}
-            <div className="bg-gray-50 p-8 md:p-10 rounded-3xl flex flex-col justify-between">
+            <div className="bg-white p-8 md:p-10 rounded-3xl shadow-sm border border-gray-100 flex flex-col justify-between">
               <div>
                 <p className="text-sm font-bold uppercase tracking-wider text-corpicia-green mb-3">
                   Contacto directo
                 </p>
-                <h2 className="text-2xl md:text-3xl font-bold mb-4">
+                <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-900">
                   ¿Tenés un proyecto en mente?
                 </h2>
                 <p className="text-gray-600 mb-8 leading-relaxed">
@@ -528,36 +547,36 @@ export default function AboutPage() {
                 <div className="space-y-3">
                   <a
                     href="tel:+595992588770"
-                    className="flex items-center gap-4 p-3 bg-white rounded-xl hover:bg-gray-100 transition-colors"
+                    className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
                   >
-                    <div className="w-10 h-10 bg-corpicia-green/10 rounded-full flex items-center justify-center shrink-0">
+                    <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center shrink-0">
                       <Phone className="w-4 h-4 text-corpicia-green" />
                     </div>
                     <div className="min-w-0">
-                      <p className="font-semibold text-sm">Llamanos</p>
+                      <p className="font-semibold text-sm text-gray-900">Llamanos</p>
                       <p className="text-corpicia-green text-sm">+595 992 588 770</p>
                     </div>
                   </a>
 
                   <a
                     href="mailto:info@corpicia.com"
-                    className="flex items-center gap-4 p-3 bg-white rounded-xl hover:bg-gray-100 transition-colors"
+                    className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
                   >
-                    <div className="w-10 h-10 bg-corpicia-green/10 rounded-full flex items-center justify-center shrink-0">
+                    <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center shrink-0">
                       <Mail className="w-4 h-4 text-corpicia-green" />
                     </div>
                     <div className="min-w-0">
-                      <p className="font-semibold text-sm">Escribinos</p>
+                      <p className="font-semibold text-sm text-gray-900">Escribinos</p>
                       <p className="text-corpicia-green text-sm truncate">info@corpicia.com</p>
                     </div>
                   </a>
 
-                  <div className="flex items-center gap-4 p-3 bg-white rounded-xl">
-                    <div className="w-10 h-10 bg-corpicia-green/10 rounded-full flex items-center justify-center shrink-0">
+                  <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl">
+                    <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center shrink-0">
                       <MapPin className="w-4 h-4 text-corpicia-green" />
                     </div>
                     <div className="min-w-0">
-                      <p className="font-semibold text-sm">Ubicación</p>
+                      <p className="font-semibold text-sm text-gray-900">Ubicación</p>
                       <p className="text-gray-600 text-sm">Asunción, Paraguay</p>
                     </div>
                   </div>
@@ -568,9 +587,15 @@ export default function AboutPage() {
                 href={getWhatsAppUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-6 w-full inline-flex items-center justify-center gap-2 bg-corpicia-green text-white px-6 py-3.5 rounded-xl font-bold hover:bg-corpicia-green/90 transition-colors"
+                className="mt-6 w-full inline-flex items-center justify-center gap-3 bg-[#25D366] text-white px-6 py-3.5 rounded-xl font-bold hover:bg-[#128C7E] transition-colors"
               >
-                <MessageCircle className="w-5 h-5" />
+                <Image
+                  src="/icons/whatsapp-sticker.svg"
+                  alt="WhatsApp"
+                  width={20}
+                  height={20}
+                  className="w-5 h-5"
+                />
                 Solicitar presupuesto ahora
               </a>
             </div>
