@@ -41,7 +41,7 @@ export function Navbar() {
             <div className="overflow-hidden flex-1">
               <div className="animate-marquee whitespace-nowrap flex gap-8">
                 <span className="inline-flex items-center gap-2 text-xs sm:text-sm">
-                  🔥 <strong>CÉSPED ESMERALDA + INSTALACIÓN: Gs. 32.000/m²</strong> · APROVECHÁ AHORA
+                  🔥 <strong>CÉSPED ESMERALDA + INSTALACIÓN: Gs. 31.000/m²</strong> · APROVECHÁ AHORA
                 </span>
                 <span className="inline-flex items-center gap-2 text-xs sm:text-sm">
                   🌱 <strong>CÉSPED SIEMPRE VERDE</strong> resistente todo el año
@@ -51,7 +51,7 @@ export function Navbar() {
                 </span>
                 {/* Duplicado para loop suave */}
                 <span className="inline-flex items-center gap-2 text-xs sm:text-sm">
-                  🔥 <strong>CÉSPED ESMERALDA + INSTALACIÓN: Gs. 32.000/m²</strong> · APROVECHÁ AHORA
+                  🔥 <strong>CÉSPED ESMERALDA + INSTALACIÓN: Gs. 31.000/m²</strong> · APROVECHÁ AHORA
                 </span>
                 <span className="inline-flex items-center gap-2 text-xs sm:text-sm">
                   🌱 <strong>CÉSPED SIEMPRE VERDE</strong> resistente todo el año
