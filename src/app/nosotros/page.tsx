@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'Nosotros - Corpicia | Césped Natural en Paraguay',
-    description: 'Más de 10 años transformando espacios verdes en Paraguay. Especialistas en césped natural, riego y jardinería profesional.',
+    description: 'Más de 10 años transformando espacios verdes en Paraguay.',
     type: 'website',
   },
 };
@@ -62,9 +62,10 @@ function OrganizationSchema() {
   );
 }
 
-// Generar trabajos automáticos desde carpeta
+// 🔥 GENERAR TRABAJOS AUTOMÁTICOS — CADA VEZ QUE SUBAS UNA FOTO NUEVA A public/trabajos/ APARECE SOLA
 function getWorks() {
   const dir = path.join(process.cwd(), 'public/trabajos');
+
   let files: string[] = [];
 
   try {
@@ -139,25 +140,30 @@ const processSteps = [
 export default function AboutPage() {
   const works = getWorks();
 
+  // 🔥 TOMA LA PRIMERA FOTO DE TRABAJOS COMO FONDO DEL HERO (si existe)
+  const heroImage = works.length > 0 ? works[0].image : null;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <OrganizationSchema />
 
       {/* ============================================
-          HERO MEJORADO - Con imagen de fondo real
+          HERO — Fondo dinámico con tu primera foto de trabajos
           ============================================ */}
       <section className="relative bg-corpicia-green text-white overflow-hidden">
-        {/* Imagen de fondo - usá una imagen real de tus trabajos */}
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="/trabajos/hero-nosotros.jpg" // Cambiá esto por una foto real de tu equipo trabajando
-            alt="Equipo Corpicia trabajando"
-            fill
-            className="object-cover opacity-30"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-corpicia-green/95 to-corpicia-green/70" />
-        </div>
+        {/* Imagen de fondo dinámica — si hay trabajos, usa el primero */}
+        {heroImage && (
+          <div className="absolute inset-0 z-0">
+            <Image
+              src={heroImage}
+              alt="Trabajos Corpicia"
+              fill
+              className="object-cover opacity-25"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-corpicia-green/95 to-corpicia-green/70" />
+          </div>
+        )}
 
         <div className="container mx-auto px-4 py-16 md:py-24 relative z-10">
           <div className="max-w-3xl">
@@ -196,9 +202,9 @@ export default function AboutPage() {
               </a>
             </div>
 
-            {/* Stats rápidos en hero */}
+            {/* Stats en hero */}
             <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 border-t border-white/20 pt-8">
-              {stats.slice(0, 4).map((s) => (
+              {stats.map((s) => (
                 <div key={s.label}>
                   <p className="text-2xl md:text-3xl font-bold text-white">{s.value}</p>
                   <p className="text-sm text-white/70">{s.label}</p>
@@ -210,21 +216,33 @@ export default function AboutPage() {
       </section>
 
       {/* ============================================
-          HISTORIA MEJORADA - Más emocional y estructurada
+          HISTORIA — Usa la segunda foto como imagen (si hay)
           ============================================ */}
       <section className="bg-white py-16 md:py-20">
         <div className="container mx-auto px-4">
           <div className="grid gap-12 lg:grid-cols-2 items-center">
-            {/* Imagen de la historia */}
+            {/* Imagen dinámica — segunda foto de trabajos o fallback */}
             <div className="relative">
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-                <Image
-                  src="/trabajos/historia-corpicia.jpg" // Foto del fundador o primer trabajo
-                  alt="Fundadores de Corpicia"
-                  width={600}
-                  height={500}
-                  className="object-cover w-full"
-                />
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl aspect-[4/3] bg-gray-100">
+                {works.length > 1 ? (
+                  <Image
+                    src={works[1].image}
+                    alt="Nuestro trabajo en Paraguay"
+                    fill
+                    className="object-cover"
+                  />
+                ) : works.length > 0 ? (
+                  <Image
+                    src={works[0].image}
+                    alt="Nuestro trabajo en Paraguay"
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-corpicia-green/10 flex items-center justify-center">
+                    <Leaf className="w-20 h-20 text-corpicia-green/30" />
+                  </div>
+                )}
               </div>
               {/* Badge flotante */}
               <div className="absolute -bottom-6 -right-6 bg-corpicia-green text-white p-6 rounded-2xl shadow-xl hidden md:block">
@@ -279,7 +297,7 @@ export default function AboutPage() {
       </section>
 
       {/* ============================================
-          ¿POR QUÉ ELEGIRNOS? - Trust Items (antes faltaban)
+          ¿POR QUÉ ELEGIRNOS?
           ============================================ */}
       <section className="py-16 md:py-20 bg-gray-50">
         <div className="container mx-auto px-4">
@@ -313,7 +331,7 @@ export default function AboutPage() {
       </section>
 
       {/* ============================================
-          PROYECTOS REALES - Grid mejorado
+          PROYECTOS REALES — AUTOMÁTICO: subís foto, aparece sola
           ============================================ */}
       <section id="proyectos" className="py-16 md:py-20 bg-white">
         <div className="container mx-auto px-4">
@@ -339,7 +357,7 @@ export default function AboutPage() {
 
           {works.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {works.slice(0, 6).map((work, i) => (
+              {works.map((work, i) => (
                 <Card key={i} className="group overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all cursor-pointer">
                   <div className="relative h-64 w-full overflow-hidden">
                     <Image
@@ -373,6 +391,7 @@ export default function AboutPage() {
             </div>
           )}
 
+          {/* Si hay más de 6, botón para Instagram */}
           {works.length > 6 && (
             <div className="text-center mt-8">
               <a
@@ -390,7 +409,7 @@ export default function AboutPage() {
       </section>
 
       {/* ============================================
-          PROCESO DE INSTALACIÓN - Visual mejorado
+          PROCESO DE INSTALACIÓN
           ============================================ */}
       <section className="py-16 md:py-20 bg-gray-50">
         <div className="container mx-auto px-4">
@@ -425,13 +444,13 @@ export default function AboutPage() {
             ))}
           </div>
 
-          {/* Video mejorado */}
+          {/* Video — usa la primera foto como poster si no hay poster dedicado */}
           <div className="max-w-4xl mx-auto">
             <div className="relative rounded-2xl overflow-hidden bg-black shadow-2xl aspect-video">
               <video
                 controls
                 className="w-full h-full"
-                poster="/trabajos/video-poster.jpg" // Agregá una imagen de preview
+                poster={works.length > 0 ? works[0].image : undefined}
                 preload="metadata"
               >
                 <source src="/videos/trabajo-corpicia.mp4" type="video/mp4" />
@@ -439,14 +458,14 @@ export default function AboutPage() {
               </video>
             </div>
             <p className="text-center text-sm text-gray-500 mt-4">
-              Video: Instalación de césped Esmeralda en residencia de Asunción
+              Video: Instalación de césped profesional en Paraguay
             </p>
           </div>
         </div>
       </section>
 
       {/* ============================================
-          STATS CON IMPACTO - Animados visualmente
+          STATS
           ============================================ */}
       <section className="py-16 bg-corpicia-green text-white">
         <div className="container mx-auto px-4">
