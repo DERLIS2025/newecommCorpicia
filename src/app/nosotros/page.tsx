@@ -1,5 +1,15 @@
 import { Card, CardContent } from '@/components/ui/card';
-import { Leaf, Users, Award, Heart, Instagram, Facebook } from 'lucide-react';
+import {
+  Leaf,
+  Users,
+  Award,
+  Heart,
+  Instagram,
+  Facebook,
+  MessageCircle,
+  CheckCircle2,
+  MapPin,
+} from 'lucide-react';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { getWhatsAppUrl } from '@/lib/utils';
@@ -7,165 +17,247 @@ import { getWhatsAppUrl } from '@/lib/utils';
 export const metadata: Metadata = {
   title: 'Nosotros - Corpicia | Césped Natural en Paraguay',
   description:
-    'Conocé a Corpicia, especialistas en césped natural y jardinería en Paraguay. Más de 10 años de experiencia transformando espacios verdes.',
+    'Conocé a Corpicia, especialistas en césped natural, riego y jardinería en Paraguay.',
   alternates: {
     canonical: '/nosotros/',
   },
 };
 
-const values = [
+const works = [
+  {
+    title: 'Instalación de césped natural',
+    location: 'Asunción',
+    category: 'Césped natural',
+    image: '/trabajos/instalacion-cesped-asuncion.jpg',
+  },
+];
+
+const trustItems = [
   {
     icon: Leaf,
-    title: 'Calidad',
-    description:
-      'Seleccionamos los mejores productos para garantizar resultados excepcionales.',
+    title: 'Césped de calidad',
+    description: 'Seleccionamos variedades adaptadas al clima paraguayo.',
   },
   {
     icon: Users,
-    title: 'Compromiso',
-    description:
-      'Trabajamos cerca de nuestros clientes para entender y cumplir sus necesidades.',
+    title: 'Acompañamiento',
+    description: 'Asesoramos antes, durante y después de cada instalación.',
   },
   {
     icon: Award,
     title: 'Experiencia',
-    description: 'Más de 10 años en el mercado nos respaldan.',
+    description: 'Más de 10 años trabajando en espacios verdes.',
   },
   {
     icon: Heart,
-    title: 'Pasión',
-    description: 'Amamos lo que hacemos y eso se refleja en cada proyecto.',
+    title: 'Trabajo responsable',
+    description: 'Cuidamos cada detalle para lograr un resultado prolijo.',
   },
+];
+
+const stats = [
+  { value: '10+', label: 'Años de experiencia' },
+  { value: '1000+', label: 'Clientes satisfechos' },
+  { value: '50000+', label: 'm² instalados' },
+  { value: '50+', label: 'Proyectos corporativos' },
 ];
 
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero */}
-      <div className="bg-corpicia-green text-white py-16 md:py-24">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            Sobre Corpicia
-          </h1>
-          <p className="text-xl text-white/90 max-w-2xl mx-auto">
-            Especialistas en césped natural y soluciones de jardinería en Paraguay.
-            Transformamos espacios verdes con pasión y profesionalismo.
-          </p>
-        </div>
-      </div>
-
-      {/* Historia */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
-            Nuestra Historia
-          </h2>
-          <div className="prose prose-lg mx-auto text-gray-600">
-            <p className="mb-4">
-              Corpicia nació de la pasión por los espacios verdes y el deseo de llevar
-              la mejor calidad en césped natural a los hogares y empresas de Paraguay.
+      <section className="bg-corpicia-green text-white">
+        <div className="container mx-auto px-4 py-14 md:py-20">
+          <div className="max-w-3xl">
+            <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-white/80">
+              Conocé a Corpicia
             </p>
-            <p className="mb-4">
-              Nos especializamos en la instalación de césped natural, sistemas de riego
-              y soluciones completas de jardinería adaptadas al clima paraguayo.
+            <h1 className="mb-5 text-4xl font-bold leading-tight md:text-5xl">
+              Especialistas en césped natural, riego y jardinería en Paraguay
+            </h1>
+            <p className="max-w-2xl text-lg text-white/90">
+              Ayudamos a familias, empresas y proyectos comerciales a transformar
+              sus espacios verdes con productos confiables, instalación profesional
+              y asesoramiento cercano.
             </p>
-            <p>
-              Hoy, con más de 10 años de experiencia, ayudamos a nuestros clientes a
-              transformar sus espacios con resultados duraderos y profesionales.
-            </p>
-          </div>
-        </div>
-      </div>
 
-      {/* Trabajos realizados */}
-      <div className="bg-white py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-gray-900 mb-10 text-center">
-            Trabajos realizados por Corpicia
-          </h2>
-
-          <div className="grid md:grid-cols-2 gap-10 items-center">
-            <div className="rounded-xl overflow-hidden shadow-lg">
-              <Image
-                src="/trabajos/instalacion-cesped-asuncion.jpg"
-                alt="Instalación de césped natural en Asunción"
-                width={800}
-                height={600}
-                className="w-full h-full object-cover"
-              />
-            </div>
-
-            <div>
-              <h3 className="text-2xl font-semibold mb-4">
-                Instalación de césped natural en Asunción
-              </h3>
-
-              <p className="text-gray-600 mb-6">
-                Proyecto real realizado por el equipo de Corpicia. Nos encargamos
-                desde la preparación del terreno hasta la instalación final del césped,
-                garantizando un acabado uniforme, duradero y listo para disfrutar.
-              </p>
-
-              <ul className="text-gray-600 space-y-2 mb-6">
-                <li>✔ Preparación del terreno</li>
-                <li>✔ Nivelación y drenaje</li>
-                <li>✔ Instalación profesional de césped</li>
-                <li>✔ Asesoramiento post-instalación</li>
-              </ul>
-
+            <div className="mt-8 flex flex-wrap gap-3">
               <a
                 href={getWhatsAppUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block bg-corpicia-green text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
+                className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 font-semibold text-corpicia-green transition hover:opacity-90"
               >
-                Solicitar presupuesto por WhatsApp
+                <MessageCircle className="h-5 w-5" />
+                Solicitar presupuesto
+              </a>
+
+              <a
+                href="https://www.instagram.com/corpi_y_ciaa/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/40 px-5 py-3 font-semibold text-white transition hover:bg-white/10"
+              >
+                <Instagram className="h-5 w-5" />
+                Ver trabajos reales
               </a>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* Video */}
-          <div className="mt-16 text-center">
-            <h3 className="text-2xl font-semibold mb-6">
-              Mirá cómo trabajamos
-            </h3>
+      <section className="bg-white py-12 md:py-16">
+        <div className="container mx-auto grid gap-10 px-4 md:grid-cols-[1fr_1.2fr] md:items-center">
+          <div>
+            <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-corpicia-green">
+              Nuestra historia
+            </p>
+            <h2 className="mb-5 text-3xl font-bold text-gray-900">
+              Crecimos trabajando en espacios verdes reales
+            </h2>
+          </div>
 
-            <div className="mx-auto max-w-sm md:max-w-md lg:max-w-lg rounded-2xl overflow-hidden shadow-xl bg-black">
-              <video
-                className="w-full h-auto"
-                controls
-                playsInline
-                preload="metadata"
-                poster="/trabajos/instalacion-cesped-asuncion.jpg"
-              >
-                <source src="/videos/trabajo-corpicia.mp4" type="video/mp4" />
-              </video>
-            </div>
+          <div className="space-y-4 text-base leading-relaxed text-gray-600">
+            <p>
+              Corpicia nació de la pasión por los espacios verdes y el deseo de
+              llevar césped natural de calidad a hogares, empresas y proyectos en
+              Paraguay.
+            </p>
+            <p>
+              Nos especializamos en instalación de césped natural, sistemas de riego
+              y soluciones de jardinería pensadas para lograr espacios prolijos,
+              funcionales y duraderos.
+            </p>
+            <p>
+              Nuestro enfoque es simple: escuchar al cliente, recomendar la mejor
+              solución y acompañar cada proyecto con responsabilidad.
+            </p>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Valores */}
-      <div className="py-16">
+      <section className="py-12 md:py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">
-            Nuestros Valores
-          </h2>
+          <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-corpicia-green">
+                Trabajos realizados
+              </p>
+              <h2 className="text-3xl font-bold text-gray-900">
+                Proyectos reales de Corpicia
+              </h2>
+              <p className="mt-3 max-w-2xl text-gray-600">
+                Esta sección está preparada para sumar más imágenes y convertirla en
+                un carrusel de trabajos reales.
+              </p>
+            </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {values.map((value) => {
-              const Icon = value.icon;
+            <a
+              href="https://www.instagram.com/corpi_y_ciaa/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-corpicia-green hover:underline"
+            >
+              <Instagram className="h-4 w-4" />
+              Ver más en Instagram
+            </a>
+          </div>
+
+          <div className="flex gap-5 overflow-x-auto pb-4">
+            {works.map((work) => (
+              <Card
+                key={work.title}
+                className="min-w-[280px] overflow-hidden md:min-w-[380px]"
+              >
+                <div className="relative h-56 w-full md:h-64">
+                  <Image
+                    src={work.image}
+                    alt={work.title}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <CardContent className="p-5">
+                  <p className="mb-2 inline-flex rounded-full bg-corpicia-green/10 px-3 py-1 text-xs font-semibold text-corpicia-green">
+                    {work.category}
+                  </p>
+                  <h3 className="mb-2 text-lg font-bold text-gray-900">
+                    {work.title}
+                  </h3>
+                  <p className="flex items-center gap-2 text-sm text-gray-600">
+                    <MapPin className="h-4 w-4 text-corpicia-green" />
+                    {work.location}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white py-12 md:py-16">
+        <div className="container mx-auto grid gap-10 px-4 md:grid-cols-[1fr_380px] md:items-center">
+          <div>
+            <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-corpicia-green">
+              Cómo trabajamos
+            </p>
+            <h2 className="mb-5 text-3xl font-bold text-gray-900">
+              Instalaciones cuidadas de principio a fin
+            </h2>
+
+            <div className="space-y-3 text-gray-600">
+              {[
+                'Revisamos el espacio y recomendamos la solución adecuada.',
+                'Preparamos el terreno para una instalación prolija.',
+                'Instalamos el césped con criterio técnico y terminación limpia.',
+                'Brindamos orientación para el cuidado posterior.',
+              ].map((item) => (
+                <p key={item} className="flex gap-3">
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-corpicia-green" />
+                  <span>{item}</span>
+                </p>
+              ))}
+            </div>
+          </div>
+
+          <div className="mx-auto w-full max-w-sm overflow-hidden rounded-2xl bg-black shadow-xl">
+            <video
+              className="h-auto w-full"
+              controls
+              playsInline
+              preload="metadata"
+              poster="/trabajos/instalacion-cesped-asuncion.jpg"
+            >
+              <source src="/videos/trabajo-corpicia.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-12 md:py-16">
+        <div className="container mx-auto px-4">
+          <div className="mb-8 text-center">
+            <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-corpicia-green">
+              Por qué confiar
+            </p>
+            <h2 className="text-3xl font-bold text-gray-900">
+              Lo que nos diferencia
+            </h2>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+            {trustItems.map((item) => {
+              const Icon = item.icon;
               return (
-                <Card key={value.title} className="text-center">
-                  <CardContent className="p-6">
-                    <div className="w-14 h-14 bg-corpicia-green/10 rounded-xl flex items-center justify-center mx-auto mb-4">
-                      <Icon className="w-7 h-7 text-corpicia-green" />
+                <Card key={item.title}>
+                  <CardContent className="p-5">
+                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-corpicia-green/10">
+                      <Icon className="h-6 w-6 text-corpicia-green" />
                     </div>
-                    <h3 className="font-semibold text-lg mb-2">
-                      {value.title}
+                    <h3 className="mb-2 font-bold text-gray-900">
+                      {item.title}
                     </h3>
-                    <p className="text-gray-500 text-sm">
-                      {value.description}
+                    <p className="text-sm leading-relaxed text-gray-600">
+                      {item.description}
                     </p>
                   </CardContent>
                 </Card>
@@ -173,64 +265,59 @@ export default function AboutPage() {
             })}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Stats */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          <div className="text-center">
-            <p className="text-4xl font-bold text-corpicia-green mb-2">10+</p>
-            <p className="text-gray-600">Años de experiencia</p>
-          </div>
-          <div className="text-center">
-            <p className="text-4xl font-bold text-corpicia-green mb-2">1000+</p>
-            <p className="text-gray-600">Clientes satisfechos</p>
-          </div>
-          <div className="text-center">
-            <p className="text-4xl font-bold text-corpicia-green mb-2">50000+</p>
-            <p className="text-gray-600">m² instalados</p>
-          </div>
-          <div className="text-center">
-            <p className="text-4xl font-bold text-corpicia-green mb-2">50+</p>
-            <p className="text-gray-600">Proyectos corporativos</p>
+      <section className="bg-white py-10">
+        <div className="container mx-auto px-4">
+          <div className="grid gap-6 rounded-2xl bg-gray-50 p-6 md:grid-cols-4 md:p-8">
+            {stats.map((stat) => (
+              <div key={stat.label} className="text-center">
+                <p className="text-3xl font-bold text-corpicia-green">
+                  {stat.value}
+                </p>
+                <p className="mt-1 text-sm text-gray-600">{stat.label}</p>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Redes Sociales */}
-      <div className="bg-white py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Seguinos en redes
-          </h2>
+      <section className="py-12 md:py-16">
+        <div className="container mx-auto px-4">
+          <div className="rounded-2xl bg-corpicia-green p-8 text-center text-white md:p-10">
+            <Instagram className="mx-auto mb-4 h-9 w-9" />
+            <h2 className="mb-3 text-3xl font-bold">
+              Mirá más trabajos reales en Instagram
+            </h2>
+            <p className="mx-auto mb-6 max-w-2xl text-white/90">
+              Publicamos instalaciones, avances de obra y resultados terminados.
+              Es el mejor lugar para ver cómo trabaja Corpicia en proyectos reales.
+            </p>
 
-          <p className="text-gray-600 mb-8 max-w-xl mx-auto">
-            Mirá nuestros trabajos reales, instalaciones, proyectos terminados y novedades de Corpicia.
-          </p>
+            <div className="flex flex-wrap justify-center gap-3">
+              <a
+                href="https://www.instagram.com/corpi_y_ciaa/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 font-semibold text-corpicia-green transition hover:opacity-90"
+              >
+                <Instagram className="h-5 w-5" />
+                Ir a Instagram
+              </a>
 
-          <div className="flex justify-center gap-4 flex-wrap">
-            <a
-              href="https://www.instagram.com/corpi_y_ciaa/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-pink-500 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
-            >
-              <Instagram className="w-5 h-5" />
-              Instagram
-            </a>
-
-            <a
-              href="https://www.facebook.com/corpi.jardin/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
-            >
-              <Facebook className="w-5 h-5" />
-              Facebook
-            </a>
+              <a
+                href="https://www.facebook.com/corpi.jardin/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/40 px-5 py-3 font-semibold text-white transition hover:bg-white/10"
+              >
+                <Facebook className="h-5 w-5" />
+                Facebook
+              </a>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
