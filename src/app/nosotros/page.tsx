@@ -1,5 +1,5 @@
 import { Card, CardContent } from '@/components/ui/card';
-import { Leaf, Users, Award, Heart } from 'lucide-react';
+import { Leaf, Users, Award, Heart, Instagram, Facebook } from 'lucide-react';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { getWhatsAppUrl } from '@/lib/utils';
@@ -77,7 +77,7 @@ export default function AboutPage() {
         </div>
       </div>
 
-      {/* Trabajos realizados (NUEVO) */}
+      {/* Trabajos realizados */}
       <div className="bg-white py-16">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-gray-900 mb-10 text-center">
@@ -116,6 +116,7 @@ export default function AboutPage() {
               <a
                 href={getWhatsAppUrl()}
                 target="_blank"
+                rel="noopener noreferrer"
                 className="inline-block bg-corpicia-green text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
               >
                 Solicitar presupuesto por WhatsApp
@@ -173,6 +174,41 @@ export default function AboutPage() {
           <div className="text-center">
             <p className="text-4xl font-bold text-corpicia-green mb-2">50+</p>
             <p className="text-gray-600">Proyectos corporativos</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Redes Sociales */}
+      <div className="bg-white py-16">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            Seguinos en redes
+          </h2>
+
+          <p className="text-gray-600 mb-8 max-w-xl mx-auto">
+            Mirá nuestros trabajos reales, instalaciones, proyectos terminados y novedades de Corpicia.
+          </p>
+
+          <div className="flex justify-center gap-4 flex-wrap">
+            <a
+              href="https://www.instagram.com/corpi_y_ciaa/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-pink-500 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
+            >
+              <Instagram className="w-5 h-5" />
+              Instagram
+            </a>
+
+            <a
+              href="https://www.facebook.com/corpi.jardin/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
+            >
+              <Facebook className="w-5 h-5" />
+              Facebook
+            </a>
           </div>
         </div>
       </div>
