@@ -1,3 +1,4 @@
+```tsx
 import { Card, CardContent } from '@/components/ui/card';
 import { Leaf, Users, Award, Heart, Instagram, Facebook } from 'lucide-react';
 import type { Metadata } from 'next';
@@ -123,6 +124,26 @@ export default function AboutPage() {
               </a>
             </div>
           </div>
+
+          {/* VIDEO AGREGADO */}
+          <div className="mt-16 text-center">
+            <h3 className="text-2xl font-semibold mb-6">
+              Mirá cómo trabajamos
+            </h3>
+
+            <div className="mx-auto max-w-sm md:max-w-md lg:max-w-lg rounded-2xl overflow-hidden shadow-xl bg-black">
+              <video
+                className="w-full h-auto"
+                controls
+                playsInline
+                preload="metadata"
+                poster="/trabajos/instalacion-cesped-asuncion.jpg"
+              >
+                <source src="/videos/trabajo-corpicia.mp4" type="video/mp4" />
+                Tu navegador no soporta video HTML5.
+              </video>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -215,3 +236,4 @@ export default function AboutPage() {
     </div>
   );
 }
+```
