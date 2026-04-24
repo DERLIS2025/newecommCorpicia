@@ -58,10 +58,37 @@ function OrganizationSchema() {
   );
 }
 
+// 🔥 NUEVO: Lee data.json para títulos reales, ignora archivos que no estén en el JSON
 function getWorks() {
   const dir = path.join(process.cwd(), 'public/trabajos');
-  let files: string[] = [];
+  let metadata: Array<{ file: string; title: string; location: string }> = [];
 
+  // Leer data.json si existe
+  try {
+    const dataPath = path.join(process.cwd(), 'public/trabajos/data.json');
+    const raw = fs.readFileSync(dataPath, 'utf-8');
+    metadata = JSON.parse(raw);
+  } catch (error) {
+    console.log('No se encontró data.json');
+  }
+
+  // Si hay data.json, usar esos datos (solo archivos que existan)
+  if (metadata.length > 0) {
+    return metadata
+      .filter((item) => {
+        const fullPath = path.join(dir, item.file);
+        return fs.existsSync(fullPath);
+      })
+      .map((item) => ({
+        title: item.title,
+        location: item.location,
+        category: 'Proyecto real',
+        image: `/trabajos/${item.file}`,
+      }));
+  }
+
+  // Fallback: leer todos los archivos
+  let files: string[] = [];
   try {
     files = fs.readdirSync(dir);
   } catch (error) {
@@ -138,9 +165,7 @@ export default function AboutPage() {
     <div className="min-h-screen bg-gray-50">
       <OrganizationSchema />
 
-      {/* ============================================
-          HERO — Mobile-first: imagen arriba, texto abajo
-          ============================================ */}
+      {/* HERO CON IMAGEN DEL EQUIPO */}
       <section className="relative bg-white overflow-hidden">
         <div className="absolute inset-0 z-0 opacity-[0.03]">
           <div className="absolute top-0 right-0 w-96 h-96 bg-corpicia-green rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
@@ -150,7 +175,7 @@ export default function AboutPage() {
         <div className="container mx-auto px-4 py-12 md:py-24 relative z-10">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             
-            {/* IMAGEN DEL EQUIPO — Primero en mobile (order-1), segundo en desktop */}
+            {/* IMAGEN DEL EQUIPO */}
             <div className="relative order-1 lg:order-2">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl aspect-[4/3] sm:aspect-[3/4] max-w-md mx-auto lg:max-w-none">
                 <Image
@@ -162,14 +187,13 @@ export default function AboutPage() {
                   priority
                 />
               </div>
-              {/* Badge flotante */}
               <div className="absolute -bottom-3 -left-3 md:-bottom-4 md:-left-4 bg-corpicia-green text-white p-3 md:p-4 rounded-xl md:rounded-2xl shadow-xl">
                 <p className="text-xl md:text-2xl font-bold">Desde 2014</p>
                 <p className="text-[10px] md:text-xs text-white/80">Transformando Paraguay</p>
               </div>
             </div>
 
-            {/* TEXTO — Segundo en mobile (order-2), primero en desktop */}
+            {/* TEXTO */}
             <div className="order-2 lg:order-1">
               <div className="inline-flex items-center gap-2 bg-green-50 border border-green-100 px-4 py-2 rounded-full mb-4 md:mb-6">
                 <span className="w-2 h-2 bg-corpicia-green rounded-full" />
@@ -218,7 +242,6 @@ export default function AboutPage() {
                 </a>
               </div>
 
-              {/* Stats — 2 columnas en mobile, 4 en desktop */}
               <div className="mt-8 md:mt-10 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 border-t border-gray-100 pt-6 md:pt-8">
                 {stats.map((s) => (
                   <div key={s.label} className="text-center md:text-left">
@@ -232,9 +255,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ============================================
-          HISTORIA — Badge ajustado para no tapar
-          ============================================ */}
+      {/* HISTORIA */}
       <section className="bg-gray-50 py-12 md:py-20">
         <div className="container mx-auto px-4">
           <div className="grid gap-8 md:gap-12 lg:grid-cols-2 items-center">
@@ -264,7 +285,6 @@ export default function AboutPage() {
                 )}
               </div>
               
-              {/* Badge más arriba en mobile para no tapar */}
               <div className="absolute -bottom-3 -right-3 md:-bottom-4 md:-right-4 bg-corpicia-green text-white p-3 md:p-4 rounded-xl md:rounded-2xl shadow-xl z-10">
                 <p className="text-xl md:text-2xl font-bold">Desde 2014</p>
                 <p className="text-[10px] md:text-xs text-white/80">Transformando Paraguay</p>
@@ -314,9 +334,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ============================================
-          TRUST ITEMS — 1 columna en mobile, 2 en tablet, 4 en desktop
-          ============================================ */}
+      {/* TRUST ITEMS */}
       <section className="py-12 md:py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-2xl mx-auto mb-8 md:mb-12">
@@ -348,9 +366,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ============================================
-          PROYECTOS — 2 columnas en mobile, 3 en desktop
-          ============================================ */}
+      {/* PROYECTOS */}
       <section id="proyectos" className="py-12 md:py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 md:mb-10 gap-3 md:gap-4">
@@ -425,9 +441,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ============================================
-          PROCESO — 2 columnas en mobile, 4 en desktop
-          ============================================ */}
+      {/* PROCESO */}
       <section className="py-12 md:py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-2xl mx-auto mb-8 md:mb-12">
@@ -490,9 +504,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ============================================
-          CTA FINAL — Alturas iguales, mobile optimizado
-          ============================================ */}
+      {/* CTA FINAL */}
       <section className="py-12 md:py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-6 md:gap-8 items-stretch">
@@ -634,9 +646,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ============================================
-          BOTÓN WHATSAPP FLOTANTE — Solo mobile
-          ============================================ */}
+      {/* BOTÓN WHATSAPP FLOTANTE — Solo mobile */}
       <a
         href={getWhatsAppUrl()}
         target="_blank"
