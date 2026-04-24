@@ -1,4 +1,3 @@
-```tsx
 import { Card, CardContent } from '@/components/ui/card';
 import { Leaf, Users, Award, Heart, Instagram, Facebook } from 'lucide-react';
 import type { Metadata } from 'next';
@@ -125,7 +124,7 @@ export default function AboutPage() {
             </div>
           </div>
 
-          {/* VIDEO AGREGADO */}
+          {/* Video */}
           <div className="mt-16 text-center">
             <h3 className="text-2xl font-semibold mb-6">
               Mirá cómo trabajamos
@@ -140,7 +139,6 @@ export default function AboutPage() {
                 poster="/trabajos/instalacion-cesped-asuncion.jpg"
               >
                 <source src="/videos/trabajo-corpicia.mp4" type="video/mp4" />
-                Tu navegador no soporta video HTML5.
               </video>
             </div>
           </div>
@@ -236,4 +234,3 @@ export default function AboutPage() {
     </div>
   );
 }
-```
