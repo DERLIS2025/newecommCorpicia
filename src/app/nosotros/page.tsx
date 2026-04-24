@@ -14,6 +14,10 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import { getWhatsAppUrl } from '@/lib/utils';
 
+// 🔥 IMPORTANTE
+import fs from 'fs';
+import path from 'path';
+
 export const metadata: Metadata = {
   title: 'Nosotros - Corpicia | Césped Natural en Paraguay',
   description:
@@ -23,14 +27,27 @@ export const metadata: Metadata = {
   },
 };
 
-const works = [
-  {
-    title: 'Instalación de césped natural',
-    location: 'Asunción',
-    category: 'Césped natural',
-    image: '/trabajos/instalacion-cesped-asuncion.jpg',
-  },
-];
+// 🔥 GENERAR WORKS AUTOMÁTICOS
+function getWorks() {
+  const dir = path.join(process.cwd(), 'public/trabajos');
+
+  let files: string[] = [];
+
+  try {
+    files = fs.readdirSync(dir);
+  } catch (error) {
+    console.log('No se pudo leer carpeta trabajos');
+  }
+
+  return files
+    .filter((file) => /\.(jpg|jpeg|png|webp)$/i.test(file))
+    .map((file, index) => ({
+      title: `Trabajo realizado ${index + 1}`,
+      location: 'Paraguay',
+      category: 'Proyecto real',
+      image: `/trabajos/${file}`,
+    }));
+}
 
 const trustItems = [
   {
@@ -63,8 +80,11 @@ const stats = [
 ];
 
 export default function AboutPage() {
+  const works = getWorks();
+
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* HERO */}
       <section className="bg-corpicia-green text-white">
         <div className="container mx-auto px-4 py-14 md:py-20">
           <div className="max-w-3xl">
@@ -76,16 +96,14 @@ export default function AboutPage() {
             </h1>
             <p className="max-w-2xl text-lg text-white/90">
               Ayudamos a familias, empresas y proyectos comerciales a transformar
-              sus espacios verdes con productos confiables, instalación profesional
-              y asesoramiento cercano.
+              sus espacios verdes con instalación profesional y resultados reales.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
               <a
                 href={getWhatsAppUrl()}
                 target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 font-semibold text-corpicia-green transition hover:opacity-90"
+                className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 font-semibold text-corpicia-green"
               >
                 <MessageCircle className="h-5 w-5" />
                 Solicitar presupuesto
@@ -94,8 +112,7 @@ export default function AboutPage() {
               <a
                 href="https://www.instagram.com/corpi_y_ciaa/"
                 target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg border border-white/40 px-5 py-3 font-semibold text-white transition hover:bg-white/10"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/40 px-5 py-3 font-semibold text-white"
               >
                 <Instagram className="h-5 w-5" />
                 Ver trabajos reales
@@ -105,70 +122,52 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* HISTORIA */}
       <section className="bg-white py-12 md:py-16">
-        <div className="container mx-auto grid gap-10 px-4 md:grid-cols-[1fr_1.2fr] md:items-center">
+        <div className="container mx-auto grid gap-10 px-4 md:grid-cols-[1fr_1.2fr]">
           <div>
-            <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-corpicia-green">
+            <p className="mb-2 text-sm font-semibold text-corpicia-green">
               Nuestra historia
             </p>
-            <h2 className="mb-5 text-3xl font-bold text-gray-900">
-              Crecimos trabajando en espacios verdes reales
+            <h2 className="text-3xl font-bold">
+              Crecimos trabajando en espacios reales
             </h2>
           </div>
 
-          <div className="space-y-4 text-base leading-relaxed text-gray-600">
+          <div className="space-y-4 text-gray-600">
             <p>
               Corpicia nació de la pasión por los espacios verdes y el deseo de
-              llevar césped natural de calidad a hogares, empresas y proyectos en
-              Paraguay.
+              llevar césped natural de calidad en Paraguay.
             </p>
             <p>
-              Nos especializamos en instalación de césped natural, sistemas de riego
-              y soluciones de jardinería pensadas para lograr espacios prolijos,
-              funcionales y duraderos.
+              Nos especializamos en instalación, riego y jardinería profesional.
             </p>
             <p>
-              Nuestro enfoque es simple: escuchar al cliente, recomendar la mejor
-              solución y acompañar cada proyecto con responsabilidad.
+              Nuestro enfoque es simple: resultados reales, clientes satisfechos.
             </p>
           </div>
         </div>
       </section>
 
+      {/* 🔥 TRABAJOS AUTOMÁTICOS */}
       <section className="py-12 md:py-16">
         <div className="container mx-auto px-4">
-          <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-corpicia-green">
-                Trabajos realizados
-              </p>
-              <h2 className="text-3xl font-bold text-gray-900">
-                Proyectos reales de Corpicia
-              </h2>
-              <p className="mt-3 max-w-2xl text-gray-600">
-                Esta sección está preparada para sumar más imágenes y convertirla en
-                un carrusel de trabajos reales.
-              </p>
-            </div>
+          <div className="mb-8 flex justify-between">
+            <h2 className="text-3xl font-bold">Proyectos reales</h2>
 
             <a
               href="https://www.instagram.com/corpi_y_ciaa/"
               target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-corpicia-green hover:underline"
+              className="text-corpicia-green text-sm font-semibold"
             >
-              <Instagram className="h-4 w-4" />
-              Ver más en Instagram
+              Ver Instagram →
             </a>
           </div>
 
           <div className="flex gap-5 overflow-x-auto pb-4">
-            {works.map((work) => (
-              <Card
-                key={work.title}
-                className="min-w-[280px] overflow-hidden md:min-w-[380px]"
-              >
-                <div className="relative h-56 w-full md:h-64">
+            {works.map((work, i) => (
+              <Card key={i} className="min-w-[280px] md:min-w-[380px]">
+                <div className="relative h-56 w-full">
                   <Image
                     src={work.image}
                     alt={work.title}
@@ -176,15 +175,14 @@ export default function AboutPage() {
                     className="object-cover"
                   />
                 </div>
+
                 <CardContent className="p-5">
-                  <p className="mb-2 inline-flex rounded-full bg-corpicia-green/10 px-3 py-1 text-xs font-semibold text-corpicia-green">
+                  <p className="text-xs text-corpicia-green mb-1">
                     {work.category}
                   </p>
-                  <h3 className="mb-2 text-lg font-bold text-gray-900">
-                    {work.title}
-                  </h3>
-                  <p className="flex items-center gap-2 text-sm text-gray-600">
-                    <MapPin className="h-4 w-4 text-corpicia-green" />
+                  <h3 className="font-bold">{work.title}</h3>
+                  <p className="text-sm text-gray-500 flex items-center gap-2">
+                    <MapPin className="w-4 h-4" />
                     {work.location}
                   </p>
                 </CardContent>
@@ -194,124 +192,71 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* PROCESO */}
       <section className="bg-white py-12 md:py-16">
-        <div className="container mx-auto grid gap-10 px-4 md:grid-cols-[1fr_380px] md:items-center">
+        <div className="container mx-auto grid gap-10 px-4 md:grid-cols-[1fr_380px]">
           <div>
-            <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-corpicia-green">
-              Cómo trabajamos
-            </p>
-            <h2 className="mb-5 text-3xl font-bold text-gray-900">
-              Instalaciones cuidadas de principio a fin
+            <h2 className="text-3xl font-bold mb-5">
+              Instalación profesional
             </h2>
 
             <div className="space-y-3 text-gray-600">
               {[
-                'Revisamos el espacio y recomendamos la solución adecuada.',
-                'Preparamos el terreno para una instalación prolija.',
-                'Instalamos el césped con criterio técnico y terminación limpia.',
-                'Brindamos orientación para el cuidado posterior.',
+                'Revisamos el espacio',
+                'Preparamos el terreno',
+                'Instalamos césped profesional',
+                'Te guiamos después',
               ].map((item) => (
                 <p key={item} className="flex gap-3">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-corpicia-green" />
-                  <span>{item}</span>
+                  <CheckCircle2 className="text-green-600 w-5" />
+                  {item}
                 </p>
               ))}
             </div>
           </div>
 
-          <div className="mx-auto w-full max-w-sm overflow-hidden rounded-2xl bg-black shadow-xl">
-            <video
-              className="h-auto w-full"
-              controls
-              playsInline
-              preload="metadata"
-              poster="/trabajos/instalacion-cesped-asuncion.jpg"
-            >
-              <source src="/videos/trabajo-corpicia.mp4" type="video/mp4" />
+          <div className="rounded-2xl overflow-hidden bg-black">
+            <video controls className="w-full">
+              <source src="/videos/trabajo-corpicia.mp4" />
             </video>
           </div>
         </div>
       </section>
 
-      <section className="py-12 md:py-16">
-        <div className="container mx-auto px-4">
-          <div className="mb-8 text-center">
-            <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-corpicia-green">
-              Por qué confiar
-            </p>
-            <h2 className="text-3xl font-bold text-gray-900">
-              Lo que nos diferencia
-            </h2>
-          </div>
-
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-            {trustItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Card key={item.title}>
-                  <CardContent className="p-5">
-                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-corpicia-green/10">
-                      <Icon className="h-6 w-6 text-corpicia-green" />
-                    </div>
-                    <h3 className="mb-2 font-bold text-gray-900">
-                      {item.title}
-                    </h3>
-                    <p className="text-sm leading-relaxed text-gray-600">
-                      {item.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+      {/* STATS */}
+      <section className="py-10">
+        <div className="container mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 px-4">
+          {stats.map((s) => (
+            <div key={s.label} className="text-center">
+              <p className="text-3xl font-bold text-green-600">{s.value}</p>
+              <p className="text-sm text-gray-500">{s.label}</p>
+            </div>
+          ))}
         </div>
       </section>
 
-      <section className="bg-white py-10">
+      {/* SOCIAL CTA */}
+      <section className="py-12">
         <div className="container mx-auto px-4">
-          <div className="grid gap-6 rounded-2xl bg-gray-50 p-6 md:grid-cols-4 md:p-8">
-            {stats.map((stat) => (
-              <div key={stat.label} className="text-center">
-                <p className="text-3xl font-bold text-corpicia-green">
-                  {stat.value}
-                </p>
-                <p className="mt-1 text-sm text-gray-600">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-12 md:py-16">
-        <div className="container mx-auto px-4">
-          <div className="rounded-2xl bg-corpicia-green p-8 text-center text-white md:p-10">
-            <Instagram className="mx-auto mb-4 h-9 w-9" />
-            <h2 className="mb-3 text-3xl font-bold">
-              Mirá más trabajos reales en Instagram
+          <div className="bg-green-600 text-white p-8 rounded-2xl text-center">
+            <h2 className="text-2xl font-bold mb-3">
+              Ver más trabajos en Instagram
             </h2>
-            <p className="mx-auto mb-6 max-w-2xl text-white/90">
-              Publicamos instalaciones, avances de obra y resultados terminados.
-              Es el mejor lugar para ver cómo trabaja Corpicia en proyectos reales.
-            </p>
 
-            <div className="flex flex-wrap justify-center gap-3">
+            <div className="flex justify-center gap-3">
               <a
                 href="https://www.instagram.com/corpi_y_ciaa/"
                 target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 font-semibold text-corpicia-green transition hover:opacity-90"
+                className="bg-white text-green-600 px-5 py-2 rounded-lg font-semibold"
               >
-                <Instagram className="h-5 w-5" />
-                Ir a Instagram
+                Instagram
               </a>
 
               <a
                 href="https://www.facebook.com/corpi.jardin/"
                 target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg border border-white/40 px-5 py-3 font-semibold text-white transition hover:bg-white/10"
+                className="border border-white px-5 py-2 rounded-lg"
               >
-                <Facebook className="h-5 w-5" />
                 Facebook
               </a>
             </div>
