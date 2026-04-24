@@ -129,7 +129,7 @@ const processSteps = [
     title: 'Te guiamos después',
     desc: 'Te damos instrucciones de riego y mantenimiento para que tu césped se mantenga verde.',
   },
-};
+];
 
 export default function AboutPage() {
   const works = getWorks();
@@ -138,11 +138,8 @@ export default function AboutPage() {
     <div className="min-h-screen bg-gray-50">
       <OrganizationSchema />
 
-      {/* ============================================
-          HERO LIMPIO — Sin verde intenso, fondo blanco/gris suave
-          ============================================ */}
+      {/* HERO LIMPIO */}
       <section className="relative bg-white overflow-hidden">
-        {/* Patrón sutil de fondo (opcional, muy limpio) */}
         <div className="absolute inset-0 z-0 opacity-[0.03]">
           <div className="absolute top-0 right-0 w-96 h-96 bg-corpicia-green rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-green-200 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
@@ -166,7 +163,6 @@ export default function AboutPage() {
             </p>
 
             <div className="flex flex-wrap gap-4">
-              {/* Botón WhatsApp con sticker real */}
               <a
                 href={getWhatsAppUrl()}
                 target="_blank"
@@ -183,7 +179,6 @@ export default function AboutPage() {
                 Solicitar presupuesto gratuito
               </a>
 
-              {/* Botón Ver trabajos con icono play real */}
               <a
                 href="#proyectos"
                 className="inline-flex items-center gap-3 rounded-xl border-2 border-gray-200 px-6 py-4 font-semibold text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-all"
@@ -199,7 +194,6 @@ export default function AboutPage() {
               </a>
             </div>
 
-            {/* Stats en hero — fondo gris muy suave */}
             <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 border-t border-gray-100 pt-8">
               {stats.map((s) => (
                 <div key={s.label}>
@@ -435,7 +429,7 @@ export default function AboutPage() {
             ))}
           </div>
 
-          {/* Video centrado, sin bordes negros */}
+          {/* Video */}
           <div className="max-w-[400px] mx-auto">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-gray-900">
               <video
