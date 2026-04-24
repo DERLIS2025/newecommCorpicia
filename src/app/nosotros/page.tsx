@@ -1,10 +1,13 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Leaf, Users, Award, Heart } from 'lucide-react';
 import type { Metadata } from 'next';
+import Image from 'next/image';
+import { getWhatsAppUrl } from '@/lib/utils';
 
 export const metadata: Metadata = {
   title: 'Nosotros - Corpicia | Césped Natural en Paraguay',
-  description: 'Conocé a Corpicia, especialistas en césped natural y jardinería en Paraguay. Más de 10 años de experiencia transformando espacios verdes.',
+  description:
+    'Conocé a Corpicia, especialistas en césped natural y jardinería en Paraguay. Más de 10 años de experiencia transformando espacios verdes.',
   alternates: {
     canonical: '/nosotros/',
   },
@@ -14,12 +17,14 @@ const values = [
   {
     icon: Leaf,
     title: 'Calidad',
-    description: 'Seleccionamos los mejores productos para garantizar resultados excepcionales.',
+    description:
+      'Seleccionamos los mejores productos para garantizar resultados excepcionales.',
   },
   {
     icon: Users,
     title: 'Compromiso',
-    description: 'Trabajamos cerca de nuestros clientes para entender y cumplir sus necesidades.',
+    description:
+      'Trabajamos cerca de nuestros clientes para entender y cumplir sus necesidades.',
   },
   {
     icon: Award,
@@ -49,7 +54,7 @@ export default function AboutPage() {
         </div>
       </div>
 
-      {/* Story */}
+      {/* Historia */}
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
@@ -57,29 +62,76 @@ export default function AboutPage() {
           </h2>
           <div className="prose prose-lg mx-auto text-gray-600">
             <p className="mb-4">
-              Corpicia nació de la pasión por los espacios verdes y el deseo de llevar 
+              Corpicia nació de la pasión por los espacios verdes y el deseo de llevar
               la mejor calidad en césped natural a los hogares y empresas de Paraguay.
             </p>
             <p className="mb-4">
-              Desde nuestros inicios, nos hemos dedicado a seleccionar las mejores variedades 
-              de césped, adaptadas al clima paraguayo, para garantizar jardines hermosos 
-              y duraderos.
+              Nos especializamos en la instalación de césped natural, sistemas de riego
+              y soluciones completas de jardinería adaptadas al clima paraguayo.
             </p>
             <p>
-              Hoy, con más de 10 años de experiencia, seguimos comprometidos con la calidad 
-              y la satisfacción de nuestros clientes, ofreciendo no solo productos de excelencia, 
-              sino también asesoramiento profesional y servicios de instalación.
+              Hoy, con más de 10 años de experiencia, ayudamos a nuestros clientes a
+              transformar sus espacios con resultados duraderos y profesionales.
             </p>
           </div>
         </div>
       </div>
 
-      {/* Values */}
+      {/* Trabajos realizados (NUEVO) */}
       <div className="bg-white py-16">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-gray-900 mb-10 text-center">
+            Trabajos realizados por Corpicia
+          </h2>
+
+          <div className="grid md:grid-cols-2 gap-10 items-center">
+            <div className="rounded-xl overflow-hidden shadow-lg">
+              <Image
+                src="/trabajos/instalacion-cesped-asuncion.jpg"
+                alt="Instalación de césped natural en Asunción"
+                width={800}
+                height={600}
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            <div>
+              <h3 className="text-2xl font-semibold mb-4">
+                Instalación de césped natural en Asunción
+              </h3>
+
+              <p className="text-gray-600 mb-6">
+                Proyecto real realizado por el equipo de Corpicia. Nos encargamos
+                desde la preparación del terreno hasta la instalación final del césped,
+                garantizando un acabado uniforme, duradero y listo para disfrutar.
+              </p>
+
+              <ul className="text-gray-600 space-y-2 mb-6">
+                <li>✔ Preparación del terreno</li>
+                <li>✔ Nivelación y drenaje</li>
+                <li>✔ Instalación profesional de césped</li>
+                <li>✔ Asesoramiento post-instalación</li>
+              </ul>
+
+              <a
+                href={getWhatsAppUrl()}
+                target="_blank"
+                className="inline-block bg-corpicia-green text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
+              >
+                Solicitar presupuesto por WhatsApp
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Valores */}
+      <div className="py-16">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">
             Nuestros Valores
           </h2>
+
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {values.map((value) => {
               const Icon = value.icon;
@@ -89,8 +141,12 @@ export default function AboutPage() {
                     <div className="w-14 h-14 bg-corpicia-green/10 rounded-xl flex items-center justify-center mx-auto mb-4">
                       <Icon className="w-7 h-7 text-corpicia-green" />
                     </div>
-                    <h3 className="font-semibold text-lg mb-2">{value.title}</h3>
-                    <p className="text-gray-500 text-sm">{value.description}</p>
+                    <h3 className="font-semibold text-lg mb-2">
+                      {value.title}
+                    </h3>
+                    <p className="text-gray-500 text-sm">
+                      {value.description}
+                    </p>
                   </CardContent>
                 </Card>
               );
