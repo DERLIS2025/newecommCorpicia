@@ -12,7 +12,6 @@ import {
   FolderKanban,
   Users,
   Image as ImageIcon,
-  Images,
   Globe,
   Settings,
   UserCircle,
@@ -23,7 +22,7 @@ import { cn } from '@/lib/utils';
 const navItems = [
   { group: 'Principal', items: [
     { name: 'Inicio', href: '/admin/inicio', icon: LayoutDashboard },
-    { name: 'Banners', href: '/admin/banners', icon: Images },
+    { name: 'Banners', href: '/admin/banners', icon: ImageIcon },
   ]},
   { group: 'Catálogo', items: [
     { name: 'Productos', href: '/admin/productos', icon: Package },

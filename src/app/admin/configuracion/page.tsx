@@ -107,13 +107,13 @@ export default function AdminConfiguracionPage() {
                   El contenido de estas páginas se integrará con el editor de base de datos próximamente.
                 </p>
                 <Button variant="outline" className="w-full justify-start" disabled>
-                  Editar "Nosotros"
+                  Editar &quot;Nosotros&quot;
                 </Button>
                 <Button variant="outline" className="w-full justify-start" disabled>
-                  Editar "Términos y Condiciones"
+                  Editar &quot;Términos y Condiciones&quot;
                 </Button>
                 <Button variant="outline" className="w-full justify-start" disabled>
-                  Editar "Políticas de Privacidad"
+                  Editar &quot;Políticas de Privacidad&quot;
                 </Button>
               </div>
             </CardContent>
