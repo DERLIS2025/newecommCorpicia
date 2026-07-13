@@ -1,13 +1,12 @@
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
-import { Inter } from 'next/font/google';
 import './globals.css';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { WhatsAppFloatingButton } from '@/components/WhatsAppButton';
 import { BudgetDrawer } from '@/components/BudgetDrawer';
 
-const inter = Inter({ subsets: ['latin'] });
+
 
 // URL base - IMPORTANTE: debe coincidir con tu dominio canonical
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.corpicia.com';
@@ -259,7 +258,7 @@ export default function RootLayout({
 
   return (
     <html lang="es-PY">
-      <body className={inter.className}>
+      <body className="font-sans antialiased">
 
         {/* ========================================== */}
         {/* GTM noscript (usuarios sin JS) */}
