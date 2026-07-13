@@ -3,13 +3,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, LayoutDashboard, Package, Tags, Calculator, ShoppingCart, Wrench, FolderKanban, Users, Image as ImageIcon, Images, Globe, Settings, UserCircle, Activity } from 'lucide-react';
+import { Menu, X, LayoutDashboard, Package, Tags, Calculator, ShoppingCart, Wrench, FolderKanban, Users, Image as ImageIcon, Globe, Settings, UserCircle, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { name: 'Inicio', href: '/admin/inicio', icon: LayoutDashboard },
-  { name: 'Banners', href: '/admin/banners', icon: Images },
+  { name: 'Banners', href: '/admin/banners', icon: ImageIcon },
   { name: 'Productos', href: '/admin/productos', icon: Package },
   { name: 'Categorías', href: '/admin/categorias', icon: Tags },
   { name: 'Calculadora', href: '/admin/calculadora', icon: Calculator },
