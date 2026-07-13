@@ -2,11 +2,20 @@
 
 import { revalidatePath } from 'next/cache';
 import { supabaseAdmin, assertAdminWritesEnabled } from '@/lib/supabase/admin';
+import type { Database } from '@/types/database';
 
 export type ActionState = {
   success: boolean;
   message: string;
 };
+
+type ProductInsert = Database['public']['Tables']['products']['Insert'];
+type ProductUpdate = Database['public']['Tables']['products']['Update'];
+type TierInsert = Database['public']['Tables']['product_price_tiers']['Insert'];
+type FeatureInsert = Database['public']['Tables']['product_features']['Insert'];
+type SpecInsert = Database['public']['Tables']['product_specifications']['Insert'];
+type RecInsert = Database['public']['Tables']['product_recommendations']['Insert'];
+type ImageInsert = Database['public']['Tables']['product_images']['Insert'];
 
 // Types for complex data passed as JSON strings in FormData
 export type PriceTierPayload = {
@@ -43,50 +52,68 @@ async function syncProductRelations(productId: string, formData: FormData) {
   const recsJson = formData.get('recommendations') as string;
   const imagesJson = formData.get('images') as string;
 
-  const tiers: PriceTierPayload[] = tiersJson ? JSON.parse(tiersJson) : [];
-  const features: FeaturePayload[] = featuresJson ? JSON.parse(featuresJson) : [];
-  const specs: SpecificationPayload[] = specsJson ? JSON.parse(specsJson) : [];
-  const recs: RecommendationPayload[] = recsJson ? JSON.parse(recsJson) : [];
-  const images: ImagePayload[] = imagesJson ? JSON.parse(imagesJson) : [];
+  const tiers: TierInsert[] = tiersJson ? JSON.parse(tiersJson) : [];
+  const features: FeatureInsert[] = featuresJson ? JSON.parse(featuresJson) : [];
+  const specs: SpecInsert[] = specsJson ? JSON.parse(specsJson) : [];
+  const recs: RecInsert[] = recsJson ? JSON.parse(recsJson) : [];
+  const images: ImageInsert[] = imagesJson ? JSON.parse(imagesJson) : [];
 
   // Tiers
   await supabaseAdmin.from('product_price_tiers').delete().eq('product_id', productId);
   if (tiers.length > 0) {
-    await supabaseAdmin.from('product_price_tiers').insert(
-      tiers.map(t => ({ ...t, product_id: productId }))
-    );
+    const tiersPayload: TierInsert[] = tiers.map(t => ({
+      product_id: productId,
+      min_quantity: t.min_quantity,
+      price_amount: (t as any).price || t.price_amount, // fallback for legacy payload naming
+      label: t.label,
+    }));
+    await supabaseAdmin.from('product_price_tiers').insert(tiersPayload);
   }
 
   // Features
   await supabaseAdmin.from('product_features').delete().eq('product_id', productId);
   if (features.length > 0) {
-    await supabaseAdmin.from('product_features').insert(
-      features.map((f, i) => ({ ...f, product_id: productId, order_index: i }))
-    );
+    const featuresPayload: FeatureInsert[] = features.map((f, i) => ({
+      product_id: productId,
+      feature_text: f.feature_text,
+      order_index: i,
+    }));
+    await supabaseAdmin.from('product_features').insert(featuresPayload);
   }
 
   // Specifications
   await supabaseAdmin.from('product_specifications').delete().eq('product_id', productId);
   if (specs.length > 0) {
-    await supabaseAdmin.from('product_specifications').insert(
-      specs.map((s, i) => ({ ...s, product_id: productId, order_index: i }))
-    );
+    const specsPayload: SpecInsert[] = specs.map((s, i) => ({
+      product_id: productId,
+      spec_key: s.spec_key,
+      spec_value: s.spec_value,
+      order_index: i,
+    }));
+    await supabaseAdmin.from('product_specifications').insert(specsPayload);
   }
 
   // Recommendations
   await supabaseAdmin.from('product_recommendations').delete().eq('product_id', productId);
   if (recs.length > 0) {
-    await supabaseAdmin.from('product_recommendations').insert(
-      recs.map((r, i) => ({ ...r, product_id: productId, order_index: i }))
-    );
+    const recsPayload: RecInsert[] = recs.map((r, i) => ({
+      product_id: productId,
+      recommendation_text: r.recommendation_text,
+      order_index: i,
+    }));
+    await supabaseAdmin.from('product_recommendations').insert(recsPayload);
   }
 
   // Images
   await supabaseAdmin.from('product_images').delete().eq('product_id', productId);
   if (images.length > 0) {
-    await supabaseAdmin.from('product_images').insert(
-      images.map((img, i) => ({ ...img, product_id: productId, order_index: i }))
-    );
+    const imagesPayload: ImageInsert[] = images.map((img, i) => ({
+      product_id: productId,
+      image_url: img.image_url,
+      alt_text: img.alt_text || null,
+      order_index: (img as any).is_main ? 0 : (i + 1),
+    }));
+    await supabaseAdmin.from('product_images').insert(imagesPayload);
   }
 }
 
@@ -112,8 +139,7 @@ export async function createProduct(
       return { success: false, message: 'Datos obligatorios faltantes o inválidos' };
     }
 
-    // Insert Product
-    const { data: product, error } = await supabaseAdmin.from('products').insert({
+    const payload: ProductInsert = {
       name,
       slug,
       description,
@@ -125,7 +151,10 @@ export async function createProduct(
       min_order_quantity,
       is_active,
       is_featured,
-    }).select('id').single();
+    };
+
+    // Insert Product
+    const { data: product, error } = await supabaseAdmin.from('products').insert(payload).select('id').single();
 
     if (error) {
       if (error.code === '23505') return { success: false, message: 'El slug ya existe' };
@@ -167,20 +196,22 @@ export async function updateProduct(
       return { success: false, message: 'Datos obligatorios faltantes o inválidos' };
     }
 
+    const payload: ProductUpdate = {
+      name,
+      slug,
+      description,
+      short_description,
+      category_id: category_id || null,
+      price_amount,
+      unit,
+      min_order_quantity,
+      is_active,
+      is_featured,
+    };
+
     const { error } = await supabaseAdmin
       .from('products')
-      .update({
-        name,
-        slug,
-        description,
-        short_description,
-        category_id: category_id || null,
-        price_amount,
-        unit,
-        min_order_quantity,
-        is_active,
-        is_featured,
-      })
+      .update(payload)
       .eq('id', id);
 
     if (error) {
@@ -245,7 +276,7 @@ export async function duplicateProduct(id: string): Promise<ActionState> {
     // 2. Create copy
     const newSlug = `${original.slug}-copia-${Date.now().toString().slice(-4)}`;
     
-    const { data: copy, error: copyError } = await supabaseAdmin.from('products').insert({
+    const copyPayload: ProductInsert = {
       name: `${original.name} (Copia)`,
       slug: newSlug,
       description: original.description,
@@ -257,7 +288,9 @@ export async function duplicateProduct(id: string): Promise<ActionState> {
       min_order_quantity: original.min_order_quantity,
       is_active: false, // inactive by default
       is_featured: false,
-    }).select('id').single();
+    };
+
+    const { data: copy, error: copyError } = await supabaseAdmin.from('products').insert(copyPayload).select('id').single();
 
     if (copyError) throw copyError;
 
@@ -265,54 +298,47 @@ export async function duplicateProduct(id: string): Promise<ActionState> {
     const newId = copy.id;
 
     if (original.product_price_tiers?.length > 0) {
-      await supabaseAdmin.from('product_price_tiers').insert(
-        original.product_price_tiers.map(t => ({
-          product_id: newId,
-          min_quantity: t.min_quantity,
-          max_quantity: t.max_quantity,
-          price: t.price,
-          label: t.label,
-          is_promo: t.is_promo,
-        }))
-      );
+      const tiersPayload: TierInsert[] = original.product_price_tiers.map((t: any) => ({
+        product_id: newId,
+        min_quantity: t.min_quantity,
+        price_amount: t.price_amount,
+        label: t.label,
+      }));
+      await supabaseAdmin.from('product_price_tiers').insert(tiersPayload);
     }
     if (original.product_images?.length > 0) {
-      await supabaseAdmin.from('product_images').insert(
-        original.product_images.map(img => ({
-          product_id: newId,
-          image_url: img.image_url,
-          is_main: img.is_main,
-          order_index: img.order_index,
-        }))
-      );
+      const imagesPayload: ImageInsert[] = original.product_images.map((img: any) => ({
+        product_id: newId,
+        image_url: img.image_url,
+        alt_text: img.alt_text,
+        order_index: img.order_index,
+      }));
+      await supabaseAdmin.from('product_images').insert(imagesPayload);
     }
     if (original.product_features?.length > 0) {
-      await supabaseAdmin.from('product_features').insert(
-        original.product_features.map(f => ({
-          product_id: newId,
-          feature_text: f.feature_text,
-          order_index: f.order_index,
-        }))
-      );
+      const featuresPayload: FeatureInsert[] = original.product_features.map((f: any) => ({
+        product_id: newId,
+        feature_text: f.feature_text,
+        order_index: f.order_index,
+      }));
+      await supabaseAdmin.from('product_features').insert(featuresPayload);
     }
     if (original.product_specifications?.length > 0) {
-      await supabaseAdmin.from('product_specifications').insert(
-        original.product_specifications.map(s => ({
-          product_id: newId,
-          spec_key: s.spec_key,
-          spec_value: s.spec_value,
-          order_index: s.order_index,
-        }))
-      );
+      const specsPayload: SpecInsert[] = original.product_specifications.map((s: any) => ({
+        product_id: newId,
+        spec_key: s.spec_key,
+        spec_value: s.spec_value,
+        order_index: s.order_index,
+      }));
+      await supabaseAdmin.from('product_specifications').insert(specsPayload);
     }
     if (original.product_recommendations?.length > 0) {
-      await supabaseAdmin.from('product_recommendations').insert(
-        original.product_recommendations.map(r => ({
-          product_id: newId,
-          recommendation_text: r.recommendation_text,
-          order_index: r.order_index,
-        }))
-      );
+      const recsPayload: RecInsert[] = original.product_recommendations.map((r: any) => ({
+        product_id: newId,
+        recommendation_text: r.recommendation_text,
+        order_index: r.order_index,
+      }));
+      await supabaseAdmin.from('product_recommendations').insert(recsPayload);
     }
 
     revalidatePath('/admin/productos');

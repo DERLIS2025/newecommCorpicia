@@ -102,7 +102,7 @@ export default function ProductsTable({ products }: { products: any[] }) {
             </thead>
             <tbody className="divide-y">
               {filteredProducts.map((product) => {
-                const mainImg = product.product_images?.find((img: any) => img.is_main)?.image_url || product.product_images?.[0]?.image_url || '/og-image.jpg';
+                const mainImg = product.product_images?.find((img: any) => img.order_index === 0)?.image_url || product.product_images?.[0]?.image_url || '/og-image.jpg';
                 
                 return (
                   <tr key={product.id} className={`hover:bg-gray-50/50 ${!product.is_active ? 'opacity-60' : ''}`}>

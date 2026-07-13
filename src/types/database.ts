@@ -43,6 +43,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       products: {
         Row: {
@@ -93,6 +94,15 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       product_images: {
         Row: {
@@ -119,6 +129,15 @@ export interface Database {
           order_index?: number
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "product_images_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       product_price_tiers: {
         Row: {
@@ -142,6 +161,105 @@ export interface Database {
           price_amount?: number
           label?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "product_price_tiers_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      product_features: {
+        Row: {
+          id: string
+          product_id: string
+          feature_text: string
+          order_index: number
+        }
+        Insert: {
+          id?: string
+          product_id: string
+          feature_text: string
+          order_index?: number
+        }
+        Update: {
+          id?: string
+          product_id?: string
+          feature_text?: string
+          order_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_features_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      product_specifications: {
+        Row: {
+          id: string
+          product_id: string
+          spec_key: string
+          spec_value: string
+          order_index: number
+        }
+        Insert: {
+          id?: string
+          product_id: string
+          spec_key: string
+          spec_value: string
+          order_index?: number
+        }
+        Update: {
+          id?: string
+          product_id?: string
+          spec_key?: string
+          spec_value?: string
+          order_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_specifications_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      product_recommendations: {
+        Row: {
+          id: string
+          product_id: string
+          recommendation_text: string
+          order_index: number
+        }
+        Insert: {
+          id?: string
+          product_id: string
+          recommendation_text: string
+          order_index?: number
+        }
+        Update: {
+          id?: string
+          product_id?: string
+          recommendation_text?: string
+          order_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_recommendations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       banners: {
         Row: {
@@ -189,27 +307,20 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
-      site_settings: {
-        Row: {
-          key: string
-          value: Json
-          is_public: boolean
-          updated_at: string
-        }
-        Insert: {
-          key: string
-          value: Json
-          is_public?: boolean
-          updated_at?: string
-        }
-        Update: {
-          key?: string
-          value?: Json
-          is_public?: boolean
-          updated_at?: string
-        }
-      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      [_ in never]: never
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
     }
   }
 }

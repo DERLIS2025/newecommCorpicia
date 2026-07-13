@@ -24,7 +24,7 @@ export async function getAdminCategories() {
 export async function getAdminProducts() {
   const { data, error } = await supabaseAdmin
     .from('products')
-    .select('*, categories(name, slug), product_images(image_url, is_main)')
+    .select('*, categories(name, slug), product_images(image_url, order_index)')
     .order('created_at', { ascending: false });
 
   if (error) {

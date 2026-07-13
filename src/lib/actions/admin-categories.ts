@@ -2,11 +2,15 @@
 
 import { revalidatePath } from 'next/cache';
 import { supabaseAdmin, assertAdminWritesEnabled } from '@/lib/supabase/admin';
+import type { Database } from '@/types/database';
 
 export type ActionState = {
   success: boolean;
   message: string;
 };
+
+type CategoryInsert = Database['public']['Tables']['categories']['Insert'];
+type CategoryUpdate = Database['public']['Tables']['categories']['Update'];
 
 export async function createCategory(
   prevState: ActionState | null,
@@ -26,14 +30,16 @@ export async function createCategory(
       return { success: false, message: 'El nombre y el slug son obligatorios' };
     }
 
-    const { error } = await supabaseAdmin.from('categories').insert({
+    const payload: CategoryInsert = {
       name,
       slug,
       description,
       image_url,
       order_index,
       is_active,
-    });
+    };
+
+    const { error } = await supabaseAdmin.from('categories').insert(payload);
 
     if (error) {
       if (error.code === '23505') { // unique violation
@@ -69,16 +75,18 @@ export async function updateCategory(
       return { success: false, message: 'El nombre y el slug son obligatorios' };
     }
 
+    const payload: CategoryUpdate = {
+      name,
+      slug,
+      description,
+      image_url,
+      order_index,
+      is_active,
+    };
+
     const { error } = await supabaseAdmin
       .from('categories')
-      .update({
-        name,
-        slug,
-        description,
-        image_url,
-        order_index,
-        is_active,
-      })
+      .update(payload)
       .eq('id', id);
 
     if (error) {
