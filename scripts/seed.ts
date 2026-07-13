@@ -1,12 +1,7 @@
 // script para popular Supabase con datos estáticos
 import { createClient } from '@supabase/supabase-js';
 import { productsCatalog, productCategories } from '../src/data/productsData';
-import { homeHeroBanners, homeMiddleBanners } from '../src/data/banners';
-import { config } from 'dotenv';
-import path from 'path';
-
-// Cargar variables de entorno
-config({ path: path.resolve(process.cwd(), '.env.local') });
+import { homeHeroBanners, homeSecondaryBanners, HomeBanner } from '../src/data/banners';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -80,24 +75,23 @@ async function seed() {
   }
 
   // 3. Banners
-  const allBanners = [
-    ...homeHeroBanners.map((b, i) => ({ ...b, type: 'hero', order_index: i })),
-    ...homeMiddleBanners.map((b, i) => ({ ...b, type: 'secondary', order_index: i }))
+  type BannerInsert = HomeBanner & { type: 'hero' | 'secondary', order_index: number };
+
+  const allBanners: BannerInsert[] = [
+    ...homeHeroBanners.map((b: HomeBanner, i: number) => ({ ...b, type: 'hero' as const, order_index: i })),
+    ...homeSecondaryBanners.map((b: HomeBanner, i: number) => ({ ...b, type: 'secondary' as const, order_index: i }))
   ];
   console.log(`\nFound ${allBanners.length} banners to process.`);
   let bannerCount = 0;
   for (const banner of allBanners) {
-    console.log(`  - Upserting banner: ${banner.image} (${banner.type})`);
+    console.log(`  - Upserting banner: ${banner.imageDesktop} (${banner.type})`);
     if (!isDryRun) {
       const { error } = await supabase.from('banners').upsert({
-        // Banners no tienen slug natural, usaremos la URL de la imagen como clave única provisoria (si hubiese restricción) o lo dejaremos insertar.
-        // Dado que es un upsert, sin clave única no funciona bien. Para el seed usaremos id estático o skip si ya existe la imagen.
-        // Simularemos upsert buscando por image_desktop
-        image_desktop: banner.image,
+        image_desktop: banner.imageDesktop,
         type: banner.type,
         title: banner.title || null,
         subtitle: banner.subtitle || null,
-        cta_text: banner.cta || null,
+        cta_text: banner.CTA || null,
         order_index: banner.order_index,
         is_active: true
       }, { onConflict: 'id', ignoreDuplicates: false }); 

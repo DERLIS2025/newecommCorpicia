@@ -1,5 +1,5 @@
 import { supabase } from '../supabase';
-import { homeHeroBanners, homeMiddleBanners } from '@/data/banners';
+import { homeHeroBanners, homeSecondaryBanners } from '@/data/banners';
 
 const DATA_SOURCE = process.env.NEXT_PUBLIC_DATA_SOURCE || 'supabase';
 
@@ -12,7 +12,7 @@ export async function getBanners(type?: 'hero' | 'secondary') {
     logFallback('NEXT_PUBLIC_DATA_SOURCE is set to static');
     return {
       hero: homeHeroBanners,
-      secondary: homeMiddleBanners
+      secondary: homeSecondaryBanners
     };
   }
 
@@ -20,7 +20,7 @@ export async function getBanners(type?: 'hero' | 'secondary') {
     logFallback('Supabase client is not configured');
     return {
       hero: homeHeroBanners,
-      secondary: homeMiddleBanners
+      secondary: homeSecondaryBanners
     };
   }
 
@@ -35,7 +35,7 @@ export async function getBanners(type?: 'hero' | 'secondary') {
       logFallback('Supabase query error');
       return {
         hero: homeHeroBanners,
-        secondary: homeMiddleBanners
+        secondary: homeSecondaryBanners
       };
     }
 
@@ -51,7 +51,7 @@ export async function getBanners(type?: 'hero' | 'secondary') {
     logFallback('Unexpected exception during fetch');
     return {
       hero: homeHeroBanners,
-      secondary: homeMiddleBanners
+      secondary: homeSecondaryBanners
     };
   }
 }
