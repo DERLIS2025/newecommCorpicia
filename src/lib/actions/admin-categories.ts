@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { supabaseAdmin, assertAdminWritesEnabled } from '@/lib/supabase/admin';
+import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
 
 export type ActionState = {
@@ -17,7 +17,16 @@ export async function createCategory(
   formData: FormData
 ): Promise<ActionState> {
   try {
-    assertAdminWritesEnabled();
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return { success: false, message: 'No autorizado. Inicie sesión.' };
+    }
+
+    if (process.env.ADMIN_WRITES_ENABLED !== 'true') {
+      return { success: false, message: 'Las escrituras están deshabilitadas en este entorno.' };
+    }
 
     const name = formData.get('name') as string;
     const slug = formData.get('slug') as string;
@@ -39,7 +48,7 @@ export async function createCategory(
       is_active,
     };
 
-    const { error } = await supabaseAdmin.from('categories').insert(payload);
+    const { error } = await supabase.from('categories').insert(payload);
 
     if (error) {
       if (error.code === '23505') { // unique violation
@@ -62,17 +71,26 @@ export async function updateCategory(
   formData: FormData
 ): Promise<ActionState> {
   try {
-    assertAdminWritesEnabled();
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return { success: false, message: 'No autorizado. Inicie sesión.' };
+    }
+
+    if (process.env.ADMIN_WRITES_ENABLED !== 'true') {
+      return { success: false, message: 'Las escrituras están deshabilitadas en este entorno.' };
+    }
 
     const name = formData.get('name') as string;
     const slug = formData.get('slug') as string;
-    const description = formData.get('description') as string | null;
-    const image_url = formData.get('image_url') as string | null;
-    const order_index = parseInt((formData.get('order_index') as string) || '0', 10);
-    const is_active = formData.get('is_active') === 'on';
+    const description = (formData.get('description') as string) || null;
+    const image_url = (formData.get('image_url') as string) || null;
+    const order_index = parseInt(formData.get('order_index') as string) || 0;
+    const is_active = formData.get('is_active') === 'true';
 
-    if (!name || !slug) {
-      return { success: false, message: 'El nombre y el slug son obligatorios' };
+    if (!id || !name || !slug) {
+      return { success: false, message: 'ID, nombre y slug son obligatorios' };
     }
 
     const payload: CategoryUpdate = {
@@ -84,7 +102,7 @@ export async function updateCategory(
       is_active,
     };
 
-    const { error } = await supabaseAdmin
+    const { error } = await supabase
       .from('categories')
       .update(payload)
       .eq('id', id);
@@ -106,27 +124,36 @@ export async function updateCategory(
 
 export async function deleteCategory(id: string): Promise<ActionState> {
   try {
-    assertAdminWritesEnabled();
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return { success: false, message: 'No autorizado. Inicie sesión.' };
+    }
 
-    // Comprobar si tiene productos asociados
-    const { count, error: countError } = await supabaseAdmin
+    if (process.env.ADMIN_WRITES_ENABLED !== 'true') {
+      return { success: false, message: 'Las escrituras están deshabilitadas en este entorno.' };
+    }
+
+    // Check dependencies
+    const { count, error: countError } = await supabase
       .from('products')
-      .select('id', { count: 'exact', head: true })
+      .select('*', { count: 'exact', head: true })
       .eq('category_id', id);
 
-    if (countError) throw countError;
+    if (countError) {
+      console.error('Error checking category dependencies:', countError);
+      return { success: false, message: 'Error al verificar productos asociados' };
+    }
 
     if (count && count > 0) {
       return { 
         success: false, 
-        message: `No se puede eliminar la categoría porque tiene ${count} producto(s) asociado(s).` 
+        message: `No se puede eliminar la categoría porque contiene ${count} productos.` 
       };
     }
 
-    const { error } = await supabaseAdmin
-      .from('categories')
-      .delete()
-      .eq('id', id);
+    const { error } = await supabase.from('categories').delete().eq('id', id);
 
     if (error) throw error;
 
@@ -140,9 +167,18 @@ export async function deleteCategory(id: string): Promise<ActionState> {
 
 export async function toggleCategoryStatus(id: string, newStatus: boolean): Promise<ActionState> {
   try {
-    assertAdminWritesEnabled();
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return { success: false, message: 'No autorizado. Inicie sesión.' };
+    }
 
-    const { error } = await supabaseAdmin
+    if (process.env.ADMIN_WRITES_ENABLED !== 'true') {
+      return { success: false, message: 'Las escrituras están deshabilitadas en este entorno.' };
+    }
+
+    const { error } = await supabase
       .from('categories')
       .update({ is_active: newStatus })
       .eq('id', id);

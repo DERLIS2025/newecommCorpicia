@@ -3,52 +3,54 @@ import type { Metadata } from 'next';
 import { Card, CardContent } from '@/components/ui/card';
 import { ProductCard } from '@/components/ProductCard';
 import { Leaf, Truck, Phone, Shield } from 'lucide-react';
-import { productsCatalog } from './productos/[slug]/productsData';
+import { getProducts } from '@/lib/repositories/products';
 
 export const metadata: Metadata = {
-  title: 'Césped natural y jardinería en Paraguay | Corpicia',
+  title: 'Corpicia | Paisajismo, Riego Automático y Venta de Césped en Paraguay',
   description:
-    'Comprá césped en Paraguay, accesorios de riego y soluciones de jardinería.',
+    'Líderes en jardinería, paisajismo y sistemas de riego en Asunción y gran Asunción. Venta de césped natural, insumos para jardines y asesoramiento profesional.',
   alternates: {
     canonical: '/',
   },
 };
 
-const featuredProducts = [
-  productsCatalog.find((p) => p.slug === 'cesped-esmeralda'),
-  productsCatalog.find((p) => p.slug === 'cesped-siempre-verde'),
-  productsCatalog.find((p) => p.slug === 'cesped-kavaju'),
-  productsCatalog.find((p) => p.slug === 'cesped-mani-docena'),
-].filter(Boolean);
+export default async function HomePage() {
+  const productsCatalog = await getProducts();
 
-const mixedProducts = [
-  productsCatalog.find((p) => p.slug === 'mini-rotor-rain-bird-3500'),
-  productsCatalog.find((p) => p.slug === 'difusor-riego'),
-].filter(Boolean);
+  const featuredProducts = [
+    productsCatalog.find((p: any) => p.slug === 'cesped-esmeralda'),
+    productsCatalog.find((p: any) => p.slug === 'cesped-siempre-verde'),
+    productsCatalog.find((p: any) => p.slug === 'cesped-kavaju'),
+    productsCatalog.find((p: any) => p.slug === 'cesped-mani-docena'),
+  ].filter(Boolean);
 
-const underBannerProducts = [
-  productsCatalog.find((p) => p.slug === 'valvula-riego-rain-bird'),
-  productsCatalog.find((p) => p.slug === 'aspersor-rain-bird-5004'),
-].filter(Boolean);
+  const underBannerProducts = [
+    productsCatalog.find((p: any) => p.slug === 'valvula-riego-rain-bird'),
+    productsCatalog.find((p: any) => p.slug === 'aspersor-rain-bird-5004'),
+  ].filter(Boolean);
 
-const secondaryProducts = [
-  productsCatalog.find((p) => p.slug === 'piso-ecologico-40x60'),
-  productsCatalog.find((p) => p.slug === 'separador-cesped-caminos'),
-  productsCatalog.find((p) => p.slug === 'pisos-imitacion-madera'),
-  productsCatalog.find((p) => p.slug === 'granza-blanca-fina-decorativa'),
-  productsCatalog.find((p) => p.slug === 'canto-rodado'),
-].filter(Boolean);
+  const mixedProducts = [
+    productsCatalog.find((p: any) => p.slug === 'mini-rotor-rain-bird-3500'),
+    productsCatalog.find((p: any) => p.slug === 'difusor-riego'),
+  ].filter(Boolean);
 
-const benefits = [
-  { icon: Leaf, title: 'Calidad Premium', description: 'Productos duraderos.' },
-  { icon: Truck, title: 'Cobertura Nacional', description: 'Envíos en Paraguay.' },
-  { icon: Phone, title: 'Asesoría Experta', description: 'Acompañamiento total.' },
-  { icon: Shield, title: 'Compra Segura', description: 'Transparencia total.' },
-];
+  const secondaryProducts = [
+    productsCatalog.find((p: any) => p.slug === 'piso-ecologico-40x60'),
+    productsCatalog.find((p: any) => p.slug === 'separador-cesped-caminos'),
+    productsCatalog.find((p: any) => p.slug === 'pisos-imitacion-madera'),
+    productsCatalog.find((p: any) => p.slug === 'granza-blanca-fina-decorativa'),
+    productsCatalog.find((p: any) => p.slug === 'canto-rodado'),
+  ].filter(Boolean);
 
-const whatsappHref = 'https://wa.me/595992588770';
+  const benefits = [
+    { icon: Leaf, title: 'Calidad Premium', description: 'Productos duraderos.' },
+    { icon: Truck, title: 'Cobertura Nacional', description: 'Envíos en Paraguay.' },
+    { icon: Phone, title: 'Asesoría Experta', description: 'Acompañamiento total.' },
+    { icon: Shield, title: 'Compra Segura', description: 'Transparencia total.' },
+  ];
 
-export default function HomePage() {
+  const whatsappHref = 'https://wa.me/595992588770';
+
   return (
     <div className="bg-white">
       {/* ✅ BANNERS HERO - MEJORADO PARA MOBILE */}

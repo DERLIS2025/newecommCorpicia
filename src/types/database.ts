@@ -9,6 +9,33 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      admin_profiles: {
+        Row: {
+          user_id: string
+          name: string
+          role: 'owner' | 'admin' | 'editor' | 'viewer'
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          name: string
+          role: 'owner' | 'admin' | 'editor' | 'viewer'
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          user_id?: string
+          name?: string
+          role?: 'owner' | 'admin' | 'editor' | 'viewer'
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           id: string
@@ -314,7 +341,13 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      duplicate_product: {
+        Args: {
+          original_product_id: string
+          new_slug: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

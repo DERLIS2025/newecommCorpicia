@@ -4,8 +4,14 @@ import Link from 'next/link';
 import { UserCircle, LogOut, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AdminMobileNav } from './AdminMobileNav';
+import { logout } from '@/lib/actions/admin-auth';
 
-export function AdminHeader() {
+interface AdminHeaderProps {
+  userName?: string;
+  userRole?: string;
+}
+
+export function AdminHeader({ userName, userRole }: AdminHeaderProps) {
   return (
     <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b bg-white px-4 shadow-sm md:px-6">
       <div className="flex items-center gap-4">
@@ -23,13 +29,18 @@ export function AdminHeader() {
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2 text-sm">
           <UserCircle className="w-5 h-5 text-gray-400" />
-          <span className="font-medium hidden sm:inline-block">Administrador</span>
+          <div className="hidden sm:flex sm:flex-col sm:items-start">
+            <span className="font-medium text-gray-900 leading-none">{userName || 'Administrador'}</span>
+            <span className="text-xs text-gray-500 capitalize">{userRole}</span>
+          </div>
         </div>
         <div className="h-6 w-px bg-gray-200" />
-        <Button variant="ghost" size="sm" className="text-gray-500 hover:text-red-600 gap-2">
-          <LogOut className="w-4 h-4" />
-          <span className="hidden sm:inline-block">Salir</span>
-        </Button>
+        <form action={logout}>
+          <Button type="submit" variant="ghost" size="sm" className="text-gray-500 hover:text-red-600 gap-2">
+            <LogOut className="w-4 h-4" />
+            <span className="hidden sm:inline-block">Salir</span>
+          </Button>
+        </form>
       </div>
     </header>
   );

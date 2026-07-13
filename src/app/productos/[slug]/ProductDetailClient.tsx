@@ -14,22 +14,22 @@ import { formatPrice, formatUnit, getPriceForQuantity, getWhatsAppUrl } from '@/
 import { useBudgetStore } from '@/store/budgetStore';
 import type { Product } from '@/types';
 
-import { getRelatedProducts, productsData } from './productsData';
+type Props = { 
+  product: any;
+  relatedProducts: any[];
+};
 
-type Props = { slug: string };
-
-function getCalculatedQuantity(product: Product, quantity: number) {
-  const safe = Math.max(quantity, product.minQuantity);
+function getCalculatedQuantity(product: any, quantity: number) {
+  const safe = Math.max(quantity, product.minOrderQuantity || product.minQuantity || 1);
   if (product.unit === 'docena') return safe * 12;
   if (product.unit === 'visita' || product.unit === 'servicio') return 1;
   return safe;
 }
 
-export default function ProductDetailClient({ slug }: Props) {
-  const product = productsData[slug];
+export default function ProductDetailClient({ product, relatedProducts }: Props) {
   const addItem = useBudgetStore((s) => s.addItem);
 
-  const [quantity, setQuantity] = useState(product.minQuantity);
+  const [quantity, setQuantity] = useState(product.minOrderQuantity || product.minQuantity || 1);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   useEffect(() => {
@@ -46,7 +46,7 @@ export default function ProductDetailClient({ slug }: Props) {
   const promoTier = product.priceTiers?.find((t) => t.isPromo);
   const missingForPromo = promoTier ? Math.max(0, promoTier.min - safeQuantity) : 0;
 
-  const related = getRelatedProducts(product, 4);
+  const related = relatedProducts;
 
   const images =
     product.images?.length > 0 ? product.images : ['/productos/default.jpg'];

@@ -1,22 +1,19 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { type NextRequest } from 'next/server';
+import { updateSession } from '@/lib/supabase/middleware';
 
-export function middleware(request: NextRequest) {
-  const path = request.nextUrl.pathname;
-  
-  if (path.startsWith('/admin') && !path.startsWith('/admin/login')) {
-    // TODO: Verify real session token when Supabase Auth is integrated.
-    // Currently Supabase Auth is NOT implemented. 
-    // This is a secure structure ready for the future.
-    // We do NOT use fake cookies, local storage, or mock sessions.
-    
-    // For Sprint 0, we allow access to the admin structure to see the "Under Construction" screens,
-    // but in Sprint 1 this will redirect to /admin/login if unauthenticated.
-  }
-  
-  return NextResponse.next();
+export async function middleware(request: NextRequest) {
+  return await updateSession(request);
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * Feel free to modify this pattern to include more paths.
+     */
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 };

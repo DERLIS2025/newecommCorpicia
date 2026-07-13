@@ -18,20 +18,23 @@ export async function getCategories() {
     return productCategories;
   }
 
-  try {
-    const { data, error } = await supabase
-      .from('categories')
-      .select('*')
-      .eq('is_active', true)
-      .order('order_index');
-
-    if (error) {
-      logFallback('Supabase query error');
-      return productCategories;
-    }
-
-    return data;
-  } catch (err) {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('order_index');
+  
+      if (error) {
+        logFallback('Supabase query error');
+        return productCategories;
+      }
+  
+      return data.map(cat => ({
+        ...cat,
+        imageUrl: cat.image_url,
+      })) as any[];
+    } catch (err) {
     logFallback('Unexpected exception during fetch');
     return productCategories;
   }
