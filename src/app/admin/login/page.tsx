@@ -1,3 +1,5 @@
+'use client';
+
 export default function LoginPage() {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 max-w-md mx-auto mt-20">
