@@ -4,9 +4,16 @@ import { Product, Category } from '@/types';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Manejo seguro del cliente cuando faltan las variables de entorno
+export const supabase = (supabaseUrl && supabaseAnonKey) 
+  ? createClient(supabaseUrl, supabaseAnonKey) 
+  : null;
 
 export async function getProducts(): Promise<Product[]> {
+  if (!supabase) {
+    console.warn('Falta configuración de Supabase.');
+    return [];
+  }
   const { data, error } = await supabase
     .from('products')
     .select('*')
@@ -22,6 +29,10 @@ export async function getProducts(): Promise<Product[]> {
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
+  if (!supabase) {
+    console.warn('Falta configuración de Supabase.');
+    return null;
+  }
   const { data, error } = await supabase
     .from('products')
     .select('*')
@@ -38,6 +49,10 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 }
 
 export async function getFeaturedProducts(): Promise<Product[]> {
+  if (!supabase) {
+    console.warn('Falta configuración de Supabase.');
+    return [];
+  }
   const { data, error } = await supabase
     .from('products')
     .select('*')
@@ -54,6 +69,10 @@ export async function getFeaturedProducts(): Promise<Product[]> {
 }
 
 export async function getCategories(): Promise<Category[]> {
+  if (!supabase) {
+    console.warn('Falta configuración de Supabase.');
+    return [];
+  }
   const { data, error } = await supabase
     .from('categories')
     .select('*')

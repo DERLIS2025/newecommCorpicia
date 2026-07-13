@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { Menu, X, ShoppingCart, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useBudgetStore } from '@/store/budgetStore';
@@ -18,6 +19,7 @@ function WhatsAppIcon({ className }: { className?: string }) {
 }
 
 export function Navbar() {
+  const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [desktopQuery, setDesktopQuery] = useState('');
   const [mobileQuery, setMobileQuery] = useState('');
@@ -30,6 +32,8 @@ export function Navbar() {
     { href: '/nosotros/', label: 'Nosotros' },
     { href: '/contacto/', label: 'Contacto' },
   ];
+
+  if (pathname?.startsWith('/admin')) return null;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur-md">

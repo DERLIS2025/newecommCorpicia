@@ -1,0 +1,23 @@
+# Sprint 0: Implementación Foundation
+
+- **Objetivo**: Ejecutar el Sprint 0 de estabilización y seguridad para el panel administrativo.
+- **Fecha de ejecución**: 13 de Julio de 2026.
+- **Rama**: feature/admin-sprint-0-foundation
+- **Remotos**: origin (equantum-py), upstream (DERLIS2025)
+- **Estado inicial**: `npm` no disponible en el sistema local de validación (por lo que el proceso se realizó a nivel código).
+- **Error original de build**: Next.js no podía descargar la fuente Inter.
+- **Solución de fuentes**: Se eliminó `next/font/google` de `layout.tsx` y se ajustó `tailwind.config.ts` para usar `system-ui, sans-serif`.
+- **Configuración de ESLint**: Se creó `.eslintrc.json` con `next/core-web-vitals` explícitamente.
+- **Variables de entorno encontradas**: Documentadas en `.env.example` (SUPABASE_URL, SITE_URL, WHATSAPP_NUMBER, GTM/GA).
+- **Estado real de Supabase**: Cliente estabilizado en `src/lib/supabase.ts` con manejo seguro cuando las variables de entorno están vacías, previniendo errores.
+- **Archivos del admin creados**: 
+  - `src/app/admin/layout.tsx`
+  - `src/app/admin/page.tsx`
+  - `src/app/admin/login/page.tsx`
+- **Estado real del login**: Maqueta estática deshabilitada con aviso claro de "Sprint 0". No procesa datos, no genera sesiones falsas.
+- **Estado real del middleware**: Creado en `src/middleware.ts` interceptando `/admin`. Documentado el lugar para la futura integración real con Supabase Auth.
+- **Roles preparados**: Creados en `src/types/roles.ts` (`owner`, `admin`, `editor`, `viewer`).
+- **Validaciones realizadas**: Layout público intacto; componentes (Navbar, Footer, BudgetDrawer, WhatsAppButton) ocultos en rutas `/admin` sin afectar el público. Rutas de Windows incompatibles arregladas (carpeta api espaciada eliminada).
+- **Riesgos pendientes**: Falta la integración real de Auth/RLS.
+- **Funcionalidades no implementadas**: Cualquier CRUD administrativo.
+- **Próximo paso recomendado**: Sprint 1: Integración Supabase Auth y validación obligatoria en middleware.

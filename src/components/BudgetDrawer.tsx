@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useBudgetStore } from '@/store/budgetStore';
@@ -9,6 +10,7 @@ import { trackWhatsAppClick } from '@/lib/tracking';
 import { Minus, Plus, Trash2, ShoppingCart, X, MessageCircle } from 'lucide-react';
 
 export function BudgetDrawer() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const { items, removeItem, updateQuantity, getTotal } = useBudgetStore();
 
@@ -27,6 +29,8 @@ export function BudgetDrawer() {
     const safeUrl = url.replace('https://wa.me/', 'https://api.whatsapp.com/send?phone=');
     window.open(safeUrl, '_blank');
   };
+
+  if (pathname?.startsWith('/admin')) return null;
 
   if (items.length === 0) return null;
 
