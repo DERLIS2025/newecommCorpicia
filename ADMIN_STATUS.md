@@ -1,34 +1,31 @@
-# ADMIN_STATUS Corpicia
+# Estado de Administración Corpicia (Sprint 2)
 
-## Qué existe
-- Web pública Next.js con home, productos, detalle, presupuesto, servicios, nosotros, contacto, términos y privacidad.
-- Componentes globales Navbar, Footer, WhatsApp y BudgetDrawer.
-- Catálogo estático y cálculo de presupuesto con Zustand.
-- Cliente Supabase aislado con helpers de lectura.
-- Estructura visual del Panel de Administración.
+## Fases Completadas
 
-## Estado de los Sprints
-- **Sprint 0:** Fundamentos, layout visual, y dependencias (Completado).
-- **Sprint 1:** Estructura de UI y navegación visual (Completado).
-- **Sprint 2A:** Fundación de datos, repositorios con fallback, scripts de migración segura. Cero modificaciones en producción. (Completado).
-- **Sprint 2B:** CRUD de Productos y Categorías (Pendiente).
-- **Sprint 2C:** Banners, inicio y configuración (Pendiente).
-- **Sprint 2D:** Calculadora, presupuestos y clientes (Pendiente).
-- **Sprint 2E:** Servicios, proyectos, multimedia y SEO (Pendiente).
-- **Sprint Final:** Autenticación, roles, middleware y auditoría (Pendiente).
+### Sprint 2A (Fundación de Datos)
+- [x] Configuración inicial de esquema SQL en Supabase (`0001_initial_schema.sql`).
+- [x] Correcciones de claves únicas e identificadores de banners (`0002_fix_banner_seed_keys.sql`).
+- [x] Creación de `scripts/seed.ts` seguro e idempotente.
+- [x] Implementación de repositorios de fallback estático (`NEXT_PUBLIC_DATA_SOURCE=static`).
+- [x] Migración inicial de 7 categorías y 14 productos a Supabase completada.
 
-## Qué funciona
-- Render público por código estático.
-- Búsqueda/filtros de productos en cliente.
-- Agregar productos al presupuesto local y enviar resumen por WhatsApp.
-- Sitemap, robots y feed XML basados en datos estáticos.
-- Navegación completa del panel de administración `/admin` (Mock visual sin mutación).
+### Sprint 2B (CRUD Productos y Categorías)
+- [x] Creación del cliente administrativo de servidor (`SUPABASE_SERVICE_ROLE_KEY`).
+- [x] Implementación de **Bloqueo Centralizado de Escrituras** (`ADMIN_WRITES_ENABLED=false`).
+- [x] Server Actions de Productos (Sincronización manual de features, tiers, recomendaciones, specs, imágenes).
+- [x] Server Actions de Categorías (Restricción de eliminación por dependencias).
+- [x] Panel interactivo Server/Client Component para Listar Categorías.
+- [x] Panel interactivo Server/Client Component para Listar Productos.
+- [x] Formulario nativo unificado para Crear/Editar Producto (campos dinámicos anidados en arreglos y URLs para imágenes temporales).
 
-## Qué está incompleto
-- Formulario de contacto no persiste datos.
-- Formularios del panel de administración (Sprint 2 en adelante).
+## Próximos Sprints (Pendientes)
+- **Sprint 2C**: Gestión CRUD de Banners (`/admin/inicio` y `/admin/seo`).
+- **Sprint 2D**: Gestión de Configuración y Calculadora.
+- **Módulo Multimedia**: Implementar Supabase Storage (Buckets y uploader nativo).
+- **Módulo de Seguridad Final**: Autenticación, RLS final, Dashboard y métricas reales.
 
-## Lo que falta conectar
-- Las APIs de mutación (POST/PUT/DELETE) para los módulos administrativos hacia Supabase.
-- Configuración de dominios dinámicos (calculadora, settings).
-- Gestión de leads y clientes.
+## Variables de Entorno Críticas Actuales
+```env
+NEXT_PUBLIC_DATA_SOURCE=static
+ADMIN_WRITES_ENABLED=false
+```
