@@ -146,6 +146,7 @@ export interface Database {
       banners: {
         Row: {
           id: string
+          seed_key: string | null
           type: 'hero' | 'secondary'
           image_desktop: string
           image_mobile: string | null
@@ -160,6 +161,7 @@ export interface Database {
         }
         Insert: {
           id?: string
+          seed_key?: string | null
           type: 'hero' | 'secondary'
           image_desktop: string
           image_mobile?: string | null
@@ -174,6 +176,7 @@ export interface Database {
         }
         Update: {
           id?: string
+          seed_key?: string | null
           type?: 'hero' | 'secondary'
           image_desktop?: string
           image_mobile?: string | null
