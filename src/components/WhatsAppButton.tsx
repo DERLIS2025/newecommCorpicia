@@ -1,6 +1,8 @@
 'use client';
 
-import { Phone } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { Phone, MessageCircle, X } from 'lucide-react';
 import { trackWhatsAppClick } from '@/lib/tracking';
 import { getWhatsAppUrl } from '@/lib/utils';
 
@@ -10,8 +12,11 @@ interface WhatsAppButtonProps {
 }
 
 export function WhatsAppButton({ message, className = '' }: WhatsAppButtonProps) {
+  const pathname = usePathname();
   const defaultMessage = 'Hola, quiero más información sobre Corpicia.';
   const whatsappUrl = getWhatsAppUrl(message || defaultMessage);
+
+  if (pathname?.startsWith('/admin')) return null;
 
   return (
     <a
@@ -28,6 +33,10 @@ export function WhatsAppButton({ message, className = '' }: WhatsAppButtonProps)
 }
 
 export function WhatsAppFloatingButton() {
+  const pathname = usePathname();
+
+  if (pathname?.startsWith('/admin')) return null;
+
   return (
     <a
       href={getWhatsAppUrl()}

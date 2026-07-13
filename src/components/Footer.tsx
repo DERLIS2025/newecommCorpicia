@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Phone, Mail, MapPin, ArrowRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,9 @@ export function Footer() {
   const handleSubscribeClick = () => {
     console.log('Newsletter pendiente de integración backend.');
   };
+
+  const pathname = usePathname();
+  if (pathname?.startsWith('/admin')) return null;
 
   return (
     <footer className="bg-[#0f1f12] text-white mt-8">
