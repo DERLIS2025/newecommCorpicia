@@ -1,11 +1,7 @@
 // Script para validar que la migración a Supabase concuerda con los datos estáticos
 import { createClient } from '@supabase/supabase-js';
 import { productsCatalog, productCategories } from '../src/data/productsData';
-import { homeHeroBanners, homeMiddleBanners } from '../src/data/banners';
-import { config } from 'dotenv';
-import path from 'path';
-
-config({ path: path.resolve(process.cwd(), '.env.local') });
+import { homeHeroBanners, homeSecondaryBanners } from '../src/data/banners';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -66,7 +62,7 @@ async function validate() {
   const { data: dbBanners, error: bannerError } = await supabase.from('banners').select('*');
   if (bannerError) throw bannerError;
 
-  const totalStaticBanners = homeHeroBanners.length + homeMiddleBanners.length;
+  const totalStaticBanners = homeHeroBanners.length + homeSecondaryBanners.length;
   console.log(`Banners: Expected ${totalStaticBanners}, Found ${dbBanners.length}`);
   if (dbBanners.length !== totalStaticBanners) {
     console.error('  [MISMATCH] Banner count differs.');
