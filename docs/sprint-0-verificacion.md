@@ -59,6 +59,15 @@ Se revisaron los 6 commits introducidos:
 - **Críticos:** Ninguno.
 - **Menores:** Ausencia de dependencias locales para validar compilaciones localmente; se requiere validación por Actions/Vercel.
 
-### 10. Recomendación Final
+### 10. Validación CI/CD
+- **Workflow creado:** `Build Validation`
+- **Archivo:** `.github/workflows/build-validation.yml`
+- **Triggers:** `pull_request` a `main`, `push` a `feature/**`.
+- **Entorno:** Node.js 20 sobre `ubuntu-latest`.
+- **Comandos ejecutados:** `npm ci`, `npm run lint`, `npx tsc --noEmit`, `npm run build`.
+- **Variables de prueba utilizadas:** `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_WHATSAPP_NUMBER` con valores simulados, asegurando que el build no dependa de credenciales reales ni de la disponibilidad de la base de datos.
+- **Estado Inicial:** PENDIENTE DE EJECUCIÓN EN GITHUB ACTIONS.
+
+### 11. Recomendación Final
 **VEREDICTO: APROBAR CON VALIDACIÓN PENDIENTE**
 El Pull Request parece seguro y no afecta la web pública según la revisión estática. Sin embargo, cabe aclarar que TypeScript, build y lint no pudieron ejecutarse por falta de Node.js y npm en el entorno local de auditoría. Se requiere la validación en CI/CD antes del merge definitivo.
