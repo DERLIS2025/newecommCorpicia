@@ -67,16 +67,21 @@ async function seed() {
     }
     productSlugs.add(prod.slug);
 
+    // Mapeo seguro de la propiedad real según la tienda
+    const minQ = typeof prod.minQuantity === 'number' ? prod.minQuantity : 1;
+
     if (typeof prod.pricePerM2 !== 'number' || prod.pricePerM2 <= 0) {
       console.warn(`  [WARNING] Invalid price for ${prod.slug}: ${prod.pricePerM2}`);
       invalidPrices++;
     }
-    if (typeof prod.minOrderQuantity !== 'number' || prod.minOrderQuantity <= 0) {
-      console.warn(`  [WARNING] Invalid min quantity for ${prod.slug}: ${prod.minOrderQuantity}`);
+    if (minQ <= 0) {
+      console.warn(`  [WARNING] Invalid min quantity for ${prod.slug}: ${minQ}`);
       invalidMins++;
     }
 
-    console.log(`  - ${isDryRun ? 'Checking' : 'Upserting'} product: ${prod.slug}`);
+    const tierCount = prod.priceTiers ? prod.priceTiers.length : 0;
+    console.log(`  - ${isDryRun ? 'Checking' : 'Upserting'} product: ${prod.slug} | Unit: ${prod.unit} | Min: ${minQ} | Base Price: ${prod.pricePerM2} | Tiers: ${tierCount}`);
+    
     if (!isDryRun) {
       const { data: catData } = await supabase
         .from('categories')
@@ -92,6 +97,7 @@ async function seed() {
         price_amount: prod.pricePerM2,
         currency: 'PYG',
         unit: prod.unit,
+        min_order_quantity: minQ,
         category_id: catData?.id || null,
         is_active: true
       }, { onConflict: 'slug' });
