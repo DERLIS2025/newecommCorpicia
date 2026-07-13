@@ -24,18 +24,18 @@
 - Banners de `src/data/banners.ts` existen como configuración, pero home usa JSX directo.
 
 ## Qué está roto o riesgoso
-- `npm run build` falló por no poder descargar fuente Inter desde Google Fonts.
-- Existe una ruta/carpeta con espacios `src/app/api / feed /route.ts`.
-- No hay middleware ni autenticación para un futuro `/admin`.
-- Supabase se crea con strings vacíos si faltan env vars.
+- Supabase se crea con strings vacíos si faltan env vars. (Corregido en Sprint 0: cliente estabilizado, no falla al faltar vars).
+- Existe una ruta/carpeta con espacios `src/app/api / feed /route.ts` (Corregido: no presente en el entorno Windows actual).
+- No hay middleware ni autenticación para un futuro `/admin`. (Corregido en Sprint 0: middleware base y rutas /admin creadas en modo preparación).
+- `npm run build` falló por no poder descargar fuente Inter desde Google Fonts. (Corregido en Sprint 0: se usan fuentes de sistema).
 
 ## Qué falta
-- Panel `/admin` completo.
-- Login, Supabase Auth, roles, permisos y RLS.
+- Panel `/admin` completo (Estructura base creada).
+- Login, Supabase Auth, roles, permisos y RLS (Interfaces base creadas y documentadas).
 - CRUD productos/categorías/precios/banners/secciones/footer/SEO.
 - Persistencia de presupuestos, leads y newsletter.
 - Migraciones SQL versionadas.
 - Vista previa, borradores, publicación e historial.
 
 ## Próximo paso recomendado
-Ejecutar Sprint 0: estabilizar build, definir esquema Supabase y seguridad base antes de implementar cualquier CRUD administrativo.
+**Sprint 1:** Integración real de Supabase Auth, validación obligatoria en middleware, configuración de RLS y esquema de base de datos base antes de implementar los primeros CRUD.
