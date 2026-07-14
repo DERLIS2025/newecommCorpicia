@@ -3,19 +3,9 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { Search, Plus, Edit2, Trash2 } from 'lucide-react';
 import { ProjectFormModal } from './ProjectFormModal';
 import { toggleProjectStatusAction, deleteProjectAction } from '@/lib/actions/admin-projects';
-import { toast } from 'sonner';
 
 type ProjectsTableProps = {
   projects: any[];
@@ -44,19 +34,17 @@ export function ProjectsTable({ projects }: ProjectsTableProps) {
   const handleToggleStatus = async (project: any) => {
     const result = await toggleProjectStatusAction(project.id, project.is_active);
     if (result.success) {
-      toast.success(`Proyecto ${project.is_active ? 'desactivado' : 'activado'}`);
+      // Usar alert simple como fallback o dejar sin notificacion en pantalla si cambia en tiempo real
     } else {
-      toast.error(result.error || 'Error al cambiar el estado');
+      alert(result.error || 'Error al cambiar el estado');
     }
   };
 
   const handleDelete = async (id: string) => {
     if (confirm('¿Estás seguro de que deseas eliminar este proyecto? Esta acción no se puede deshacer.')) {
       const result = await deleteProjectAction(id);
-      if (result.success) {
-        toast.success('Proyecto eliminado');
-      } else {
-        toast.error(result.error || 'Error al eliminar');
+      if (!result.success) {
+        alert(result.error || 'Error al eliminar');
       }
     }
   };
@@ -68,7 +56,7 @@ export function ProjectsTable({ projects }: ProjectsTableProps) {
           <h1 className="text-2xl font-bold tracking-tight">Proyectos</h1>
           <p className="text-gray-500">Administra los trabajos y proyectos realizados.</p>
         </div>
-        <Button onClick={handleNew} className="w-full sm:w-auto gap-2 bg-corpicia-green hover:bg-green-700">
+        <Button onClick={handleNew} className="w-full sm:w-auto gap-2 bg-corpicia-green hover:bg-green-700 text-white">
           <Plus className="w-4 h-4" /> Nuevo Proyecto
         </Button>
       </div>
@@ -85,43 +73,47 @@ export function ProjectsTable({ projects }: ProjectsTableProps) {
         </div>
       </div>
 
-      <div className="border rounded-lg bg-white overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Título</TableHead>
-              <TableHead>Categoría</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead className="hidden sm:table-cell">Fecha del Proyecto</TableHead>
-              <TableHead className="text-right">Acciones</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+      <div className="border rounded-lg bg-white overflow-x-auto shadow-sm">
+        <table className="w-full text-sm text-left">
+          <thead className="bg-gray-50 border-b">
+            <tr>
+              <th className="px-4 py-3 font-medium text-gray-700">Título</th>
+              <th className="px-4 py-3 font-medium text-gray-700 hidden md:table-cell">Categoría</th>
+              <th className="px-4 py-3 font-medium text-gray-700">Estado</th>
+              <th className="px-4 py-3 font-medium text-gray-700 hidden sm:table-cell">Fecha del Proyecto</th>
+              <th className="px-4 py-3 font-medium text-gray-700 text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
             {filteredProjects.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center text-gray-500">
+              <tr>
+                <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
                   {searchTerm ? 'No se encontraron resultados.' : 'No hay proyectos cargados todavía.'}
-                </TableCell>
-              </TableRow>
+                </td>
+              </tr>
             ) : (
               filteredProjects.map((project) => (
-                <TableRow key={project.id}>
-                  <TableCell className="font-medium">
+                <tr key={project.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-4 py-3 font-medium text-gray-900">
                     {project.title}
                     <div className="text-xs text-gray-500 font-normal md:hidden mt-1">
                       {project.category}
                     </div>
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">{project.category || '-'}</TableCell>
-                  <TableCell>
-                    <Badge variant={project.is_active ? 'default' : 'secondary'} className={project.is_active ? 'bg-green-100 text-green-800 hover:bg-green-100' : ''}>
+                  </td>
+                  <td className="px-4 py-3 text-gray-600 hidden md:table-cell">{project.category || '-'}</td>
+                  <td className="px-4 py-3">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                      project.is_active 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-gray-100 text-gray-800'
+                    }`}>
                       {project.is_active ? 'Activo' : 'Inactivo'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell">
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-gray-600 hidden sm:table-cell">
                     {project.project_date ? new Date(project.project_date).toLocaleDateString('es-PY') : '-'}
-                  </TableCell>
-                  <TableCell className="text-right">
+                  </td>
+                  <td className="px-4 py-3 text-right">
                     <div className="flex justify-end gap-2">
                       <Button 
                         variant="outline" 
@@ -137,12 +129,12 @@ export function ProjectsTable({ projects }: ProjectsTableProps) {
                         <Trash2 className="w-4 h-4 text-red-500" />
                       </Button>
                     </div>
-                  </TableCell>
-                </TableRow>
+                  </td>
+                </tr>
               ))
             )}
-          </TableBody>
-        </Table>
+          </tbody>
+        </table>
       </div>
 
       <ProjectFormModal 

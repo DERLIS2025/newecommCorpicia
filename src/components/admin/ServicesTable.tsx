@@ -3,19 +3,9 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { Search, Plus, Edit2, Trash2 } from 'lucide-react';
 import { ServiceFormModal } from './ServiceFormModal';
 import { toggleServiceStatusAction, deleteServiceAction } from '@/lib/actions/admin-services';
-import { toast } from 'sonner';
 
 type ServicesTableProps = {
   services: any[];
@@ -42,20 +32,16 @@ export function ServicesTable({ services }: ServicesTableProps) {
 
   const handleToggleStatus = async (service: any) => {
     const result = await toggleServiceStatusAction(service.id, service.is_active);
-    if (result.success) {
-      toast.success(`Servicio ${service.is_active ? 'desactivado' : 'activado'}`);
-    } else {
-      toast.error(result.error || 'Error al cambiar el estado');
+    if (!result.success) {
+      alert(result.error || 'Error al cambiar el estado');
     }
   };
 
   const handleDelete = async (id: string) => {
     if (confirm('¿Estás seguro de que deseas eliminar este servicio? Esta acción no se puede deshacer.')) {
       const result = await deleteServiceAction(id);
-      if (result.success) {
-        toast.success('Servicio eliminado');
-      } else {
-        toast.error(result.error || 'Error al eliminar');
+      if (!result.success) {
+        alert(result.error || 'Error al eliminar');
       }
     }
   };
@@ -67,7 +53,7 @@ export function ServicesTable({ services }: ServicesTableProps) {
           <h1 className="text-2xl font-bold tracking-tight">Servicios</h1>
           <p className="text-gray-500">Administra los servicios que ofrece Corpicia.</p>
         </div>
-        <Button onClick={handleNew} className="w-full sm:w-auto gap-2 bg-corpicia-green hover:bg-green-700">
+        <Button onClick={handleNew} className="w-full sm:w-auto gap-2 bg-corpicia-green hover:bg-green-700 text-white">
           <Plus className="w-4 h-4" /> Nuevo Servicio
         </Button>
       </div>
@@ -84,43 +70,47 @@ export function ServicesTable({ services }: ServicesTableProps) {
         </div>
       </div>
 
-      <div className="border rounded-lg bg-white overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Título</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead className="hidden md:table-cell">Orden</TableHead>
-              <TableHead className="hidden sm:table-cell">Última Actualización</TableHead>
-              <TableHead className="text-right">Acciones</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+      <div className="border rounded-lg bg-white overflow-x-auto shadow-sm">
+        <table className="w-full text-sm text-left">
+          <thead className="bg-gray-50 border-b">
+            <tr>
+              <th className="px-4 py-3 font-medium text-gray-700">Título</th>
+              <th className="px-4 py-3 font-medium text-gray-700">Estado</th>
+              <th className="px-4 py-3 font-medium text-gray-700 hidden md:table-cell">Orden</th>
+              <th className="px-4 py-3 font-medium text-gray-700 hidden sm:table-cell">Última Actualización</th>
+              <th className="px-4 py-3 font-medium text-gray-700 text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
             {filteredServices.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center text-gray-500">
+              <tr>
+                <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
                   {searchTerm ? 'No se encontraron resultados.' : 'No hay servicios cargados todavía.'}
-                </TableCell>
-              </TableRow>
+                </td>
+              </tr>
             ) : (
               filteredServices.map((service) => (
-                <TableRow key={service.id}>
-                  <TableCell className="font-medium">
+                <tr key={service.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-4 py-3 font-medium text-gray-900">
                     {service.title}
                     <div className="text-xs text-gray-500 font-normal md:hidden mt-1">
                       Orden: {service.order_index}
                     </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={service.is_active ? 'default' : 'secondary'} className={service.is_active ? 'bg-green-100 text-green-800 hover:bg-green-100' : ''}>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                      service.is_active 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-gray-100 text-gray-800'
+                    }`}>
                       {service.is_active ? 'Activo' : 'Inactivo'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">{service.order_index}</TableCell>
-                  <TableCell className="hidden sm:table-cell">
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-gray-600 hidden md:table-cell">{service.order_index}</td>
+                  <td className="px-4 py-3 text-gray-600 hidden sm:table-cell">
                     {new Date(service.updated_at).toLocaleDateString('es-PY')}
-                  </TableCell>
-                  <TableCell className="text-right">
+                  </td>
+                  <td className="px-4 py-3 text-right">
                     <div className="flex justify-end gap-2">
                       <Button 
                         variant="outline" 
@@ -136,12 +126,12 @@ export function ServicesTable({ services }: ServicesTableProps) {
                         <Trash2 className="w-4 h-4 text-red-500" />
                       </Button>
                     </div>
-                  </TableCell>
-                </TableRow>
+                  </td>
+                </tr>
               ))
             )}
-          </TableBody>
-        </Table>
+          </tbody>
+        </table>
       </div>
 
       <ServiceFormModal 
