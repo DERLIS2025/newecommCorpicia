@@ -9,6 +9,33 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      admin_profiles: {
+        Row: {
+          user_id: string
+          name: string
+          role: 'owner' | 'admin' | 'editor' | 'viewer'
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          name: string
+          role: 'owner' | 'admin' | 'editor' | 'viewer'
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          user_id?: string
+          name?: string
+          role?: 'owner' | 'admin' | 'editor' | 'viewer'
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           id: string
@@ -43,6 +70,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       products: {
         Row: {
@@ -93,6 +121,15 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       product_images: {
         Row: {
@@ -119,6 +156,15 @@ export interface Database {
           order_index?: number
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "product_images_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       product_price_tiers: {
         Row: {
@@ -142,6 +188,105 @@ export interface Database {
           price_amount?: number
           label?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "product_price_tiers_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      product_features: {
+        Row: {
+          id: string
+          product_id: string
+          feature_text: string
+          order_index: number
+        }
+        Insert: {
+          id?: string
+          product_id: string
+          feature_text: string
+          order_index?: number
+        }
+        Update: {
+          id?: string
+          product_id?: string
+          feature_text?: string
+          order_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_features_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      product_specifications: {
+        Row: {
+          id: string
+          product_id: string
+          spec_key: string
+          spec_value: string
+          order_index: number
+        }
+        Insert: {
+          id?: string
+          product_id: string
+          spec_key: string
+          spec_value: string
+          order_index?: number
+        }
+        Update: {
+          id?: string
+          product_id?: string
+          spec_key?: string
+          spec_value?: string
+          order_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_specifications_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      product_recommendations: {
+        Row: {
+          id: string
+          product_id: string
+          recommendation_text: string
+          order_index: number
+        }
+        Insert: {
+          id?: string
+          product_id: string
+          recommendation_text: string
+          order_index?: number
+        }
+        Update: {
+          id?: string
+          product_id?: string
+          recommendation_text?: string
+          order_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_recommendations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       banners: {
         Row: {
@@ -189,27 +334,26 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
-      site_settings: {
-        Row: {
-          key: string
-          value: Json
-          is_public: boolean
-          updated_at: string
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      duplicate_product: {
+        Args: {
+          original_product_id: string
+          new_slug: string
         }
-        Insert: {
-          key: string
-          value: Json
-          is_public?: boolean
-          updated_at?: string
-        }
-        Update: {
-          key?: string
-          value?: Json
-          is_public?: boolean
-          updated_at?: string
-        }
+        Returns: string
       }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
     }
   }
 }

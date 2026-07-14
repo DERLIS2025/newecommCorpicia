@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { notFound } from 'next/navigation';
 import Script from 'next/script';
 import ProductDetailClient from './ProductDetailClient';
-import { productsData, productsCatalog } from './productsData';
+import { getProduct, getProducts, getRelatedProducts } from '@/lib/repositories/products';
 
 type ProductPageProps = {
   params: {
@@ -13,13 +13,14 @@ type ProductPageProps = {
 const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://corpicia.com').trim().replace(/\/$/, '');
 
 export async function generateStaticParams() {
-  return productsCatalog.map((product) => ({
+  const products = await getProducts();
+  return products.map((product: any) => ({
     slug: product.slug,
   }));
 }
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
-  const product = productsData[params.slug];
+  const product = await getProduct(params.slug);
 
   if (!product) {
     return {
@@ -93,12 +94,17 @@ export const viewport: Viewport = {
   themeColor: '#16a34a',
 };
 
-export default function ProductPage({ params }: ProductPageProps) {
-  const product = productsData[params.slug];
+export default async function ProductPage({ params }: ProductPageProps) {
+  const product = await getProduct(params.slug);
 
   if (!product) {
     notFound();
   }
+
+  // Use the raw category object if available (Supabase populates it as an object with { name, slug } in my query)
+  // or default to parsing it (if static)
+  const catSlug = product.categories?.slug || product.categorySlug || product.category?.toLowerCase().replace(/\s+/g, '-');
+  const relatedProducts = await getRelatedProducts(product.slug, catSlug);
 
   const productUrl = `${siteUrl}/productos/${product.slug}/`;
   
@@ -118,7 +124,7 @@ export default function ProductPage({ params }: ProductPageProps) {
     name: product.name,
     description: product.shortDescription || product.description,
     image: product.images && product.images.length > 0
-      ? product.images.map(img => `${siteUrl}${img}`)
+      ? product.images.map((img: string) => `${siteUrl}${img}`)
       : [`${siteUrl}/og-image.jpg`],
     sku: product.id,
     mpn: product.id,
@@ -219,7 +225,7 @@ export default function ProductPage({ params }: ProductPageProps) {
         {JSON.stringify(breadcrumbSchema)}
       </Script>
 
-      <ProductDetailClient slug={params.slug} />
+      <ProductDetailClient product={product} relatedProducts={relatedProducts} />
     </>
   );
 }

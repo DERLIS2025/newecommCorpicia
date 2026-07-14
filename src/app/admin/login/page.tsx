@@ -1,41 +1,82 @@
 'use client';
 
-export default function LoginPage() {
-  return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 max-w-md mx-auto mt-20">
-      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Acceso Restringido</h2>
-      
-      <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg p-4 mb-6 text-sm">
-        <p className="font-semibold mb-1">Estado: Sprint 0</p>
-        <p>La autenticación con Supabase aún no está implementada. No ingrese credenciales.</p>
-      </div>
+import { useFormState, useFormStatus } from 'react-dom';
+import { login } from '@/lib/actions/admin-auth';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
-      <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
-          <input 
-            type="email" 
-            disabled
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 text-gray-500 cursor-not-allowed" 
-            placeholder="admin@corpicia.com" 
-          />
+function SubmitButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className={`w-full py-2 px-4 rounded-md font-medium text-white transition-colors
+        ${pending ? 'bg-green-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}`}
+    >
+      {pending ? 'Iniciando sesión...' : 'Ingresar al Panel'}
+    </button>
+  );
+}
+
+export default function LoginPage() {
+  const [state, formAction] = useFormState(login, null);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state?.success) {
+      router.push('/admin/productos');
+      router.refresh();
+    }
+  }, [state, router]);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <div className="w-full max-w-md bg-white rounded-xl shadow-lg border border-gray-100 p-8">
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold text-gray-900">Corpicia Admin</h1>
+          <p className="text-gray-500 text-sm mt-2">Acceso exclusivo para administradores</p>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-          <input 
-            type="password" 
-            disabled
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 text-gray-500 cursor-not-allowed" 
-            placeholder="••••••••" 
-          />
-        </div>
-        <button 
-          disabled
-          className="w-full bg-corpicia-green text-white font-medium py-2 rounded-lg opacity-50 cursor-not-allowed"
-        >
-          Iniciar Sesión (Próximamente)
-        </button>
-      </form>
+
+        {state?.success === false && (
+          <div className="mb-6 p-4 rounded-md bg-red-50 border border-red-100 text-red-600 text-sm">
+            {state.message}
+          </div>
+        )}
+
+        <form action={formAction} className="space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="email">
+              Correo Electrónico
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              placeholder="admin@corpicia.com"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="password">
+              Contraseña
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              placeholder="••••••••"
+            />
+          </div>
+
+          <SubmitButton />
+        </form>
+      </div>
     </div>
   );
 }

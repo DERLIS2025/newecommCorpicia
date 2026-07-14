@@ -53,7 +53,6 @@ export function AdminSidebar() {
     <aside className="hidden lg:flex flex-col w-64 bg-white border-r min-h-screen sticky top-0 h-screen overflow-y-auto">
       <div className="p-6 border-b">
         <h2 className="text-2xl font-bold text-corpicia-green tracking-tight">Corpicia Admin</h2>
-        <p className="text-xs text-gray-500 mt-1 uppercase tracking-wider font-semibold">Modo Diseño</p>
       </div>
 
       <nav className="flex-1 px-4 py-6 space-y-8">

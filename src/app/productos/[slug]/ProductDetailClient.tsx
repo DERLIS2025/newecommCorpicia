@@ -14,22 +14,29 @@ import { formatPrice, formatUnit, getPriceForQuantity, getWhatsAppUrl } from '@/
 import { useBudgetStore } from '@/store/budgetStore';
 import type { Product } from '@/types';
 
-import { getRelatedProducts, productsData } from './productsData';
+type ProductDetailType = Product & {
+  minOrderQuantity?: number;
+  features: string[];
+  specifications: Record<string, string>;
+  recommendations?: string[];
+};
 
-type Props = { slug: string };
+type Props = { 
+  product: ProductDetailType;
+  relatedProducts: Product[];
+};
 
-function getCalculatedQuantity(product: Product, quantity: number) {
-  const safe = Math.max(quantity, product.minQuantity);
+function getCalculatedQuantity(product: ProductDetailType, quantity: number) {
+  const safe = Math.max(quantity, product.minOrderQuantity || product.minQuantity || 1);
   if (product.unit === 'docena') return safe * 12;
   if (product.unit === 'visita' || product.unit === 'servicio') return 1;
   return safe;
 }
 
-export default function ProductDetailClient({ slug }: Props) {
-  const product = productsData[slug];
+export default function ProductDetailClient({ product, relatedProducts }: Props) {
   const addItem = useBudgetStore((s) => s.addItem);
 
-  const [quantity, setQuantity] = useState(product.minQuantity);
+  const [quantity, setQuantity] = useState(product.minOrderQuantity || product.minQuantity || 1);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   useEffect(() => {
@@ -43,13 +50,15 @@ export default function ProductDetailClient({ slug }: Props) {
     [product, quantity]
   );
 
-  const promoTier = product.priceTiers?.find((t) => t.isPromo);
+  const priceTiers = product.priceTiers ?? [];
+  const features = product.features ?? [];
+  const specifications = product.specifications ?? {};
+  const recommendations = product.recommendations ?? [];
+  const images = product.images?.length > 0 ? product.images : ['/productos/default.jpg'];
+  const related = relatedProducts ?? [];
+
+  const promoTier = priceTiers.find((t) => t.isPromo);
   const missingForPromo = promoTier ? Math.max(0, promoTier.min - safeQuantity) : 0;
-
-  const related = getRelatedProducts(product, 4);
-
-  const images =
-    product.images?.length > 0 ? product.images : ['/productos/default.jpg'];
 
   const selectedImage = images[selectedImageIndex];
 
@@ -107,10 +116,10 @@ export default function ProductDetailClient({ slug }: Props) {
                 onChange={setQuantity}
               />
 
-              {product.priceTiers && (
+              {priceTiers.length > 0 && (
                 <div className="pt-1 border-t">
                   <p className="text-sm font-semibold mb-2">Precios por volumen</p>
-                  {product.priceTiers.map((tier) => (
+                  {priceTiers.map((tier) => (
                     <div key={tier.label} className="flex justify-between text-sm py-0.5">
                       <span>{tier.label}</span>
                       <span>{formatPrice(tier.price)}</span>
@@ -154,7 +163,7 @@ export default function ProductDetailClient({ slug }: Props) {
               <h2 className="text-lg font-semibold">Características y especificaciones</h2>
 
               <div className="space-y-2">
-                {product.features.map((feature) => (
+                {features.map((feature) => (
                   <div key={feature} className="flex items-start gap-2 text-sm text-gray-700">
                     <Check size={16} className="mt-0.5 text-green-600" />
                     <span>{feature}</span>
@@ -163,18 +172,18 @@ export default function ProductDetailClient({ slug }: Props) {
               </div>
 
               <div className="space-y-1 text-sm text-gray-700">
-                {Object.entries(product.specifications).map(([label, value]) => (
+                {Object.entries(specifications).map(([label, value]) => (
                   <p key={label}>
                     <span className="font-semibold">{label}:</span> {value}
                   </p>
                 ))}
               </div>
 
-              {product.recommendations?.length > 0 && (
+              {recommendations.length > 0 && (
                 <div className="pt-2 border-t space-y-2">
                   <h3 className="text-base font-semibold">Recomendaciones de uso</h3>
                   <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700 leading-relaxed">
-                    {product.recommendations.map((item) => (
+                    {recommendations.map((item) => (
                       <li key={item}>{item}</li>
                     ))}
                   </ul>

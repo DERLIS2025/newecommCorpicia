@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import ProductsClient from './ProductsClient';
-import { productCategories, productsCatalog } from './[slug]/productsData';
+import { getProducts } from '@/lib/repositories/products';
+import { getCategories } from '@/lib/repositories/categories';
 
 export const metadata: Metadata = {
   title: 'Productos de césped y jardinería en Paraguay | Corpicia',
@@ -17,13 +18,18 @@ type ProductsPageProps = {
   };
 };
 
-export default function ProductsPage({ searchParams }: ProductsPageProps) {
+export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const initialQuery = typeof searchParams?.q === 'string' ? searchParams.q : '';
+
+  const [products, categories] = await Promise.all([
+    getProducts(),
+    getCategories()
+  ]);
 
   return (
     <ProductsClient
-      products={productsCatalog}
-      categories={productCategories}
+      products={products}
+      categories={categories}
       initialQuery={initialQuery}
     />
   );

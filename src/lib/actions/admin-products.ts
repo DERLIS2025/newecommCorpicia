@@ -1,12 +1,21 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { supabaseAdmin, assertAdminWritesEnabled } from '@/lib/supabase/admin';
+import { createClient } from '@/lib/supabase/server';
+import type { Database } from '@/types/database';
 
 export type ActionState = {
   success: boolean;
   message: string;
 };
+
+type ProductInsert = Database['public']['Tables']['products']['Insert'];
+type ProductUpdate = Database['public']['Tables']['products']['Update'];
+type TierInsert = Database['public']['Tables']['product_price_tiers']['Insert'];
+type FeatureInsert = Database['public']['Tables']['product_features']['Insert'];
+type SpecInsert = Database['public']['Tables']['product_specifications']['Insert'];
+type RecInsert = Database['public']['Tables']['product_recommendations']['Insert'];
+type ImageInsert = Database['public']['Tables']['product_images']['Insert'];
 
 // Types for complex data passed as JSON strings in FormData
 export type PriceTierPayload = {
@@ -35,58 +44,80 @@ export type ImagePayload = {
   is_main: boolean;
 };
 
-async function syncProductRelations(productId: string, formData: FormData) {
-  // Parse relations from FormData
-  const tiersJson = formData.get('price_tiers') as string;
+export async function syncProductRelations(productId: string, formData: FormData, supabase: any) {
+  const tiersJson = formData.get('tiers') as string;
   const featuresJson = formData.get('features') as string;
   const specsJson = formData.get('specifications') as string;
   const recsJson = formData.get('recommendations') as string;
   const imagesJson = formData.get('images') as string;
 
-  const tiers: PriceTierPayload[] = tiersJson ? JSON.parse(tiersJson) : [];
-  const features: FeaturePayload[] = featuresJson ? JSON.parse(featuresJson) : [];
-  const specs: SpecificationPayload[] = specsJson ? JSON.parse(specsJson) : [];
-  const recs: RecommendationPayload[] = recsJson ? JSON.parse(recsJson) : [];
-  const images: ImagePayload[] = imagesJson ? JSON.parse(imagesJson) : [];
+  const tiers: TierInsert[] = tiersJson ? JSON.parse(tiersJson) : [];
+  const features: FeatureInsert[] = featuresJson ? JSON.parse(featuresJson) : [];
+  const specs: SpecInsert[] = specsJson ? JSON.parse(specsJson) : [];
+  const recs: RecInsert[] = recsJson ? JSON.parse(recsJson) : [];
+  const images: ImageInsert[] = imagesJson ? JSON.parse(imagesJson) : [];
 
   // Tiers
-  await supabaseAdmin.from('product_price_tiers').delete().eq('product_id', productId);
+  const tiersTable = supabase.from('product_price_tiers') as any;
+  await tiersTable.delete().eq('product_id', productId);
   if (tiers.length > 0) {
-    await supabaseAdmin.from('product_price_tiers').insert(
-      tiers.map(t => ({ ...t, product_id: productId }))
-    );
+    const tiersPayload: TierInsert[] = tiers.map(t => ({
+      product_id: productId,
+      min_quantity: t.min_quantity,
+      price_amount: (t as any).price || t.price_amount, // fallback for legacy payload naming
+      label: t.label,
+    }));
+    await tiersTable.insert(tiersPayload);
   }
 
   // Features
-  await supabaseAdmin.from('product_features').delete().eq('product_id', productId);
+  const featuresTable = supabase.from('product_features') as any;
+  await featuresTable.delete().eq('product_id', productId);
   if (features.length > 0) {
-    await supabaseAdmin.from('product_features').insert(
-      features.map((f, i) => ({ ...f, product_id: productId, order_index: i }))
-    );
+    const featuresPayload: FeatureInsert[] = features.map((f, i) => ({
+      product_id: productId,
+      feature_text: f.feature_text,
+      order_index: i,
+    }));
+    await featuresTable.insert(featuresPayload);
   }
 
   // Specifications
-  await supabaseAdmin.from('product_specifications').delete().eq('product_id', productId);
+  const specsTable = supabase.from('product_specifications') as any;
+  await specsTable.delete().eq('product_id', productId);
   if (specs.length > 0) {
-    await supabaseAdmin.from('product_specifications').insert(
-      specs.map((s, i) => ({ ...s, product_id: productId, order_index: i }))
-    );
+    const specsPayload: SpecInsert[] = specs.map((s, i) => ({
+      product_id: productId,
+      spec_key: s.spec_key,
+      spec_value: s.spec_value,
+      order_index: i,
+    }));
+    await specsTable.insert(specsPayload);
   }
 
   // Recommendations
-  await supabaseAdmin.from('product_recommendations').delete().eq('product_id', productId);
+  const recsTable = supabase.from('product_recommendations') as any;
+  await recsTable.delete().eq('product_id', productId);
   if (recs.length > 0) {
-    await supabaseAdmin.from('product_recommendations').insert(
-      recs.map((r, i) => ({ ...r, product_id: productId, order_index: i }))
-    );
+    const recsPayload: RecInsert[] = recs.map((r, i) => ({
+      product_id: productId,
+      recommendation_text: r.recommendation_text,
+      order_index: i,
+    }));
+    await recsTable.insert(recsPayload);
   }
 
   // Images
-  await supabaseAdmin.from('product_images').delete().eq('product_id', productId);
+  const imagesTable = supabase.from('product_images') as any;
+  await imagesTable.delete().eq('product_id', productId);
   if (images.length > 0) {
-    await supabaseAdmin.from('product_images').insert(
-      images.map((img, i) => ({ ...img, product_id: productId, order_index: i }))
-    );
+    const imagesPayload: ImageInsert[] = images.map((img, i) => ({
+      product_id: productId,
+      image_url: img.image_url,
+      alt_text: img.alt_text || null,
+      order_index: (img as any).is_main ? 0 : (i + 1),
+    }));
+    await imagesTable.insert(imagesPayload);
   }
 }
 
@@ -95,25 +126,33 @@ export async function createProduct(
   formData: FormData
 ): Promise<ActionState> {
   try {
-    assertAdminWritesEnabled();
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return { success: false, message: 'No autorizado. Inicie sesión.' };
+    }
+
+    if (process.env.ADMIN_WRITES_ENABLED !== 'true') {
+      return { success: false, message: 'Las escrituras están deshabilitadas en este entorno.' };
+    }
 
     const name = formData.get('name') as string;
     const slug = formData.get('slug') as string;
-    const description = formData.get('description') as string | null;
-    const short_description = formData.get('short_description') as string | null;
-    const category_id = formData.get('category_id') as string | null;
-    const price_amount = parseInt((formData.get('price_amount') as string) || '0', 10);
+    const description = (formData.get('description') as string) || null;
+    const short_description = (formData.get('short_description') as string) || null;
+    const category_id = formData.get('category_id') as string;
+    const price_amount = parseInt(formData.get('price_amount') as string);
     const unit = formData.get('unit') as string;
-    const min_order_quantity = parseInt((formData.get('min_order_quantity') as string) || '1', 10);
-    const is_active = formData.get('is_active') === 'on';
-    const is_featured = formData.get('is_featured') === 'on';
+    const min_order_quantity = parseInt(formData.get('min_order_quantity') as string);
+    const is_active = formData.get('is_active') === 'true';
+    const is_featured = formData.get('is_featured') === 'true';
 
     if (!name || !slug || !unit || price_amount < 0 || min_order_quantity <= 0) {
       return { success: false, message: 'Datos obligatorios faltantes o inválidos' };
     }
 
-    // Insert Product
-    const { data: product, error } = await supabaseAdmin.from('products').insert({
+    const payload: ProductInsert = {
       name,
       slug,
       description,
@@ -125,7 +164,11 @@ export async function createProduct(
       min_order_quantity,
       is_active,
       is_featured,
-    }).select('id').single();
+    };
+
+    // Insert Product
+    const productsTable = supabase.from('products') as any;
+    const { data: product, error } = await productsTable.insert(payload).select('id').single();
 
     if (error) {
       if (error.code === '23505') return { success: false, message: 'El slug ya existe' };
@@ -133,14 +176,13 @@ export async function createProduct(
     }
 
     // Sync Relations
-    await syncProductRelations(product.id, formData);
+    await syncProductRelations(product.id, formData, supabase);
 
     revalidatePath('/admin/productos');
     revalidatePath('/productos');
-    revalidatePath('/');
     return { success: true, message: 'Producto creado exitosamente' };
   } catch (error: any) {
-    return { success: false, message: error.message || 'Error al crear producto' };
+    return { success: false, message: error.message || 'Ocurrió un error inesperado' };
   }
 }
 
@@ -150,37 +192,48 @@ export async function updateProduct(
   formData: FormData
 ): Promise<ActionState> {
   try {
-    assertAdminWritesEnabled();
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return { success: false, message: 'No autorizado. Inicie sesión.' };
+    }
+
+    if (process.env.ADMIN_WRITES_ENABLED !== 'true') {
+      return { success: false, message: 'Las escrituras están deshabilitadas en este entorno.' };
+    }
 
     const name = formData.get('name') as string;
     const slug = formData.get('slug') as string;
-    const description = formData.get('description') as string | null;
-    const short_description = formData.get('short_description') as string | null;
-    const category_id = formData.get('category_id') as string | null;
-    const price_amount = parseInt((formData.get('price_amount') as string) || '0', 10);
+    const description = (formData.get('description') as string) || null;
+    const short_description = (formData.get('short_description') as string) || null;
+    const category_id = formData.get('category_id') as string;
+    const price_amount = parseInt(formData.get('price_amount') as string);
     const unit = formData.get('unit') as string;
-    const min_order_quantity = parseInt((formData.get('min_order_quantity') as string) || '1', 10);
-    const is_active = formData.get('is_active') === 'on';
-    const is_featured = formData.get('is_featured') === 'on';
+    const min_order_quantity = parseInt(formData.get('min_order_quantity') as string);
+    const is_active = formData.get('is_active') === 'true';
+    const is_featured = formData.get('is_featured') === 'true';
 
     if (!name || !slug || !unit || price_amount < 0 || min_order_quantity <= 0) {
       return { success: false, message: 'Datos obligatorios faltantes o inválidos' };
     }
 
-    const { error } = await supabaseAdmin
-      .from('products')
-      .update({
-        name,
-        slug,
-        description,
-        short_description,
-        category_id: category_id || null,
-        price_amount,
-        unit,
-        min_order_quantity,
-        is_active,
-        is_featured,
-      })
+    const payload: ProductUpdate = {
+      name,
+      slug,
+      description,
+      short_description,
+      category_id: category_id || null,
+      price_amount,
+      unit,
+      min_order_quantity,
+      is_active,
+      is_featured,
+    };
+
+    const productsTable = supabase.from('products') as any;
+    const { error } = await productsTable
+      .update(payload)
       .eq('id', id);
 
     if (error) {
@@ -188,28 +241,48 @@ export async function updateProduct(
       throw error;
     }
 
-    await syncProductRelations(id, formData);
+    await syncProductRelations(id, formData, supabase);
 
     revalidatePath('/admin/productos');
     revalidatePath('/productos');
     revalidatePath(`/productos/${slug}`);
-    revalidatePath('/');
     return { success: true, message: 'Producto actualizado exitosamente' };
   } catch (error: any) {
-    return { success: false, message: error.message || 'Error al actualizar producto' };
+    return { success: false, message: error.message || 'Ocurrió un error inesperado' };
   }
 }
 
 export async function deleteProduct(id: string): Promise<ActionState> {
   try {
-    assertAdminWritesEnabled();
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return { success: false, message: 'No autorizado. Inicie sesión.' };
+    }
 
-    // The foreign keys have ON DELETE CASCADE so related tables will clean themselves up.
-    // However, if the product is linked in budgets/quotes, it might be restricted.
-    // The current quote_items does not link directly to products via foreign key (wait, let's check. 
-    // quote_items usually just store snapshot or link. Let's assume it's safe to try).
+    if (process.env.ADMIN_WRITES_ENABLED !== 'true') {
+      return { success: false, message: 'Las escrituras están deshabilitadas en este entorno.' };
+    }
 
-    const { error } = await supabaseAdmin.from('products').delete().eq('id', id);
+    // Checking if there are historical dependencies (quotes)
+    const quoteItemsTable = supabase.from('quote_items') as any;
+    const { count, error: countError } = await quoteItemsTable
+      .select('*', { count: 'exact', head: true })
+      .eq('product_id', id);
+
+    if (countError) {
+      // If table doesn't exist yet or query fails, just proceed to delete
+      console.warn('Error checking quote_items dependencies (may not exist yet):', countError);
+    } else if (count && count > 0) {
+      return { 
+        success: false, 
+        message: `No se puede eliminar físicamente este producto porque aparece en ${count} presupuesto(s) histórico(s). Se recomienda desactivarlo.`
+      };
+    }
+
+    const productsTable = supabase.from('products') as any;
+    const { error } = await productsTable.delete().eq('id', id);
 
     if (error) {
       if (error.code === '23503') { // foreign key violation
@@ -229,12 +302,21 @@ export async function deleteProduct(id: string): Promise<ActionState> {
 
 export async function duplicateProduct(id: string): Promise<ActionState> {
   try {
-    assertAdminWritesEnabled();
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return { success: false, message: 'No autorizado. Inicie sesión.' };
+    }
 
-    // 1. Fetch original product
-    const { data: original, error: origError } = await supabaseAdmin
-      .from('products')
-      .select('*, product_price_tiers(*), product_images(*), product_features(*), product_specifications(*), product_recommendations(*)')
+    if (process.env.ADMIN_WRITES_ENABLED !== 'true') {
+      return { success: false, message: 'Las escrituras están deshabilitadas en este entorno.' };
+    }
+
+    // Fetch original slug
+    const productsTable = supabase.from('products') as any;
+    const { data: original, error: origError } = await productsTable
+      .select('slug')
       .eq('id', id)
       .single();
 
@@ -242,78 +324,15 @@ export async function duplicateProduct(id: string): Promise<ActionState> {
       return { success: false, message: 'Producto original no encontrado' };
     }
 
-    // 2. Create copy
     const newSlug = `${original.slug}-copia-${Date.now().toString().slice(-4)}`;
     
-    const { data: copy, error: copyError } = await supabaseAdmin.from('products').insert({
-      name: `${original.name} (Copia)`,
-      slug: newSlug,
-      description: original.description,
-      short_description: original.short_description,
-      category_id: original.category_id,
-      price_amount: original.price_amount,
-      currency: original.currency,
-      unit: original.unit,
-      min_order_quantity: original.min_order_quantity,
-      is_active: false, // inactive by default
-      is_featured: false,
-    }).select('id').single();
+    // Call transactional RPC
+    const { error: rpcError } = await (supabase as any).rpc('duplicate_product', {
+      original_product_id: id,
+      new_slug: newSlug
+    });
 
-    if (copyError) throw copyError;
-
-    // 3. Copy relations
-    const newId = copy.id;
-
-    if (original.product_price_tiers?.length > 0) {
-      await supabaseAdmin.from('product_price_tiers').insert(
-        original.product_price_tiers.map(t => ({
-          product_id: newId,
-          min_quantity: t.min_quantity,
-          max_quantity: t.max_quantity,
-          price: t.price,
-          label: t.label,
-          is_promo: t.is_promo,
-        }))
-      );
-    }
-    if (original.product_images?.length > 0) {
-      await supabaseAdmin.from('product_images').insert(
-        original.product_images.map(img => ({
-          product_id: newId,
-          image_url: img.image_url,
-          is_main: img.is_main,
-          order_index: img.order_index,
-        }))
-      );
-    }
-    if (original.product_features?.length > 0) {
-      await supabaseAdmin.from('product_features').insert(
-        original.product_features.map(f => ({
-          product_id: newId,
-          feature_text: f.feature_text,
-          order_index: f.order_index,
-        }))
-      );
-    }
-    if (original.product_specifications?.length > 0) {
-      await supabaseAdmin.from('product_specifications').insert(
-        original.product_specifications.map(s => ({
-          product_id: newId,
-          spec_key: s.spec_key,
-          spec_value: s.spec_value,
-          order_index: s.order_index,
-        }))
-      );
-    }
-    if (original.product_recommendations?.length > 0) {
-      await supabaseAdmin.from('product_recommendations').insert(
-        original.product_recommendations.map(r => ({
-          product_id: newId,
-          recommendation_text: r.recommendation_text,
-          order_index: r.order_index,
-        }))
-      );
-    }
+    if (rpcError) throw rpcError;
 
     revalidatePath('/admin/productos');
     return { success: true, message: 'Producto duplicado exitosamente' };
@@ -324,10 +343,19 @@ export async function duplicateProduct(id: string): Promise<ActionState> {
 
 export async function toggleProductStatus(id: string, newStatus: boolean): Promise<ActionState> {
   try {
-    assertAdminWritesEnabled();
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return { success: false, message: 'No autorizado. Inicie sesión.' };
+    }
 
-    const { error } = await supabaseAdmin
-      .from('products')
+    if (process.env.ADMIN_WRITES_ENABLED !== 'true') {
+      return { success: false, message: 'Las escrituras están deshabilitadas en este entorno.' };
+    }
+
+    const productsTable = supabase.from('products') as any;
+    const { error } = await productsTable
       .update({ is_active: newStatus })
       .eq('id', id);
 

@@ -15,7 +15,7 @@ export default function ProductForm({ product = null, categories = [] }: { produ
 
   // Complex fields states
   const [images, setImages] = useState<any[]>(
-    product?.product_images || [{ image_url: '', is_main: true }]
+    product?.product_images?.map((img: any) => ({ ...img, is_main: img.order_index === 0 })) || [{ image_url: '', is_main: true }]
   );
   const [tiers, setTiers] = useState<any[]>(
     product?.product_price_tiers || []
