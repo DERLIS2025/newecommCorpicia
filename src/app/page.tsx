@@ -21,7 +21,9 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   const productsCatalog = await getProducts();
-  const { hero: heroBanners, secondary: secondaryBanners } = await getBanners();
+  const bannersResult = await getBanners();
+  const heroBanners = Array.isArray(bannersResult) ? bannersResult.filter((b: any) => b.type === 'hero') : bannersResult.hero;
+  const secondaryBanners = Array.isArray(bannersResult) ? bannersResult.filter((b: any) => b.type === 'secondary') : bannersResult.secondary;
 
   const featuredProducts = [
     productsCatalog.find((p: any) => p.slug === 'cesped-esmeralda'),
