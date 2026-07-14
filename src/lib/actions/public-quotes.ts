@@ -54,7 +54,7 @@ export async function submitQuoteRequest(
     // We clean phone string for search
     const cleanPhone = phone.trim();
     
-    const { data: existingClient, error: clientSearchError } = await supabaseAdmin
+    const { data: existingClient, error: clientSearchError } = await (supabaseAdmin as any)
       .from('clients')
       .select('id')
       .eq('phone', cleanPhone)
@@ -68,8 +68,7 @@ export async function submitQuoteRequest(
       // Create new client
       const fullNotes = [location ? `Ubicación/Ciudad: ${location}` : '', notes ? `Notas iniciales: ${notes}` : ''].filter(Boolean).join('\n');
       
-      const { data: newClient, error: clientInsertError } = await supabaseAdmin
-        .from('clients')
+      const { data: newClient, error: clientInsertError } = await (supabaseAdmin as any).from('clients')
         .insert({
           name: name.trim(),
           phone: cleanPhone,
@@ -94,7 +93,7 @@ export async function submitQuoteRequest(
     const randomCode = Math.random().toString(36).substring(2, 6).toUpperCase();
     const requestNumber = `PRE-${dateStr}-${randomCode}`;
 
-    const { data: quote, error: quoteInsertError } = await supabaseAdmin
+    const { data: quote, error: quoteInsertError } = await (supabaseAdmin as any)
       .from('quotes')
       .insert({
         request_number: requestNumber,
@@ -123,7 +122,7 @@ export async function submitQuoteRequest(
       subtotal_amount: item.total,
     }));
 
-    const { error: itemsInsertError } = await supabaseAdmin
+    const { error: itemsInsertError } = await (supabaseAdmin as any)
       .from('quote_items')
       .insert(quoteItemsInsert);
 
@@ -133,7 +132,7 @@ export async function submitQuoteRequest(
     }
 
     // 4. Create History entry
-    const { error: historyError } = await supabaseAdmin
+    const { error: historyError } = await (supabaseAdmin as any)
       .from('quote_status_history')
       .insert({
         quote_id: quote.id,
