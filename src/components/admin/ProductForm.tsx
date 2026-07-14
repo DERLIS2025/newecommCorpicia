@@ -258,12 +258,12 @@ export default function ProductForm({ product = null, categories = [] }: { produ
 
             <div className="space-y-3 pt-2">
               <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
-                <input type="checkbox" name="is_active" value="true" defaultChecked={product ? product.is_active : true} className="w-4 h-4" />
+                <input type="checkbox" name="is_active" value="true" defaultChecked={product ? product.is_active === true : true} className="w-4 h-4" />
                 Producto Activo (Visible)
               </label>
               
               <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
-                <input type="checkbox" name="is_featured" value="true" defaultChecked={product ? product.is_featured : false} className="w-4 h-4" />
+                <input type="checkbox" name="is_featured" value="true" defaultChecked={product ? product.is_featured === true : false} className="w-4 h-4" />
                 Destacado (Home)
               </label>
             </div>
