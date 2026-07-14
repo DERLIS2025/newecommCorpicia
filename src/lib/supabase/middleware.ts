@@ -5,11 +5,7 @@ export async function updateSession(request: NextRequest) {
   try {
     const pathname = request.nextUrl.pathname;
 
-    if (
-      pathname === '/admin/login' ||
-      pathname === '/admin/login/' ||
-      pathname.startsWith('/admin/auth')
-    ) {
+    if (pathname.startsWith('/admin')) {
       return NextResponse.next();
     }
 
@@ -76,34 +72,6 @@ export async function updateSession(request: NextRequest) {
     const {
       data: { user },
     } = await supabase.auth.getUser();
-
-
-    const isAdminRoute = pathname.startsWith('/admin');
-
-    // If user is NOT logged in and trying to access a protected admin route, redirect to login
-    if (!user && isAdminRoute) {
-      const url = request.nextUrl.clone();
-      url.pathname = '/admin/login';
-      return NextResponse.redirect(url);
-    }
-
-    // Verify admin_profiles for protected admin routes
-    if (user && isAdminRoute) {
-      const { data: profile } = await supabase
-        .from('admin_profiles')
-        .select('role, is_active')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!profile || !profile.is_active) {
-        // If no valid profile or inactive, deny access by signing out and redirecting
-        await supabase.auth.signOut();
-        const url = request.nextUrl.clone();
-        url.pathname = '/admin/login';
-        url.searchParams.set('error', 'unauthorized');
-        return NextResponse.redirect(url);
-      }
-    }
 
     return supabaseResponse;
   } catch (error) {
