@@ -90,6 +90,7 @@ export function BannerListClient({ banners }: { banners: any[] }) {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Banners</h1>
           <p className="text-gray-500">Administra las imágenes y llamadas a la acción de la portada.</p>
+          <p className="text-sm text-corpicia-green mt-1">💡 Podés cargar varios banners activos. En la web se mostrarán como carrusel automático según el orden.</p>
         </div>
         <Button onClick={handleNew} className="w-full sm:w-auto gap-2 bg-corpicia-green hover:bg-green-700">
           <Plus className="w-4 h-4" /> Nuevo Banner
