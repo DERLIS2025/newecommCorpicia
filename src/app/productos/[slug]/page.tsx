@@ -124,7 +124,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     name: product.name,
     description: product.shortDescription || product.description,
     image: product.images && product.images.length > 0
-      ? product.images.map(img => `${siteUrl}${img}`)
+      ? product.images.map((img: string) => `${siteUrl}${img}`)
       : [`${siteUrl}/og-image.jpg`],
     sku: product.id,
     mpn: product.id,
