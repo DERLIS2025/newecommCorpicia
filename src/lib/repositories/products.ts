@@ -94,9 +94,20 @@ export async function getProduct(slug: string) {
   }
 }
 
+function toSlug(value: string) {
+  return value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/[^\w-]+/g, '')
+    .replace(/--+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 export async function getProductsByCategory(categorySlug: string) {
   if (DATA_SOURCE === 'static') {
-    return productsCatalog.filter(p => p.categorySlug === categorySlug);
+    return productsCatalog.filter(p => toSlug(p.category || '') === categorySlug);
   }
 
   if (!supabase) return [];
@@ -129,7 +140,7 @@ export async function getProductsByCategory(categorySlug: string) {
 export async function getRelatedProducts(slug: string, categorySlug: string, limit = 4) {
   if (DATA_SOURCE === 'static') {
     return productsCatalog
-      .filter((p) => p.categorySlug === categorySlug && p.slug !== slug)
+      .filter((p) => toSlug(p.category || '') === categorySlug && p.slug !== slug)
       .slice(0, limit);
   }
 
