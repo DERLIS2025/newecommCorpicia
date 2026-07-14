@@ -42,12 +42,25 @@ export default function CalculatorSettingsForm({
               <div className="border rounded-lg overflow-hidden divide-y">
                 {productsWithTiers.map((p) => (
                   <div key={p.id} className="p-3 bg-white">
-                    <div className="font-semibold text-sm mb-2">{p.name}</div>
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <div>
+                        <div className="font-semibold text-sm">{p.name}</div>
+                        <div className="text-xs text-gray-500 font-mono">{p.slug}</div>
+                      </div>
+
+                      <a
+                        href={`/admin/productos/${p.id}/editar`}
+                        className="inline-flex items-center rounded-md border border-green-200 bg-green-50 px-3 py-1.5 text-xs font-medium text-green-700 hover:bg-green-100"
+                      >
+                        Editar escalas
+                      </a>
+                    </div>
+
                     <div className="space-y-1">
-                      {p.priceTiers?.map((tier: any, i: number) => (
+                      {p.product_price_tiers?.map((tier: any, i: number) => (
                         <div key={i} className="flex justify-between text-xs text-gray-600 bg-gray-50 p-1.5 rounded">
-                          <span>{tier.label}</span>
-                          <span className="font-mono font-medium">Gs. {tier.price.toLocaleString()}</span>
+                          <span>{tier.label || `${tier.min_quantity} a ${tier.max_quantity || '∞'}`}</span>
+                          <span className="font-mono font-medium">Gs. {Number(tier.price || 0).toLocaleString()}</span>
                         </div>
                       ))}
                     </div>
@@ -59,7 +72,7 @@ export default function CalculatorSettingsForm({
                 href="/admin/productos"
                 className="inline-flex w-full items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-xs font-medium shadow-sm hover:bg-accent hover:text-accent-foreground"
               >
-                Administrar Escalas desde Productos
+                Ver todos los productos
               </a>
             </div>
           </CardContent>

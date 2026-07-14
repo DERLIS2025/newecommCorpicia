@@ -1,6 +1,6 @@
 import { ConnectionNotice } from '@/components/admin/ConnectionNotice';
 import CalculatorSettingsForm from '@/components/admin/CalculatorSettingsForm';
-import { productsCatalog } from '@/data/productsData';
+import { getAdminProducts } from '@/lib/repositories/admin';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 
 export const dynamic = 'force-dynamic';
@@ -31,7 +31,8 @@ async function getCalculatorSettings() {
 }
 
 export default async function AdminCalculadoraPage() {
-  const productsWithTiers = productsCatalog.filter((p) => p.priceTiers && p.priceTiers.length > 0);
+  const adminProducts = await getAdminProducts();
+  const productsWithTiers = adminProducts.filter((p: any) => p.product_price_tiers && p.product_price_tiers.length > 0);
   const settings = await getCalculatorSettings();
 
   return (
