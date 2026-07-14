@@ -327,7 +327,7 @@ export async function duplicateProduct(id: string): Promise<ActionState> {
     const newSlug = `${original.slug}-copia-${Date.now().toString().slice(-4)}`;
     
     // Call transactional RPC
-    const { error: rpcError } = await supabase.rpc('duplicate_product', {
+    const { error: rpcError } = await (supabase as any).rpc('duplicate_product', {
       original_product_id: id,
       new_slug: newSlug
     });
