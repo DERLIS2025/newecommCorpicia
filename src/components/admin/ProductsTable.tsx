@@ -131,7 +131,7 @@ export default function ProductsTable({ products }: { products: any[] }) {
                 const mainImg = getAdminProductImage(product);
                 
                 return (
-                  <tr key={product.id} className={`hover:bg-gray-50/50 ${!product.is_active ? 'opacity-60' : ''}`}>
+                  <tr key={product.id} className={`hover:bg-gray-50/50 ${!product.is_active === true ? 'opacity-60' : ''}`}>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded bg-gray-100 flex-shrink-0 relative overflow-hidden">
@@ -163,10 +163,10 @@ export default function ProductsTable({ products }: { products: any[] }) {
                       <button 
                         onClick={() => handleToggleStatus(product.id, product.is_active)}
                         disabled={loading}
-                        className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium cursor-pointer transition-colors ${product.is_active ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-red-100 text-red-800 hover:bg-red-200'}`}
+                        className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium cursor-pointer transition-colors ${product.is_active === true ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-red-100 text-red-800 hover:bg-red-200'}`}
                         title="Clic para cambiar estado"
                       >
-                        {product.is_active ? 'Activo' : 'Inactivo'}
+                        {product.is_active === true ? 'Activo' : 'Inactivo'}
                       </button>
                     </td>
                     <td className="px-6 py-4">
