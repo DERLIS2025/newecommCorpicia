@@ -3,6 +3,16 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 export async function updateSession(request: NextRequest) {
   try {
+    const pathname = request.nextUrl.pathname;
+
+    if (
+      pathname === '/admin/login' ||
+      pathname === '/admin/login/' ||
+      pathname.startsWith('/admin/auth')
+    ) {
+      return NextResponse.next();
+    }
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -67,16 +77,6 @@ export async function updateSession(request: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    const pathname = request.nextUrl.pathname;
-
-    const isAdminLogin = pathname === '/admin/login' || pathname.startsWith('/admin/login/');
-    const isAdminCallback = pathname.startsWith('/admin/auth');
-    const isPublicAdminRoute = isAdminLogin || isAdminCallback;
-
-    if (isPublicAdminRoute) {
-      // Allow public access to auth-related admin routes without redirect loops
-      return supabaseResponse;
-    }
 
     const isAdminRoute = pathname.startsWith('/admin');
 
