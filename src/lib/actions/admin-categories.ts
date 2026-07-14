@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 import type { Database } from '@/types/database';
 
 export type ActionState = {
@@ -33,7 +34,7 @@ export async function createCategory(
     const description = formData.get('description') as string | null;
     const image_url = formData.get('image_url') as string | null;
     const order_index = parseInt((formData.get('order_index') as string) || '0', 10);
-    const is_active = formData.get('is_active') === 'on';
+    const is_active = formData.get('is_active') === 'true';
 
     if (!name || !slug) {
       return { success: false, message: 'El nombre y el slug son obligatorios' };
@@ -48,7 +49,7 @@ export async function createCategory(
       is_active,
     };
 
-    const categoriesTable = supabase.from('categories') as any;
+    const categoriesTable = supabaseAdmin.from('categories') as any;
     const { error } = await categoriesTable.insert(payload);
 
     if (error) {
@@ -103,7 +104,7 @@ export async function updateCategory(
       is_active,
     };
 
-    const categoriesTable = supabase.from('categories') as any;
+    const categoriesTable = supabaseAdmin.from('categories') as any;
     const { error } = await categoriesTable
       .update(payload)
       .eq('id', id);
@@ -154,7 +155,7 @@ export async function deleteCategory(id: string): Promise<ActionState> {
       };
     }
 
-    const categoriesTable = supabase.from('categories') as any;
+    const categoriesTable = supabaseAdmin.from('categories') as any;
     const { error } = await categoriesTable.delete().eq('id', id);
 
     if (error) throw error;
@@ -180,7 +181,7 @@ export async function toggleCategoryStatus(id: string, newStatus: boolean): Prom
       return { success: false, message: 'Las escrituras están deshabilitadas en este entorno.' };
     }
 
-    const categoriesTable = supabase.from('categories') as any;
+    const categoriesTable = supabaseAdmin.from('categories') as any;
     const { error } = await categoriesTable
       .update({ is_active: newStatus })
       .eq('id', id);

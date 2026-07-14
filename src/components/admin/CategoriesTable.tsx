@@ -78,6 +78,21 @@ export default function CategoriesTable({ categories }: { categories: any[] }) {
     }
   };
 
+
+  const handleToggleStatus = async (id: string, currentStatus: boolean) => {
+    setLoading(true);
+    try {
+      const res = await toggleCategoryStatus(id, !currentStatus);
+      if (!res.success) {
+        alert(`Error: ${res.message}`);
+      }
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -123,9 +138,24 @@ export default function CategoriesTable({ categories }: { categories: any[] }) {
                     {cat.slug}
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${cat.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                      {cat.is_active ? 'Activo' : 'Inactivo'}
-                    </span>
+                    <div className="flex flex-col items-start gap-2">
+                      <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${cat.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                        {cat.is_active ? 'Activo' : 'Inactivo'}
+                      </span>
+
+                      <button
+                        type="button"
+                        onClick={() => handleToggleStatus(cat.id, cat.is_active === true)}
+                        disabled={loading}
+                        className={`inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${
+                          cat.is_active
+                            ? 'border-red-200 text-red-700 bg-red-50 hover:bg-red-100'
+                            : 'border-green-200 text-green-700 bg-green-50 hover:bg-green-100'
+                        }`}
+                      >
+                        {loading ? 'Guardando...' : cat.is_active ? 'Desactivar' : 'Activar'}
+                      </button>
+                    </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-end gap-2">
@@ -197,7 +227,7 @@ export default function CategoriesTable({ categories }: { categories: any[] }) {
               </div>
 
               <div className="flex items-center gap-2 mt-4">
-                <input type="checkbox" name="is_active" id="is_active" defaultChecked={editingCategory ? editingCategory.is_active : true} />
+                <input type="checkbox" name="is_active" value="true" id="is_active" defaultChecked={editingCategory ? editingCategory.is_active === true : true} />
                 <label htmlFor="is_active" className="text-sm font-medium cursor-pointer">Categoría Activa</label>
               </div>
 
