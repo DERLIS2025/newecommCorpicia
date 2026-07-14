@@ -67,25 +67,28 @@ export async function updateSession(request: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    const isAuthRoute = request.nextUrl.pathname.startsWith('/admin/login');
-    const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
+    const pathname = request.nextUrl.pathname;
 
-    // If user is NOT logged in and trying to access an admin route (except login), redirect to login
-    if (!user && isAdminRoute && !isAuthRoute) {
+    const isAdminLogin = pathname === '/admin/login' || pathname.startsWith('/admin/login/');
+    const isAdminCallback = pathname.startsWith('/admin/auth');
+    const isPublicAdminRoute = isAdminLogin || isAdminCallback;
+
+    if (isPublicAdminRoute) {
+      // Allow public access to auth-related admin routes without redirect loops
+      return supabaseResponse;
+    }
+
+    const isAdminRoute = pathname.startsWith('/admin');
+
+    // If user is NOT logged in and trying to access a protected admin route, redirect to login
+    if (!user && isAdminRoute) {
       const url = request.nextUrl.clone();
       url.pathname = '/admin/login';
       return NextResponse.redirect(url);
     }
 
-    // If user IS logged in and trying to access login page, redirect to admin dashboard
-    if (user && isAuthRoute) {
-      const url = request.nextUrl.clone();
-      url.pathname = '/admin/productos'; // Or dashboard if implemented
-      return NextResponse.redirect(url);
-    }
-
-    // Next: verify admin_profiles
-    if (user && isAdminRoute && !isAuthRoute) {
+    // Verify admin_profiles for protected admin routes
+    if (user && isAdminRoute) {
       const { data: profile } = await supabase
         .from('admin_profiles')
         .select('role, is_active')
