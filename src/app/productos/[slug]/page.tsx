@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { notFound } from 'next/navigation';
 import Script from 'next/script';
 import ProductDetailClient from './ProductDetailClient';
-import { getProduct, getProducts } from '@/lib/repositories/products';
+import { getProduct, getProducts, getRelatedProducts } from '@/lib/repositories/products';
 
 type ProductPageProps = {
   params: {
