@@ -12,6 +12,7 @@ export default function ProductForm({ product = null, categories = [] }: { produ
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [selectedUnit, setSelectedUnit] = useState(product?.unit || 'm2');
 
   // Complex fields states
   const [images, setImages] = useState<any[]>(
@@ -314,7 +315,7 @@ export default function ProductForm({ product = null, categories = [] }: { produ
 
             <div>
               <label className="block text-sm font-medium mb-1">Unidad *</label>
-              <select name="unit" defaultValue={product?.unit || 'm2'} className="w-full flex h-10 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" required>
+              <select name="unit" defaultValue={product?.unit || 'm2'} onChange={e => setSelectedUnit(e.target.value)} className="w-full flex h-10 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" required>
                 <option value="m2">m²</option>
                 <option value="unidad">Unidad</option>
                 <option value="docena">Docena</option>
@@ -368,12 +369,15 @@ export default function ProductForm({ product = null, categories = [] }: { produ
                       <p className="text-[11px] text-gray-500 mt-1">Dejá vacío si no tiene límite máximo.</p>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Precio por unidad</label>
-                      <Input type="number" value={tier.price} onChange={e => {
+                      <label className="block text-sm font-medium mb-1">
+                        Precio por {selectedUnit === 'm2' ? 'm²' : selectedUnit}
+                      </label>
+                      <Input type="number" value={tier.price === 0 ? '' : tier.price} onChange={e => {
                         const newTiers = [...tiers];
                         newTiers[idx].price = parseInt(e.target.value || '0', 10);
                         setTiers(newTiers);
                       }} />
+                      <p className="text-[11px] text-gray-500 mt-1">Ingresá el precio que se cobrará por cada unidad de venta.</p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1">Texto visible (opcional)</label>
@@ -413,9 +417,9 @@ export default function ProductForm({ product = null, categories = [] }: { produ
                     <li key={idx} className="text-sm flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-corpicia-green/60"></span>
                       {t.max_quantity ? (
-                        <span>{t.min_quantity} a {t.max_quantity} → Gs. {(t.price || 0).toLocaleString('es-PY')}</span>
+                        <span>{t.min_quantity} a {t.max_quantity} → {t.price > 0 ? `Gs. ${t.price.toLocaleString('es-PY')}` : 'Precio pendiente'}</span>
                       ) : (
-                        <span>Desde {t.min_quantity} en adelante → Gs. {(t.price || 0).toLocaleString('es-PY')}</span>
+                        <span>Desde {t.min_quantity} en adelante → {t.price > 0 ? `Gs. ${t.price.toLocaleString('es-PY')}` : 'Precio pendiente'}</span>
                       )}
                     </li>
                   ))}
