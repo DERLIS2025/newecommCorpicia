@@ -1,12 +1,13 @@
-'use client';
-
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { useBudgetStore } from '@/store/budgetStore';
 import { formatPrice, formatUnit, generateWhatsAppMessage, getPriceForQuantity } from '@/lib/utils';
 import { trackWhatsAppClick } from '@/lib/tracking';
+import { submitQuoteRequest } from '@/lib/actions/public-quotes';
 import {
   Minus,
   Plus,
@@ -17,10 +18,14 @@ import {
   Package,
   TrendingDown,
   CheckCircle2,
+  Send
 } from 'lucide-react';
 
 export default function PresupuestoClient() {
   const { items, removeItem, updateQuantity, getTotal, clearBudget } = useBudgetStore();
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitResult, setSubmitResult] = useState<{ success: boolean; message: string } | null>(null);
 
   const handleWhatsAppClick = () => {
     trackWhatsAppClick('budget_summary', 'enviar-presupuesto');
@@ -35,6 +40,36 @@ export default function PresupuestoClient() {
 
     const url = generateWhatsAppMessage(messageItems, getTotal());
     window.open(url, '_blank');
+  };
+  
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitResult(null);
+    
+    const formData = new FormData(e.currentTarget);
+    
+    // Preparar items
+    const payloadItems = items.map(item => ({
+      productId: item.product.id,
+      productName: item.product.name,
+      quantity: item.quantity,
+      unit: item.product.unit,
+      unitPrice: item.unitPrice,
+      total: item.total
+    }));
+    
+    formData.append('items', JSON.stringify(payloadItems));
+    formData.append('totalAmount', getTotal().toString());
+    
+    const result = await submitQuoteRequest(null, formData);
+    
+    setSubmitResult(result);
+    setIsSubmitting(false);
+    
+    if (result.success) {
+      clearBudget();
+    }
   };
 
   // Mensaje dinámico según tier
@@ -72,6 +107,22 @@ export default function PresupuestoClient() {
     );
   };
 
+  // 🟡 ESTADO ÉXITO
+  if (submitResult?.success) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-center px-4 py-20">
+        <div className="max-w-md w-full bg-white rounded-xl shadow-lg border p-8">
+          <CheckCircle2 className="mx-auto mb-4 text-corpicia-green w-16 h-16" />
+          <h1 className="text-2xl font-bold mb-2">¡Solicitud enviada correctamente!</h1>
+          <p className="text-gray-600 mb-6">Hemos recibido tu solicitud de presupuesto. Nuestro equipo comercial se pondrá en contacto contigo a la brevedad por WhatsApp o email.</p>
+          <Link href="/">
+            <Button className="w-full">Volver al inicio</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   // 🟡 ESTADO VACÍO
   if (items.length === 0) {
     return (
@@ -92,17 +143,16 @@ export default function PresupuestoClient() {
   // 🟢 PRESUPUESTO CON PRODUCTOS
   return (
     <div className="container mx-auto px-4 py-10">
-      <Link href="/productos/" className="flex items-center gap-2 text-gray-500 mb-6">
+      <Link href="/productos/" className="flex items-center gap-2 text-gray-500 mb-6 w-fit hover:text-gray-900 transition-colors">
         <ArrowLeft size={16} /> Seguir comprando
       </Link>
 
       <h1 className="text-3xl font-bold mb-6">Mi Presupuesto</h1>
 
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid md:grid-cols-3 gap-8 items-start">
         {/* PRODUCTOS */}
         <div className="md:col-span-2 space-y-4">
           {items.map((item) => {
-            const isM2 = item.product.unit === 'm2';
             const hasTiers = item.product.priceTiers && item.product.priceTiers.length > 0;
             const { activeTier: currentTier } = hasTiers 
               ? getPriceForQuantity(item.product, item.quantity) 
@@ -111,29 +161,29 @@ export default function PresupuestoClient() {
             return (
               <Card key={item.product.id}>
                 <CardContent className="p-4 flex gap-4">
-                  <div className="w-32 h-32 bg-gray-100 flex-shrink-0 rounded overflow-hidden">
+                  <div className="w-24 h-24 md:w-32 md:h-32 bg-gray-100 flex-shrink-0 rounded overflow-hidden">
                     {item.product.images?.length ? (
                       <Image
-                        src={item.product.images[0]}
-                        alt={item.product.name}
-                        width={128}
-                        height={128}
-                        className="object-cover w-full h-full"
+                         src={item.product.images[0]}
+                         alt={item.product.name}
+                         width={128}
+                         height={128}
+                         className="object-cover w-full h-full"
                       />
                     ) : (
-                      <div className="flex items-center justify-center h-full">
+                      <div className="flex items-center justify-center h-full text-gray-400">
                         <Package />
                       </div>
                     )}
                   </div>
 
-                  <div className="flex-1 min-w-0">
-                    <h2 className="font-semibold">{item.product.name}</h2>
-
-                    {/* Precio unitario actual (dinámico según tier) */}
-                    <p className="text-sm text-gray-600">
-                      {formatPrice(item.unitPrice)} / {formatUnit(item.product.unit)}
-                    </p>
+                  <div className="flex-1 min-w-0 flex flex-col justify-between">
+                    <div>
+                      <h2 className="font-semibold text-lg line-clamp-2">{item.product.name}</h2>
+                      <p className="text-sm text-gray-600">
+                        {formatPrice(item.unitPrice)} / {formatUnit(item.product.unit)}
+                      </p>
+                    </div>
 
                     {/* Input de cantidad editable */}
                     <div className="flex items-center gap-2 mt-3">
@@ -144,7 +194,7 @@ export default function PresupuestoClient() {
                             Math.max(item.product.minQuantity, item.quantity - 1)
                           )
                         }
-                        className="p-1.5 hover:bg-gray-200 rounded bg-gray-100"
+                        className="p-1.5 hover:bg-gray-200 rounded bg-gray-100 transition-colors"
                       >
                         <Minus size={16} />
                       </button>
@@ -166,13 +216,13 @@ export default function PresupuestoClient() {
 
                       <button 
                         onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                        className="p-1.5 hover:bg-gray-200 rounded bg-gray-100"
+                        className="p-1.5 hover:bg-gray-200 rounded bg-gray-100 transition-colors"
                       >
                         <Plus size={16} />
                       </button>
                     </div>
 
-                    {/* TABLA DE PRECIOS POR VOLUMEN (solo para productos con tiers) */}
+                    {/* TABLA DE PRECIOS POR VOLUMEN */}
                     {hasTiers && (
                       <div className="mt-3 bg-gray-50 rounded-lg p-3">
                         <p className="text-xs font-semibold text-gray-700 mb-2">
@@ -203,71 +253,122 @@ export default function PresupuestoClient() {
                             );
                           })}
                         </div>
-                        
-                        {/* Mensaje de ahorro / siguiente tier */}
                         {getTierMessage(item)}
                       </div>
                     )}
+                  </div>
 
-                    {/* Subtotal */}
-                    <p className="mt-2 font-bold text-corpicia-green text-lg">
+                  <div className="flex flex-col justify-between items-end">
+                    <button 
+                      onClick={() => removeItem(item.product.id)}
+                      className="p-2 text-red-500 hover:bg-red-50 rounded transition-colors"
+                      title="Eliminar producto"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                    <p className="font-bold text-corpicia-green text-lg md:text-xl">
                       {formatPrice(item.total)}
                     </p>
                   </div>
-
-                  <button 
-                    onClick={() => removeItem(item.product.id)}
-                    className="p-2 text-red-500 hover:bg-red-50 rounded self-start"
-                  >
-                    <Trash2 size={18} />
-                  </button>
                 </CardContent>
               </Card>
             );
           })}
 
-          <Button variant="outline" onClick={clearBudget}>
-            Vaciar presupuesto
-          </Button>
+          <div className="flex justify-start">
+            <Button variant="ghost" className="text-gray-500 hover:text-red-600" onClick={clearBudget}>
+              Vaciar presupuesto
+            </Button>
+          </div>
         </div>
 
-        {/* RESUMEN */}
-        <div>
-          <Card className="sticky top-4">
-            <CardContent className="p-6 space-y-4">
-              <h2 className="font-bold text-lg">Resumen</h2>
+        {/* RESUMEN Y FORMULARIO */}
+        <div className="space-y-4">
+          <Card className="sticky top-4 overflow-hidden border-2 border-transparent shadow-xl">
+            <CardContent className="p-0">
+              {/* Encabezado del Resumen */}
+              <div className="bg-gray-50 p-6 border-b">
+                <h2 className="font-bold text-xl mb-4">Resumen de solicitud</h2>
+                <div className="space-y-2 text-sm mb-4">
+                  {items.map((item) => (
+                    <div key={item.product.id} className="flex justify-between text-gray-600">
+                      <span className="truncate pr-4">{item.quantity} {formatUnit(item.product.unit)} × {item.product.name}</span>
+                      <span className="flex-shrink-0">{formatPrice(item.total)}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="border-t border-gray-200 pt-3 flex justify-between font-bold text-xl text-gray-900">
+                  <span>Total Estimado</span>
+                  <span>{formatPrice(getTotal())}</span>
+                </div>
+                
+                <div className="text-xs text-gray-500 space-y-1 mt-4">
+                  <p>• Los precios no incluyen IVA.</p>
+                  <p>• Empastado: el precio no incluye preparación del terreno.</p>
+                </div>
+              </div>
 
-              {/* Lista de items en resumen */}
-              <div className="space-y-2 text-sm">
-                {items.map((item) => (
-                  <div key={item.product.id} className="flex justify-between text-gray-600">
-                    <span>{item.quantity} {formatUnit(item.product.unit)} × {item.product.name}</span>
-                    <span>{formatPrice(item.total)}</span>
+              {/* Formulario */}
+              <div className="p-6">
+                <h3 className="font-semibold text-gray-900 mb-4">Completá tus datos</h3>
+                
+                {submitResult?.success === false && (
+                  <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-md border border-red-200">
+                    {submitResult.message}
                   </div>
-                ))}
+                )}
+                
+                <form onSubmit={handleFormSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Nombre completo *</label>
+                    <Input name="name" required placeholder="Ej: Juan Pérez" />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Teléfono / WhatsApp *</label>
+                    <Input name="phone" required placeholder="Ej: 0981 123 456" />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Email <span className="text-gray-400 font-normal">(Opcional)</span></label>
+                    <Input name="email" type="email" placeholder="Ej: juan@mail.com" />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Ciudad / Zona <span className="text-gray-400 font-normal">(Opcional)</span></label>
+                    <Input name="location" placeholder="Ej: Asunción, Carmelitas" />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Mensaje adicional <span className="text-gray-400 font-normal">(Opcional)</span></label>
+                    <textarea 
+                      name="notes"
+                      className="w-full flex min-h-[80px] rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                      placeholder="Detalles sobre tu proyecto, dudas..."
+                    />
+                  </div>
+                  
+                  <Button type="submit" className="w-full bg-corpicia-green hover:bg-green-700 h-12 text-base font-semibold" disabled={isSubmitting}>
+                    {isSubmitting ? 'Enviando...' : (
+                      <>
+                        <Send className="mr-2" size={18} />
+                        Enviar solicitud de presupuesto
+                      </>
+                    )}
+                  </Button>
+                </form>
+                
+                <div className="relative flex items-center py-6">
+                  <div className="flex-grow border-t border-gray-200"></div>
+                  <span className="flex-shrink-0 mx-4 text-gray-400 text-sm">o también podés</span>
+                  <div className="flex-grow border-t border-gray-200"></div>
+                </div>
+                
+                <Button onClick={handleWhatsAppClick} variant="outline" className="w-full border-green-600 text-green-700 hover:bg-green-50 h-12" type="button">
+                  <MessageCircle className="mr-2" size={18} />
+                  Enviar directo por WhatsApp
+                </Button>
               </div>
-
-              <div className="border-t pt-3 flex justify-between font-bold text-lg">
-                <span>Total</span>
-                <span>{formatPrice(getTotal())}</span>
-              </div>
-
-              {/* NOTAS DE ACLARACIÓN */}
-              <div className="text-xs text-gray-500 space-y-1 border-t border-gray-200 pt-3">
-                <p className="flex items-start gap-1">
-                  <span>•</span>
-                  <span>Los precios no incluyen IVA</span>
-                </p>
-                <p className="flex items-start gap-1">
-                  <span>•</span>
-                  <span>Empastado e instalación de riego: el precio no incluye preparación del terreno</span>
-                </p>
-              </div>
-
-              <Button onClick={handleWhatsAppClick} className="w-full bg-green-600 hover:bg-green-700">
-                <MessageCircle className="mr-2" size={18} />
-                Enviar por WhatsApp
-              </Button>
             </CardContent>
           </Card>
         </div>
