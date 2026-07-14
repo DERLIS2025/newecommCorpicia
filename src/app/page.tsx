@@ -59,10 +59,10 @@ export default async function HomePage() {
 
   return (
     <div className="bg-white">
-      {/* ✅ BANNERS HERO - CARRUSEL PANORÁMICO */}
+      {/* ✅ BANNERS HERO - MEJORADO PARA MOBILE */}
       <section className="border-b">
         <div className="container mx-auto px-4 py-4 sm:py-6">
-          <BannerCarousel banners={heroBanners} aspect="hero" />
+          <BannerCarousel banners={heroBanners} variant="hero-grid" />
         </div>
       </section>
 
@@ -103,7 +103,7 @@ export default async function HomePage() {
         <div className="container mx-auto px-4">
           <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
             <div className="grid gap-4">
-              <BannerCarousel banners={secondaryBanners} aspect="secondary" />
+              <BannerCarousel banners={secondaryBanners} variant="single" />
 
               <div className="grid grid-cols-2 gap-4">
                 {underBannerProducts.map((p) => (
