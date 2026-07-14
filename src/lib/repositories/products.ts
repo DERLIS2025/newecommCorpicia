@@ -9,10 +9,42 @@ function logFallback(reason: string) {
   console.info(`[Repository: Products] Using static fallback. Reason: ${reason}`);
 }
 
+async function getSupabaseProductVisibilityMap(): Promise<Record<string, boolean>> {
+  if (!supabase) {
+    return {};
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select('slug, is_active');
+
+    if (error || !data) {
+      logFallback('Could not fetch product visibility map');
+      return {};
+    }
+
+    return data.reduce((map: Record<string, boolean>, product: any) => {
+      if (product.slug) {
+        map[product.slug] = product.is_active === true;
+      }
+      return map;
+    }, {});
+  } catch (err) {
+    logFallback('Unexpected exception fetching product visibility map');
+    return {};
+  }
+}
+
+function filterStaticProductsByVisibility(products: ProductDetail[], visibilityMap: Record<string, boolean>) {
+  return products.filter((product) => visibilityMap[product.slug] !== false);
+}
+
 export async function getProducts() {
   if (DATA_SOURCE === 'static') {
     logFallback('NEXT_PUBLIC_DATA_SOURCE is set to static');
-    return productsCatalog;
+    const visibilityMap = await getSupabaseProductVisibilityMap();
+    return filterStaticProductsByVisibility(productsCatalog, visibilityMap);
   }
 
   if (!supabase) {
@@ -48,6 +80,8 @@ export async function getProducts() {
 
 export async function getProduct(slug: string) {
   if (DATA_SOURCE === 'static') {
+    const visibilityMap = await getSupabaseProductVisibilityMap();
+    if (visibilityMap[slug] === false) return null;
     return productsCatalog.find(p => p.slug === slug) || null;
   }
 
@@ -107,7 +141,11 @@ function toSlug(value: string) {
 
 export async function getProductsByCategory(categorySlug: string) {
   if (DATA_SOURCE === 'static') {
-    return productsCatalog.filter(p => toSlug(p.category || '') === categorySlug);
+    const visibilityMap = await getSupabaseProductVisibilityMap();
+    return filterStaticProductsByVisibility(
+      productsCatalog.filter(p => toSlug(p.category || '') === categorySlug),
+      visibilityMap
+    );
   }
 
   if (!supabase) return [];
@@ -139,9 +177,11 @@ export async function getProductsByCategory(categorySlug: string) {
 
 export async function getRelatedProducts(slug: string, categorySlug: string, limit = 4) {
   if (DATA_SOURCE === 'static') {
-    return productsCatalog
-      .filter((p) => toSlug(p.category || '') === categorySlug && p.slug !== slug)
-      .slice(0, limit);
+    const visibilityMap = await getSupabaseProductVisibilityMap();
+    return filterStaticProductsByVisibility(
+      productsCatalog.filter((p) => toSlug(p.category || '') === categorySlug && p.slug !== slug),
+      visibilityMap
+    ).slice(0, limit);
   }
 
   if (!supabase) return [];
