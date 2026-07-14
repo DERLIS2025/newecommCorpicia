@@ -1,8 +1,10 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Leaf, Droplets, TreePine, Home, ArrowRight } from 'lucide-react';
+import { Leaf, Droplets, TreePine, Home, ArrowRight, Settings } from 'lucide-react';
 import type { Metadata } from 'next';
 import { getWhatsAppUrl } from '@/lib/utils';
+import { getServices } from '@/lib/repositories/services';
+import Image from 'next/image';
 
 export const metadata: Metadata = {
   title: 'Servicios - Corpicia | Instalación y Mantenimiento',
@@ -12,54 +14,12 @@ export const metadata: Metadata = {
   },
 };
 
-const services = [
-  {
-    icon: Leaf,
-    title: 'Instalación de Césped',
-    description: 'Instalación profesional de césped natural con preparación del terreno, nivelación y siembra o colocación de tepes.',
-    features: [
-      'Evaluación del terreno',
-      'Preparación y nivelación',
-      'Instalación de tepes o siembra',
-      'Garantía de instalación',
-    ],
-  },
-  {
-    icon: Droplets,
-    title: 'Sistemas de Riego',
-    description: 'Diseño e instalación de sistemas de riego automático para mantener tu jardín siempre hidratado.',
-    features: [
-      'Diseño personalizado',
-      'Instalación de aspersores',
-      'Programadores automáticos',
-      'Mantenimiento',
-    ],
-  },
-  {
-    icon: TreePine,
-    title: 'Paisajismo',
-    description: 'Diseño y ejecución de proyectos de jardinería y paisajismo para espacios residenciales y comerciales.',
-    features: [
-      'Diseño 3D del proyecto',
-      'Selección de plantas',
-      'Ejecución integral',
-      'Mantenimiento continuo',
-    ],
-  },
-  {
-    icon: Home,
-    title: 'Mantenimiento',
-    description: 'Servicio de mantenimiento regular para mantener tu jardín en óptimas condiciones todo el año.',
-    features: [
-      'Corte y bordes',
-      'Fertilización',
-      'Control de plagas',
-      'Poda de plantas',
-    ],
-  },
-];
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const services = await getServices();
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero */}
@@ -78,29 +38,48 @@ export default function ServicesPage() {
       {/* Services */}
       <div className="container mx-auto px-4 py-16">
         <div className="grid md:grid-cols-2 gap-8">
-          {services.map((service) => {
-            const Icon = service.icon;
+          {services.map((service: any) => {
+            // Manejar compatibilidad con fallback estático o DB
+            const Icon = service.icon || Settings;
+            const hasImage = !!service.image_url;
+
             return (
-              <Card key={service.title} className="overflow-hidden">
+              <Card key={service.title || service.id} className="overflow-hidden">
                 <CardContent className="p-0">
-                  <div className="p-6">
-                    <div className="w-14 h-14 bg-corpicia-green/10 rounded-xl flex items-center justify-center mb-4">
-                      <Icon className="w-7 h-7 text-corpicia-green" />
+                  {hasImage && (
+                    <div className="relative w-full aspect-video bg-gray-100">
+                      <Image 
+                        src={service.image_url} 
+                        alt={service.title} 
+                        fill 
+                        className="object-cover" 
+                      />
                     </div>
+                  )}
+
+                  <div className="p-6">
+                    {!hasImage && (
+                      <div className="w-14 h-14 bg-corpicia-green/10 rounded-xl flex items-center justify-center mb-4">
+                        <Icon className="w-7 h-7 text-corpicia-green" />
+                      </div>
+                    )}
                     <h3 className="text-xl font-bold text-gray-900 mb-2">
                       {service.title}
                     </h3>
                     <p className="text-gray-600 mb-4">
                       {service.description}
                     </p>
-                    <ul className="space-y-2">
-                      {service.features.map((feature) => (
-                        <li key={feature} className="flex items-center gap-2 text-sm text-gray-600">
-                          <div className="w-1.5 h-1.5 bg-corpicia-green rounded-full" />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
+                    
+                    {service.features && service.features.length > 0 && (
+                      <ul className="space-y-2 mt-4">
+                        {service.features.map((feature: string) => (
+                          <li key={feature} className="flex items-center gap-2 text-sm text-gray-600">
+                            <div className="w-1.5 h-1.5 bg-corpicia-green rounded-full" />
+                            {feature}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                   <div className="px-6 pb-6">
                     <a

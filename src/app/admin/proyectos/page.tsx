@@ -1,27 +1,15 @@
-'use client';
+import { getAdminProjects } from '@/lib/repositories/admin-projects';
+import { ProjectsTable } from '@/components/admin/ProjectsTable';
 
-import { ConnectionNotice } from '@/components/admin/ConnectionNotice';
-import { Clock } from 'lucide-react';
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-export default function AdminPlaceholderPage() {
+export default async function AdminProyectosPage() {
+  const projects = await getAdminProjects();
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Proyectos</h1>
-        <p className="text-gray-500">Gestión de portafolio y proyectos realizados.</p>
-      </div>
-
-      <ConnectionNotice />
-
-      <div className="bg-white border rounded-xl p-12 flex flex-col items-center justify-center text-center space-y-4 shadow-sm">
-        <Clock className="w-12 h-12 text-gray-300" />
-        <div>
-          <h2 className="text-lg font-semibold text-gray-900">Módulo en Desarrollo</h2>
-          <p className="text-gray-500 max-w-md mx-auto mt-1">
-            La administración de este contenido estará disponible una vez que se conecte el sistema a la base de datos.
-          </p>
-        </div>
-      </div>
+      <ProjectsTable projects={projects} />
     </div>
   );
 }
