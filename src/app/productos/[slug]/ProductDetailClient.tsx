@@ -14,12 +14,19 @@ import { formatPrice, formatUnit, getPriceForQuantity, getWhatsAppUrl } from '@/
 import { useBudgetStore } from '@/store/budgetStore';
 import type { Product } from '@/types';
 
-type Props = { 
-  product: any;
-  relatedProducts: any[];
+type ProductDetailType = Product & {
+  minOrderQuantity?: number;
+  features: string[];
+  specifications: Record<string, string>;
+  recommendations?: string[];
 };
 
-function getCalculatedQuantity(product: any, quantity: number) {
+type Props = { 
+  product: ProductDetailType;
+  relatedProducts: Product[];
+};
+
+function getCalculatedQuantity(product: ProductDetailType, quantity: number) {
   const safe = Math.max(quantity, product.minOrderQuantity || product.minQuantity || 1);
   if (product.unit === 'docena') return safe * 12;
   if (product.unit === 'visita' || product.unit === 'servicio') return 1;
