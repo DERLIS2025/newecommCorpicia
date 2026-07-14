@@ -9,7 +9,7 @@ export async function updateQuoteStatus(id: string, status: string, notes?: stri
   }
 
   try {
-    const { error: updateError } = await supabaseAdmin
+    const { error: updateError } = await (supabaseAdmin as any)
       .from('quotes')
       .update({ status, updated_at: new Date().toISOString() })
       .eq('id', id);
@@ -20,7 +20,7 @@ export async function updateQuoteStatus(id: string, status: string, notes?: stri
     }
 
     // Insert history
-    await supabaseAdmin
+    await (supabaseAdmin as any)
       .from('quote_status_history')
       .insert({
         quote_id: id,

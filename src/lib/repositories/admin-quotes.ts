@@ -3,7 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 export async function getAdminQuotes() {
   if (!supabaseAdmin) return [];
   
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await (supabaseAdmin as any)
     .from('quotes')
     .select('*, clients(*)')
     .order('created_at', { ascending: false });
@@ -18,7 +18,7 @@ export async function getAdminQuotes() {
 export async function getAdminQuote(id: string) {
   if (!supabaseAdmin) return null;
   
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await (supabaseAdmin as any)
     .from('quotes')
     .select('*, clients(*), quote_items(*)')
     .eq('id', id)

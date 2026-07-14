@@ -3,7 +3,7 @@ import { QuoteStatusUpdater } from '@/components/admin/QuoteStatusUpdater';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, User, Phone, MapPin, Mail, MessageCircle, Calendar } from 'lucide-react';
 import Link from 'next/link';
-import { formatPrice, generateWhatsAppMessage } from '@/lib/utils';
+import { formatPrice } from '@/lib/utils';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { notFound } from 'next/navigation';
@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export default async function AdminQuoteDetailPage({ params }: { params: { id: string } }) {
-  const quote = await getAdminQuote(params.id);
+  const quote = (await getAdminQuote(params.id)) as any;
 
   if (!quote) {
     notFound();

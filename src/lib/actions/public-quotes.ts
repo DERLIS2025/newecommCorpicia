@@ -7,6 +7,10 @@ export type PublicQuoteState = {
   message: string;
 };
 
+function isUuid(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
 type QuoteItemInput = {
   productId: string;
   productName: string;
@@ -54,7 +58,7 @@ export async function submitQuoteRequest(
     // We clean phone string for search
     const cleanPhone = phone.trim();
     
-    const { data: existingClient, error: clientSearchError } = await supabaseAdmin
+    const { data: existingClient, error: clientSearchError } = await (supabaseAdmin as any)
       .from('clients')
       .select('id')
       .eq('phone', cleanPhone)
@@ -68,8 +72,7 @@ export async function submitQuoteRequest(
       // Create new client
       const fullNotes = [location ? `Ubicación/Ciudad: ${location}` : '', notes ? `Notas iniciales: ${notes}` : ''].filter(Boolean).join('\n');
       
-      const { data: newClient, error: clientInsertError } = await supabaseAdmin
-        .from('clients')
+      const { data: newClient, error: clientInsertError } = await (supabaseAdmin as any).from('clients')
         .insert({
           name: name.trim(),
           phone: cleanPhone,
@@ -94,7 +97,7 @@ export async function submitQuoteRequest(
     const randomCode = Math.random().toString(36).substring(2, 6).toUpperCase();
     const requestNumber = `PRE-${dateStr}-${randomCode}`;
 
-    const { data: quote, error: quoteInsertError } = await supabaseAdmin
+    const { data: quote, error: quoteInsertError } = await (supabaseAdmin as any)
       .from('quotes')
       .insert({
         request_number: requestNumber,
@@ -115,25 +118,28 @@ export async function submitQuoteRequest(
     // 3. Create Quote Items
     const quoteItemsInsert = items.map(item => ({
       quote_id: quote.id,
-      product_id: item.productId,
+      product_id: isUuid(item.productId) ? item.productId : null,
       product_name_snapshot: item.productName,
       unit_snapshot: item.unit,
       unit_price_amount: item.unitPrice,
       quantity: item.quantity,
       subtotal_amount: item.total,
+      metadata: {
+        original_product_id: item.productId,
+      },
     }));
 
-    const { error: itemsInsertError } = await supabaseAdmin
+    const { error: itemsInsertError } = await (supabaseAdmin as any)
       .from('quote_items')
       .insert(quoteItemsInsert);
 
     if (itemsInsertError) {
       console.error('Error creating quote items:', itemsInsertError);
-      // We don't rollback manually here but it's fine for this MVP
+      return { success: false, message: 'La solicitud se creó, pero no se pudieron guardar los productos. Intentá nuevamente.' };
     }
 
     // 4. Create History entry
-    const { error: historyError } = await supabaseAdmin
+    const { error: historyError } = await (supabaseAdmin as any)
       .from('quote_status_history')
       .insert({
         quote_id: quote.id,
