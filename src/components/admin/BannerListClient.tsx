@@ -102,7 +102,7 @@ export function BannerListClient({ banners }: { banners: any[] }) {
           <div className="bg-white border rounded-xl shadow-sm p-12 text-center">
             <ImageIcon className="w-12 h-12 text-gray-300 mx-auto mb-3" />
             <h3 className="text-lg font-medium text-gray-900">No hay banners cargados todavía.</h3>
-            <p className="text-gray-500 mt-1">Hacé clic en "Nuevo Banner" para empezar a personalizar tu portada.</p>
+            <p className="text-gray-500 mt-1">Hacé clic en &quot;Nuevo Banner&quot; para empezar a personalizar tu portada.</p>
           </div>
         )}
 
