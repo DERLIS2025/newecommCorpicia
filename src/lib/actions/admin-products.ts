@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 import type { Database } from '@/types/database';
 
 export type ActionState = {
@@ -167,7 +168,7 @@ export async function createProduct(
     };
 
     // Insert Product
-    const productsTable = supabase.from('products') as any;
+    const productsTable = supabaseAdmin.from('products') as any;
     const { data: product, error } = await productsTable.insert(payload).select('id').single();
 
     if (error) {
@@ -231,7 +232,7 @@ export async function updateProduct(
       is_featured,
     };
 
-    const productsTable = supabase.from('products') as any;
+    const productsTable = supabaseAdmin.from('products') as any;
     const { error } = await productsTable
       .update(payload)
       .eq('id', id);
@@ -241,7 +242,7 @@ export async function updateProduct(
       throw error;
     }
 
-    await syncProductRelations(id, formData, supabase);
+    await syncProductRelations(id, formData, supabaseAdmin);
 
     revalidatePath('/admin/productos');
     revalidatePath('/productos');
@@ -281,7 +282,7 @@ export async function deleteProduct(id: string): Promise<ActionState> {
       };
     }
 
-    const productsTable = supabase.from('products') as any;
+    const productsTable = supabaseAdmin.from('products') as any;
     const { error } = await productsTable.delete().eq('id', id);
 
     if (error) {
@@ -314,7 +315,7 @@ export async function duplicateProduct(id: string): Promise<ActionState> {
     }
 
     // Fetch original slug
-    const productsTable = supabase.from('products') as any;
+    const productsTable = supabaseAdmin.from('products') as any;
     const { data: original, error: origError } = await productsTable
       .select('slug')
       .eq('id', id)
@@ -354,7 +355,7 @@ export async function toggleProductStatus(id: string, newStatus: boolean): Promi
       return { success: false, message: 'Las escrituras están deshabilitadas en este entorno.' };
     }
 
-    const productsTable = supabase.from('products') as any;
+    const productsTable = supabaseAdmin.from('products') as any;
     const { error } = await productsTable
       .update({ is_active: newStatus })
       .eq('id', id);
