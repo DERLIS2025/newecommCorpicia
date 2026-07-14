@@ -58,7 +58,8 @@ export async function syncProductRelations(productId: string, formData: FormData
   const images: ImageInsert[] = imagesJson ? JSON.parse(imagesJson) : [];
 
   // Tiers
-  await supabase.from('product_price_tiers').delete().eq('product_id', productId);
+  const tiersTable = supabase.from('product_price_tiers') as any;
+  await tiersTable.delete().eq('product_id', productId);
   if (tiers.length > 0) {
     const tiersPayload: TierInsert[] = tiers.map(t => ({
       product_id: productId,
@@ -66,22 +67,24 @@ export async function syncProductRelations(productId: string, formData: FormData
       price_amount: (t as any).price || t.price_amount, // fallback for legacy payload naming
       label: t.label,
     }));
-    await supabase.from('product_price_tiers').insert(tiersPayload);
+    await tiersTable.insert(tiersPayload);
   }
 
   // Features
-  await supabase.from('product_features').delete().eq('product_id', productId);
+  const featuresTable = supabase.from('product_features') as any;
+  await featuresTable.delete().eq('product_id', productId);
   if (features.length > 0) {
     const featuresPayload: FeatureInsert[] = features.map((f, i) => ({
       product_id: productId,
       feature_text: f.feature_text,
       order_index: i,
     }));
-    await supabase.from('product_features').insert(featuresPayload);
+    await featuresTable.insert(featuresPayload);
   }
 
   // Specifications
-  await supabase.from('product_specifications').delete().eq('product_id', productId);
+  const specsTable = supabase.from('product_specifications') as any;
+  await specsTable.delete().eq('product_id', productId);
   if (specs.length > 0) {
     const specsPayload: SpecInsert[] = specs.map((s, i) => ({
       product_id: productId,
@@ -89,22 +92,24 @@ export async function syncProductRelations(productId: string, formData: FormData
       spec_value: s.spec_value,
       order_index: i,
     }));
-    await supabase.from('product_specifications').insert(specsPayload);
+    await specsTable.insert(specsPayload);
   }
 
   // Recommendations
-  await supabase.from('product_recommendations').delete().eq('product_id', productId);
+  const recsTable = supabase.from('product_recommendations') as any;
+  await recsTable.delete().eq('product_id', productId);
   if (recs.length > 0) {
     const recsPayload: RecInsert[] = recs.map((r, i) => ({
       product_id: productId,
       recommendation_text: r.recommendation_text,
       order_index: i,
     }));
-    await supabase.from('product_recommendations').insert(recsPayload);
+    await recsTable.insert(recsPayload);
   }
 
   // Images
-  await supabase.from('product_images').delete().eq('product_id', productId);
+  const imagesTable = supabase.from('product_images') as any;
+  await imagesTable.delete().eq('product_id', productId);
   if (images.length > 0) {
     const imagesPayload: ImageInsert[] = images.map((img, i) => ({
       product_id: productId,
@@ -112,7 +117,7 @@ export async function syncProductRelations(productId: string, formData: FormData
       alt_text: img.alt_text || null,
       order_index: (img as any).is_main ? 0 : (i + 1),
     }));
-    await supabase.from('product_images').insert(imagesPayload);
+    await imagesTable.insert(imagesPayload);
   }
 }
 
@@ -162,7 +167,8 @@ export async function createProduct(
     };
 
     // Insert Product
-    const { data: product, error } = await supabase.from('products').insert(payload).select('id').single();
+    const productsTable = supabase.from('products') as any;
+    const { data: product, error } = await productsTable.insert(payload).select('id').single();
 
     if (error) {
       if (error.code === '23505') return { success: false, message: 'El slug ya existe' };
@@ -225,8 +231,8 @@ export async function updateProduct(
       is_featured,
     };
 
-    const { error } = await supabase
-      .from('products')
+    const productsTable = supabase.from('products') as any;
+    const { error } = await productsTable
       .update(payload)
       .eq('id', id);
 
@@ -260,8 +266,8 @@ export async function deleteProduct(id: string): Promise<ActionState> {
     }
 
     // Checking if there are historical dependencies (quotes)
-    const { count, error: countError } = await supabase
-      .from('quote_items')
+    const quoteItemsTable = supabase.from('quote_items') as any;
+    const { count, error: countError } = await quoteItemsTable
       .select('*', { count: 'exact', head: true })
       .eq('product_id', id);
 
@@ -275,7 +281,8 @@ export async function deleteProduct(id: string): Promise<ActionState> {
       };
     }
 
-    const { error } = await supabase.from('products').delete().eq('id', id);
+    const productsTable = supabase.from('products') as any;
+    const { error } = await productsTable.delete().eq('id', id);
 
     if (error) {
       if (error.code === '23503') { // foreign key violation
@@ -307,8 +314,8 @@ export async function duplicateProduct(id: string): Promise<ActionState> {
     }
 
     // Fetch original slug
-    const { data: original, error: origError } = await supabase
-      .from('products')
+    const productsTable = supabase.from('products') as any;
+    const { data: original, error: origError } = await productsTable
       .select('slug')
       .eq('id', id)
       .single();
@@ -336,10 +343,19 @@ export async function duplicateProduct(id: string): Promise<ActionState> {
 
 export async function toggleProductStatus(id: string, newStatus: boolean): Promise<ActionState> {
   try {
-    assertAdminWritesEnabled();
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return { success: false, message: 'No autorizado. Inicie sesión.' };
+    }
 
-    const { error } = await supabaseAdmin
-      .from('products')
+    if (process.env.ADMIN_WRITES_ENABLED !== 'true') {
+      return { success: false, message: 'Las escrituras están deshabilitadas en este entorno.' };
+    }
+
+    const productsTable = supabase.from('products') as any;
+    const { error } = await productsTable
       .update({ is_active: newStatus })
       .eq('id', id);
 

@@ -48,7 +48,8 @@ export async function createCategory(
       is_active,
     };
 
-    const { error } = await supabase.from('categories').insert(payload);
+    const categoriesTable = supabase.from('categories') as any;
+    const { error } = await categoriesTable.insert(payload);
 
     if (error) {
       if (error.code === '23505') { // unique violation
@@ -102,8 +103,8 @@ export async function updateCategory(
       is_active,
     };
 
-    const { error } = await supabase
-      .from('categories')
+    const categoriesTable = supabase.from('categories') as any;
+    const { error } = await categoriesTable
       .update(payload)
       .eq('id', id);
 
@@ -153,7 +154,8 @@ export async function deleteCategory(id: string): Promise<ActionState> {
       };
     }
 
-    const { error } = await supabase.from('categories').delete().eq('id', id);
+    const categoriesTable = supabase.from('categories') as any;
+    const { error } = await categoriesTable.delete().eq('id', id);
 
     if (error) throw error;
 
@@ -178,8 +180,8 @@ export async function toggleCategoryStatus(id: string, newStatus: boolean): Prom
       return { success: false, message: 'Las escrituras están deshabilitadas en este entorno.' };
     }
 
-    const { error } = await supabase
-      .from('categories')
+    const categoriesTable = supabase.from('categories') as any;
+    const { error } = await categoriesTable
       .update({ is_active: newStatus })
       .eq('id', id);
 
