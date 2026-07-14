@@ -4,6 +4,9 @@ import Script from 'next/script';
 import ProductDetailClient from './ProductDetailClient';
 import { getProduct, getProducts, getRelatedProducts } from '@/lib/repositories/products';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 type ProductPageProps = {
   params: {
     slug: string;

@@ -5,6 +5,9 @@ import { ProductCard } from '@/components/ProductCard';
 import { Leaf, Truck, Phone, Shield } from 'lucide-react';
 import { getProducts } from '@/lib/repositories/products';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: 'Corpicia | Paisajismo, Riego Automático y Venta de Césped en Paraguay',
   description:

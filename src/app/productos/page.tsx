@@ -3,6 +3,9 @@ import ProductsClient from './ProductsClient';
 import { getProducts } from '@/lib/repositories/products';
 import { getCategories } from '@/lib/repositories/categories';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: 'Productos de césped y jardinería en Paraguay | Corpicia',
   description:
