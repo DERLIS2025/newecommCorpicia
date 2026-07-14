@@ -1,4 +1,5 @@
 import { supabase } from '../supabase';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 import { productsCatalog, ProductDetail } from '@/data/productsData';
 
 // Fallback configuration
@@ -10,12 +11,8 @@ function logFallback(reason: string) {
 }
 
 async function getSupabaseProductVisibilityMap(): Promise<Record<string, boolean>> {
-  if (!supabase) {
-    return {};
-  }
-
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('products')
       .select('slug, is_active');
 
