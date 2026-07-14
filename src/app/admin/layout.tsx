@@ -26,11 +26,19 @@ export default async function AdminLayout({
     redirect('/admin/login');
   }
 
-  const { data: profile } = await supabase
+  type AdminProfile = {
+    name?: string | null;
+    role?: string | null;
+    email?: string | null;
+  };
+
+  const { data } = await supabase
     .from('admin_profiles')
     .select('name, role')
     .eq('user_id', user.id)
     .single();
+
+  const profile: AdminProfile | null = data as AdminProfile | null;
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 font-sans antialiased flex">
