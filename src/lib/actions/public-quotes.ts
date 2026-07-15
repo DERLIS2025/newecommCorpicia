@@ -37,8 +37,26 @@ export async function submitQuoteRequest(
     const notes = formData.get('notes') as string;
     const itemsJson = formData.get('items') as string;
     const totalAmount = parseInt(formData.get('totalAmount') as string);
-    const exactLocationRaw = formData.get('exactLocation') as string;
-    const exactLocation = exactLocationRaw ? exactLocationRaw.trim().slice(0, 500) : '';
+    
+    // Extracción y validación de nueva geolocalización
+    const exactLatStr = formData.get('exactLatitude') as string;
+    const exactLngStr = formData.get('exactLongitude') as string;
+    const exactAddress = String(formData.get('exactAddress') || '').trim().slice(0, 500);
+    const locationReference = String(formData.get('locationReference') || '').trim().slice(0, 500);
+    
+    let validLat: number | null = null;
+    let validLng: number | null = null;
+    let mapsUrl = '';
+    
+    if (exactLatStr && exactLngStr) {
+      const lat = Number(exactLatStr);
+      const lng = Number(exactLngStr);
+      if (Number.isFinite(lat) && Number.isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+        validLat = Number(lat.toFixed(6));
+        validLng = Number(lng.toFixed(6));
+        mapsUrl = `https://www.google.com/maps?q=${validLat},${validLng}`;
+      }
+    }
 
     if (!name || !phone) {
       return { success: false, message: 'El nombre y el teléfono son obligatorios.' };
@@ -101,10 +119,20 @@ export async function submitQuoteRequest(
     const requestNumber = `PRE-${dateStr}-${randomCode}`;
 
     let finalNotes = notes?.trim() || '';
-    if (exactLocation) {
-      finalNotes = finalNotes
-        ? `${finalNotes}\n\nUbicación exacta: ${exactLocation}`
-        : `Ubicación exacta: ${exactLocation}`;
+    
+    let locationBlock = '';
+    if (exactAddress || mapsUrl || locationReference) {
+      locationBlock = 'Ubicación del proyecto:';
+      if (exactAddress) locationBlock += `\nDirección: ${exactAddress}`;
+      if (mapsUrl) {
+        locationBlock += `\nCoordenadas: ${validLat}, ${validLng}`;
+        locationBlock += `\nGoogle Maps: ${mapsUrl}`;
+      }
+      if (locationReference) locationBlock += `\nReferencia: ${locationReference}`;
+    }
+
+    if (locationBlock) {
+      finalNotes = finalNotes ? `${finalNotes}\n\n${locationBlock}` : locationBlock;
     }
 
     const { data: quote, error: quoteInsertError } = await (supabaseAdmin as any)

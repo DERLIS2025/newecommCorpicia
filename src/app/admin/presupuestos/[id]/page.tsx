@@ -35,7 +35,7 @@ export default async function AdminQuoteDetailPage({ params }: { params: { id: s
           if (part.startsWith('https://')) {
             return (
               <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium break-all">
-                {part}
+                Abrir en Google Maps
               </a>
             );
           }
@@ -44,6 +44,20 @@ export default async function AdminQuoteDetailPage({ params }: { params: { id: s
       </>
     );
   };
+
+  // Separar el bloque de ubicación del mensaje general si existe
+  let generalNotes = quote.notes || '';
+  let locationNotes = '';
+  
+  if (generalNotes.includes('Ubicación del proyecto:')) {
+    const splitIndex = generalNotes.indexOf('Ubicación del proyecto:');
+    locationNotes = generalNotes.substring(splitIndex).trim();
+    generalNotes = generalNotes.substring(0, splitIndex).trim();
+  } else if (generalNotes.includes('Ubicación exacta:')) { // fallback format
+    const splitIndex = generalNotes.indexOf('Ubicación exacta:');
+    locationNotes = generalNotes.substring(splitIndex).trim();
+    generalNotes = generalNotes.substring(0, splitIndex).trim();
+  }
 
   return (
     <div className="space-y-6 pb-12">
@@ -94,12 +108,24 @@ export default async function AdminQuoteDetailPage({ params }: { params: { id: s
             </div>
           </div>
           
-          {quote.notes && (
+          {generalNotes && (
             <div className="bg-white border rounded-xl shadow-sm p-5">
               <h3 className="font-semibold text-gray-900 mb-2">Mensaje del cliente</h3>
               <p className="text-gray-700 whitespace-pre-wrap bg-gray-50 p-4 rounded-lg text-sm border">
-                {renderNotesWithLinks(quote.notes)}
+                {renderNotesWithLinks(generalNotes)}
               </p>
+            </div>
+          )}
+
+          {locationNotes && (
+            <div className="bg-white border rounded-xl shadow-sm p-5">
+              <h3 className="font-semibold text-gray-900 mb-2 flex items-center">
+                <MapPin className="w-4 h-4 mr-2" />
+                Ubicación del proyecto
+              </h3>
+              <div className="text-gray-700 whitespace-pre-wrap bg-blue-50/50 p-4 rounded-lg text-sm border border-blue-100">
+                {renderNotesWithLinks(locationNotes)}
+              </div>
             </div>
           )}
         </div>

@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useBudgetStore } from '@/store/budgetStore';
-import { formatPrice, formatUnit, generateWhatsAppMessage, getPriceForQuantity } from '@/lib/utils';
 import { trackWhatsAppClick, trackQuoteStarted, trackQuoteSubmitted } from '@/lib/tracking';
 import { submitQuoteRequest } from '@/lib/actions/public-quotes';
+import LocationPicker, { SelectedLocation } from '@/components/maps/LocationPicker';
 import {
   Minus,
   Plus,
@@ -28,52 +28,9 @@ import {
 export default function PresupuestoClient() {
   const { items, removeItem, updateQuantity, getTotal, clearBudget } = useBudgetStore();
   
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitResult, setSubmitResult] = useState<{ success: boolean; message: string } | null>(null);
-
   // Ubicación
-  const [exactLocation, setExactLocation] = useState('');
-  const [isLocating, setIsLocating] = useState(false);
-  const [locationError, setLocationError] = useState('');
-  const [locationSuccess, setLocationSuccess] = useState(false);
-
-  const handleGetLocation = () => {
-    setLocationError('');
-    if (typeof navigator === 'undefined' || !navigator.geolocation) {
-      setLocationError('Tu navegador no pudo detectar la ubicación. Podés ingresarla manualmente.');
-      return;
-    }
-
-    if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
-      setLocationError('Este navegador no permite detectar la ubicación automáticamente en entornos no seguros.');
-      return;
-    }
-
-    setIsLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const lat = position.coords.latitude.toFixed(6);
-        const lng = position.coords.longitude.toFixed(6);
-        const mapUrl = `https://www.google.com/maps?q=${lat},${lng}`;
-        setExactLocation(mapUrl);
-        setLocationSuccess(true);
-        setIsLocating(false);
-      },
-      (error) => {
-        setIsLocating(false);
-        if (error.code === error.PERMISSION_DENIED) {
-          setLocationError('No pudimos acceder a tu ubicación. Podés pegar un enlace de Google Maps o escribir una referencia.');
-        } else {
-          setLocationError('Tu navegador no pudo detectar la ubicación. Podés ingresarla manualmente.');
-        }
-      },
-      {
-        enableHighAccuracy: false,
-        timeout: 10000,
-        maximumAge: 300000
-      }
-    );
-  };
+  const [selectedLocation, setSelectedLocation] = useState<SelectedLocation | null>(null);
+  const [locationReference, setLocationReference] = useState('');
 
   const handleWhatsAppClick = () => {
     trackWhatsAppClick('budget_summary', 'enviar-presupuesto');
@@ -397,50 +354,33 @@ export default function PresupuestoClient() {
                     <Input name="location" placeholder="Ej: Asunción, Carmelitas" />
                   </div>
 
-                  {/* Ubicación exacta */}
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 space-y-3">
-                    <label className="block text-sm font-semibold mb-1">Ubicación exacta <span className="text-gray-400 font-normal text-xs">(Opcional)</span></label>
+                  {/* Ubicación exacta interactiva */}
+                  <div className="pt-2">
+                    <LocationPicker 
+                      onLocationChange={setSelectedLocation}
+                      disabled={isSubmitting}
+                    />
                     
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      onClick={handleGetLocation} 
-                      disabled={isLocating}
-                      className="w-full bg-white border-gray-300 hover:bg-gray-100 text-gray-700 h-11"
-                    >
-                      {isLocating ? (
-                        'Detectando ubicación...'
-                      ) : locationSuccess ? (
-                        <span className="text-green-600 flex items-center"><CheckCircle2 className="mr-2" size={16} /> Ubicación capturada</span>
-                      ) : (
-                        <span className="flex items-center"><MapPin className="mr-2 text-blue-500" size={16} /> Usar mi ubicación actual</span>
-                      )}
-                    </Button>
-
-                    {locationError && (
-                      <p className="text-xs text-red-500 mt-1">{locationError}</p>
+                    {/* Campos hidden para enviar en el form */}
+                    {selectedLocation && (
+                      <>
+                        <input type="hidden" name="exactLatitude" value={selectedLocation.latitude} />
+                        <input type="hidden" name="exactLongitude" value={selectedLocation.longitude} />
+                        <input type="hidden" name="exactAddress" value={selectedLocation.formattedAddress} />
+                        <input type="hidden" name="exactLocationUrl" value={selectedLocation.googleMapsUrl} />
+                      </>
                     )}
-
-                    <div className="pt-2">
-                      <label className="block text-xs text-gray-500 mb-1">O podés pegar un enlace manual (Maps) o referencia:</label>
+                    
+                    <div className="mt-3 space-y-1">
+                      <label className="block text-xs font-medium text-gray-700">Referencia adicional (Opcional)</label>
                       <Input 
-                        name="exactLocation" 
-                        value={exactLocation} 
-                        onChange={(e) => {
-                          setExactLocation(e.target.value);
-                          if (locationSuccess && !e.target.value.includes('google.com/maps')) {
-                            setLocationSuccess(false);
-                          }
-                        }}
-                        placeholder="Ej: https://maps.app.goo.gl/..." 
-                        className="bg-white"
+                        name="locationReference"
+                        placeholder="Ej: Portón negro, frente a la plaza, etc."
+                        value={locationReference}
+                        onChange={(e) => setLocationReference(e.target.value)}
+                        disabled={isSubmitting}
                       />
                     </div>
-                    {exactLocation.includes('google.com/maps') && (
-                      <a href={exactLocation} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-xs text-blue-600 hover:underline mt-1">
-                        <Map size={12} className="mr-1" /> Ver ubicación en Google Maps
-                      </a>
-                    )}
                   </div>
                   
                   <div>
