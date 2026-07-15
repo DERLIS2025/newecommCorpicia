@@ -46,11 +46,11 @@ export default function LoginPage() {
   }, [state, router]);
 
   return (
-    <div className="relative min-h-[100dvh] flex items-center justify-center w-full overflow-hidden bg-[#0f1f12]">
+    <div className="relative min-h-[100dvh] flex items-center justify-center w-full overflow-hidden bg-black">
       {/* FONDO DE IMAGEN */}
       <div className="absolute inset-0 w-full h-full">
         <Image
-          src="/images/admin/login-garden-bg.webp"
+          src="/images/admin/login-garden-bg.jpg"
           alt="Fondo de Jardín"
           fill
           priority
@@ -61,15 +61,15 @@ export default function LoginPage() {
       </div>
 
       {/* TARJETA DE LOGIN */}
-      <div className="relative z-10 w-[calc(100%-32px)] max-w-[420px] bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-500">
+      <div className="relative z-10 w-[calc(100%-32px)] max-w-[440px] bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-500 mb-8">
         
         {/* Contenido Superior */}
         <div className="px-8 pt-10 pb-6 flex flex-col items-center border-b border-gray-100/50 bg-white/50">
           <Image 
             src="/logo-corpicia.png" 
             alt="Corpicia" 
-            width={180} 
-            height={90}
+            width={140} 
+            height={70}
             priority
             className="mb-6 object-contain drop-shadow-sm"
           />
@@ -150,6 +150,13 @@ export default function LoginPage() {
             </Link>
           </div>
         </div>
+      </div>
+
+      {/* FOOTER */}
+      <div className="absolute bottom-6 w-full text-center z-10 px-4">
+        <p className="text-white/80 text-[13px] font-medium drop-shadow-sm">
+          © 2026 Corpicia. Todos los derechos reservados.
+        </p>
       </div>
     </div>
   );
