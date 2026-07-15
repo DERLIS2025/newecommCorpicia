@@ -46,19 +46,17 @@ export default function LoginPage() {
   }, [state, router]);
 
   return (
-    <div className="relative min-h-[100dvh] flex items-center justify-center w-full overflow-hidden bg-black">
-      {/* FONDO DE IMAGEN */}
-      <div className="absolute inset-0 w-full h-full">
-        <Image
-          src="/images/admin/login-garden-bg.jpg"
-          alt="Fondo de Jardín"
-          fill
-          priority
-          className="object-cover"
-        />
-        {/* Capa de oscurecimiento */}
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
-      </div>
+    <div 
+      className="relative min-h-[100dvh] flex items-center justify-center w-full overflow-hidden bg-black"
+      style={{
+        backgroundImage: "url('/images/admin/login-garden-bg.jpg')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
+      {/* Capa de oscurecimiento */}
+      <div className="absolute inset-0 bg-black/40" />
 
       {/* TARJETA DE LOGIN */}
       <div className="relative z-10 w-[calc(100%-32px)] max-w-[440px] bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-500 mb-8">
