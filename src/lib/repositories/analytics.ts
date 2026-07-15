@@ -3,21 +3,21 @@ import { supabaseAdmin } from '../supabase/admin';
 export async function getDashboardSummary() {
   try {
     // 1. Get Leads from clients
-    const { count: leadsCount } = await supabaseAdmin
+    const { count: leadsCount } = await (supabaseAdmin as any)
       .from('clients')
       .select('*', { count: 'exact', head: true });
 
     // 2. Get Quotes summary
-    const { count: quotesCount } = await supabaseAdmin
+    const { count: quotesCount } = await (supabaseAdmin as any)
       .from('quotes')
       .select('*', { count: 'exact', head: true });
 
-    const { count: pendingQuotes } = await supabaseAdmin
+    const { count: pendingQuotes } = await (supabaseAdmin as any)
       .from('quotes')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'Nuevo');
 
-    const { count: approvedQuotes } = await supabaseAdmin
+    const { count: approvedQuotes } = await (supabaseAdmin as any)
       .from('quotes')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'Aprobado');
