@@ -208,18 +208,18 @@ export function trackProductView(productName: string, productSlug: string) {
     page_path: window.location.pathname,
     entity_type: 'product',
     entity_id: String(productSlug),
-    metadata: { productName },
+    metadata: { product_name: productName, product_slug: productSlug },
   });
 }
 
-export function trackAddToBudget(productName: string, quantity: number) {
+export function trackAddToBudget(productName: string, productSlug: string, quantity: number) {
   if (typeof window === 'undefined') return;
   trackEvent({
     event_name: 'quote_item_added',
     page_path: window.location.pathname,
     entity_type: 'product',
-    entity_id: String(productName), // Note: original code passes name here in some places, so we use it as ID for now or just metadata
-    metadata: { productName, quantity },
+    entity_id: String(productSlug),
+    metadata: { product_name: productName, product_slug: productSlug, quantity },
   });
 }
 

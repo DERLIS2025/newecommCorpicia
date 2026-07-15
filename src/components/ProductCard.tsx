@@ -20,7 +20,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
   const handleAddToBudget = () => {
     addItem(product, product.minQuantity);
-    trackAddToBudget(product.name, product.minQuantity);
+    trackAddToBudget(product.name, product.slug, product.minQuantity);
   };
 
   return (

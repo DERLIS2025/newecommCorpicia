@@ -64,7 +64,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Props)
 
   const handleAdd = () => {
     addItem(product, getCalculatedQuantity(product, quantity));
-    trackAddToBudget(product.name, quantity);
+    trackAddToBudget(product.name, product.slug, quantity);
   };
 
   return (

@@ -84,7 +84,7 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
     let topDevice = 'Sin datos';
 
     // Mapas para agrupaciones
-    const productsMap = new Map<string, { views: number; uniqueVisitors: Set<string>; adds: number; whatsapp: number }>();
+    const productsMap = new Map<string, { name: string; views: number; uniqueVisitors: Set<string>; adds: number; whatsapp: number }>();
     const pagesMap = new Map<string, { views: number; visitors: Set<string>; engagement: number }>();
     const sourcesMap = new Map<string, number>();
     const citiesMap = new Map<string, number>();
@@ -148,8 +148,9 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
           }
           // Si fue desde un producto, asociar
           if (ev.button_location === 'pdp' && ev.entity_id) {
-            const pid = ev.entity_id;
-            if (!productsMap.has(pid)) productsMap.set(pid, { views: 0, uniqueVisitors: new Set(), adds: 0, whatsapp: 0 });
+            const pid = ev.metadata?.product_slug || ev.entity_id;
+            const pName = ev.metadata?.product_name || ev.metadata?.productName || pid.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
+            if (!productsMap.has(pid)) productsMap.set(pid, { name: pName, views: 0, uniqueVisitors: new Set(), adds: 0, whatsapp: 0 });
             productsMap.get(pid)!.whatsapp++;
           }
           break;
@@ -162,17 +163,21 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
         case 'product_view':
           totalProductViews++;
           if (ev.entity_id) {
-            if (!productsMap.has(ev.entity_id)) productsMap.set(ev.entity_id, { views: 0, uniqueVisitors: new Set(), adds: 0, whatsapp: 0 });
-            const p = productsMap.get(ev.entity_id)!;
+            const pid = ev.metadata?.product_slug || ev.entity_id;
+            const pName = ev.metadata?.product_name || ev.metadata?.productName || pid.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
+            if (!productsMap.has(pid)) productsMap.set(pid, { name: pName, views: 0, uniqueVisitors: new Set(), adds: 0, whatsapp: 0 });
+            const p = productsMap.get(pid)!;
             p.views++;
             if (ev.visitor_id) p.uniqueVisitors.add(ev.visitor_id);
           }
           break;
         case 'quote_item_added':
           totalQuoteItemAdded++;
-          if (ev.entity_id) { // entity_id here is usually product slug or name depending on the tracker
-            if (!productsMap.has(ev.entity_id)) productsMap.set(ev.entity_id, { views: 0, uniqueVisitors: new Set(), adds: 0, whatsapp: 0 });
-            productsMap.get(ev.entity_id)!.adds++;
+          if (ev.entity_id) { 
+            const pid = ev.metadata?.product_slug || ev.entity_id;
+            const pName = ev.metadata?.product_name || ev.metadata?.productName || pid.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
+            if (!productsMap.has(pid)) productsMap.set(pid, { name: pName, views: 0, uniqueVisitors: new Set(), adds: 0, whatsapp: 0 });
+            productsMap.get(pid)!.adds++;
           }
           break;
       }
@@ -198,7 +203,7 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
     // Formatear Top Products
     const topProducts = Array.from(productsMap.entries())
       .map(([id, data]) => ({
-        id,
+        id: data.name, // Usamos el nombre legible
         views: data.views,
         uniqueVisitors: data.uniqueVisitors.size,
         adds: data.adds,
@@ -208,10 +213,23 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
       .sort((a, b) => b.views - a.views)
       .slice(0, 10);
 
+    // Helper para formatear rutas
+    const getPageLabel = (path: string) => {
+      if (path === '/') return 'Inicio';
+      if (path === '/productos') return 'Productos';
+      if (path.startsWith('/productos/')) {
+        const slug = path.replace('/productos/', '').replace(/\/$/, '');
+        return `Producto: ${slug.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}`;
+      }
+      if (path === '/servicios') return 'Servicios';
+      if (path === '/presupuesto') return 'Presupuesto';
+      return path;
+    };
+
     // Formatear Top Pages
     const topPages = Array.from(pagesMap.entries())
       .map(([path, data]) => ({
-        path,
+        path: getPageLabel(path),
         views: data.views,
         visitors: data.visitors.size,
         avgEngagement: data.views > 0 ? Math.round(data.engagement / data.views) : 0,
