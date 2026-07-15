@@ -1,6 +1,8 @@
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { AdminHeader } from '@/components/admin/AdminHeader';
 import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
+import { verifyUnlockCookie } from '@/lib/admin-device-cookie';
 
 type AdminProfile = {
   name?: string | null;
@@ -24,11 +26,18 @@ export default async function AdminLayout({
   if (user) {
     const { data } = await supabase
       .from('admin_profiles')
-      .select('name, role, email')
+      .select('name, role, email, is_active')
       .eq('user_id', user.id)
       .maybeSingle();
 
     profile = data as AdminProfile | null;
+  }
+
+  // Verificar estado de desbloqueo y permisos
+  const isUnlocked = user ? verifyUnlockCookie(user.id) : false;
+  
+  if (!user || !profile || profile.role !== 'admin' || !profile.is_active || !isUnlocked) {
+    redirect('/admin/login');
   }
 
   const userName = profile?.name || user?.email || 'Admin';
