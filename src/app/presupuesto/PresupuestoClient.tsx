@@ -26,9 +26,7 @@ import {
   Package,
   TrendingDown,
   CheckCircle2,
-  Send,
-  MapPin,
-  Map
+  Send
 } from 'lucide-react';
 
 export default function PresupuestoClient() {
@@ -100,9 +98,9 @@ export default function PresupuestoClient() {
     
     if (!nextTier) {
       return (
-        <div className="flex items-center gap-1 text-green-600 text-xs font-medium mt-1">
-          <CheckCircle2 size={12} />
-          ¡Tenés el mejor precio disponible!
+        <div className="flex items-center gap-1 text-green-600 text-[11px] sm:text-xs font-medium mt-1.5">
+          <CheckCircle2 size={12} className="flex-shrink-0" />
+          <span>¡Tenés el mejor precio disponible!</span>
         </div>
       );
     }
@@ -113,13 +111,13 @@ export default function PresupuestoClient() {
     const savings = currentTotal - nextTotal;
     
     return (
-      <div className="flex items-start gap-1 text-amber-600 text-xs mt-1">
-        <TrendingDown size={12} className="mt-0.5 flex-shrink-0" />
-        <span>
-          Si comprás <strong>{missing} m²</strong> más, pasás a{' '}
-          <strong>Gs. {nextTier.price.toLocaleString()}/m²</strong>
+      <div className="flex items-start gap-1 text-amber-600 text-[11px] sm:text-xs mt-1.5">
+        <TrendingDown size={12} className="mt-[2px] flex-shrink-0" />
+        <span className="leading-tight">
+          Agregá <strong>{missing} {formatUnit(item.product.unit)}</strong> más para bajar a{' '}
+          <strong>Gs. {nextTier.price.toLocaleString()}</strong>
           {savings > 0 && (
-            <> y <strong>ahorrás Gs. {savings.toLocaleString()}</strong></>
+            <> y <strong>ahorrar Gs. {savings.toLocaleString()}</strong></>
           )}
         </span>
       </div>
@@ -129,13 +127,17 @@ export default function PresupuestoClient() {
   // 🟡 ESTADO ÉXITO
   if (submitResult?.success) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-center px-4 py-20">
-        <div className="max-w-md w-full bg-white rounded-xl shadow-lg border p-8">
-          <CheckCircle2 className="mx-auto mb-4 text-corpicia-green w-16 h-16" />
-          <h1 className="text-2xl font-bold mb-2">¡Solicitud enviada correctamente!</h1>
-          <p className="text-gray-600 mb-6">Hemos recibido tu solicitud de presupuesto. Nuestro equipo comercial se pondrá en contacto contigo a la brevedad por WhatsApp o email.</p>
+      <div className="min-h-[70vh] flex items-center justify-center text-center px-4 py-12">
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-100 p-8 sm:p-10">
+          <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle2 className="text-corpicia-green w-10 h-10" />
+          </div>
+          <h1 className="text-2xl font-bold mb-3 text-gray-900">¡Solicitud enviada!</h1>
+          <p className="text-gray-600 mb-8 leading-relaxed">
+            Hemos recibido tu presupuesto correctamente. Nuestro equipo comercial lo revisará y se pondrá en contacto contigo a la brevedad.
+          </p>
           <Link href="/">
-            <Button className="w-full">Volver al inicio</Button>
+            <Button className="w-full h-12 text-base font-medium rounded-xl">Volver al inicio</Button>
           </Link>
         </div>
       </div>
@@ -145,14 +147,15 @@ export default function PresupuestoClient() {
   // 🟡 ESTADO VACÍO
   if (items.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-center">
-        <div>
-          <ShoppingCart className="mx-auto mb-4 text-gray-400" size={40} />
-          <h1 className="text-xl font-bold">Tu presupuesto está vacío</h1>
-          <p className="text-gray-500">Agregá productos para comenzar</p>
-
+      <div className="min-h-[70vh] flex items-center justify-center text-center px-4 py-12">
+        <div className="max-w-md w-full flex flex-col items-center">
+          <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-6">
+            <ShoppingCart className="text-gray-300" size={48} />
+          </div>
+          <h1 className="text-2xl font-bold mb-3 text-gray-900">Tu presupuesto está vacío</h1>
+          <p className="text-gray-500 mb-8">No has agregado ningún producto para cotizar. Explora nuestro catálogo y selecciona lo que necesites.</p>
           <Link href="/productos/">
-            <Button className="mt-4">Ver Productos</Button>
+            <Button className="h-12 px-8 text-base font-medium rounded-xl bg-[#1F4E79] hover:bg-[#163A5A]">Ver Productos</Button>
           </Link>
         </div>
       </div>
@@ -161,212 +164,217 @@ export default function PresupuestoClient() {
 
   // 🟢 PRESUPUESTO CON PRODUCTOS
   return (
-    <div className="container mx-auto px-4 py-10">
-      <Link href="/productos/" className="flex items-center gap-2 text-gray-500 mb-6 w-fit hover:text-gray-900 transition-colors">
-        <ArrowLeft size={16} /> Seguir comprando
+    <div className="container max-w-6xl mx-auto px-4 py-8 sm:py-12">
+      <Link href="/productos/" className="inline-flex items-center gap-2 text-sm text-gray-500 mb-6 hover:text-gray-900 font-medium transition-colors">
+        <ArrowLeft size={16} /> Volver al catálogo
       </Link>
 
-      <h1 className="text-3xl font-bold mb-6">Mi Presupuesto</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-900 tracking-tight">Solicitar Presupuesto</h1>
 
-      <div className="grid md:grid-cols-3 gap-8 items-start">
-        {/* PRODUCTOS */}
-        <div className="md:col-span-2 space-y-4">
-          {items.map((item) => {
-            const hasTiers = item.product.priceTiers && item.product.priceTiers.length > 0;
-            const { activeTier: currentTier } = hasTiers 
-              ? getPriceForQuantity(item.product, item.quantity) 
-              : { activeTier: null };
+      <div className="grid lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+        {/* COLUMNA IZQUIERDA: PRODUCTOS (7 columnas) */}
+        <div className="lg:col-span-7 flex flex-col gap-4">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="p-4 sm:p-5 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+              <h2 className="font-semibold text-gray-800 flex items-center gap-2">
+                <ShoppingCart className="w-5 h-5 text-gray-500" />
+                Productos agregados ({items.length})
+              </h2>
+              <button 
+                onClick={clearBudget}
+                className="text-sm font-medium text-red-600 hover:text-red-700 hover:underline transition-all"
+              >
+                Vaciar todo
+              </button>
+            </div>
+            
+            <div className="divide-y divide-gray-100">
+              {items.map((item) => {
+                const hasTiers = item.product.priceTiers && item.product.priceTiers.length > 0;
+                const { activeTier: currentTier } = hasTiers 
+                  ? getPriceForQuantity(item.product, item.quantity) 
+                  : { activeTier: null };
 
-            return (
-              <Card key={item.product.id}>
-                <CardContent className="p-4 flex flex-col sm:flex-row gap-4">
-                  <div className="w-full sm:w-24 sm:h-24 md:w-32 md:h-32 bg-gray-100 flex-shrink-0 rounded overflow-hidden aspect-video sm:aspect-square">
-                    {item.product.images?.length ? (
-                      <Image
-                         src={item.product.images[0]}
-                         alt={item.product.name}
-                         width={128}
-                         height={128}
-                         className="object-cover w-full h-full"
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-full text-gray-400">
-                        <Package />
+                return (
+                  <div key={item.product.id} className="p-4 sm:p-5 hover:bg-gray-50/50 transition-colors">
+                    <div className="flex flex-col sm:flex-row gap-4 sm:gap-5">
+                      
+                      {/* Imagen - Horizontal y compacta */}
+                      <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-100 flex-shrink-0 rounded-xl overflow-hidden border border-gray-200">
+                        {item.product.images?.length ? (
+                          <Image
+                             src={item.product.images[0]}
+                             alt={item.product.name}
+                             width={96}
+                             height={96}
+                             className="object-cover w-full h-full"
+                          />
+                        ) : (
+                          <div className="flex items-center justify-center h-full text-gray-300">
+                            <Package size={28} />
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
 
-                  <div className="flex-1 min-w-0 flex flex-col justify-between">
-                    <div>
-                      <h2 className="font-semibold text-lg leading-tight mb-1" style={{ wordBreak: 'break-word' }}>
-                        {item.product.name}
-                      </h2>
-                      <p className="text-sm text-gray-600 block">
-                        {formatPrice(item.unitPrice)} / {formatUnit(item.product.unit)}
-                      </p>
-                    </div>
-
-                    {/* Input de cantidad editable */}
-                    <div className="flex items-center gap-2 mt-3">
-                      <button
-                        onClick={() => {
-                          updateQuantity(
-                            item.product.id,
-                            Math.max(item.product.minQuantity, item.quantity - 1)
-                          );
-                          trackQuoteStarted();
-                        }}
-                        className="p-1.5 hover:bg-gray-200 rounded bg-gray-100 transition-colors"
-                      >
-                        <Minus size={16} />
-                      </button>
-
-                      <input
-                        type="number"
-                        min={item.product.minQuantity}
-                        value={item.quantity}
-                        onChange={(e) => {
-                          const val = parseInt(e.target.value) || item.product.minQuantity;
-                          updateQuantity(item.product.id, Math.max(item.product.minQuantity, val));
-                          trackQuoteStarted();
-                        }}
-                        className="w-16 text-center text-sm font-medium border rounded py-1 px-1"
-                      />
-
-                      <span className="text-sm text-gray-500">
-                        {formatUnit(item.product.unit)}
-                      </span>
-
-                      <button 
-                        onClick={() => {
-                          updateQuantity(item.product.id, item.quantity + 1);
-                          trackQuoteStarted();
-                        }}
-                        className="p-1.5 hover:bg-gray-200 rounded bg-gray-100 transition-colors"
-                      >
-                        <Plus size={16} />
-                      </button>
-                    </div>
-
-                    {/* TABLA DE PRECIOS POR VOLUMEN */}
-                    {hasTiers && (
-                      <div className="mt-3 bg-gray-50 rounded-lg p-3">
-                        <p className="text-xs font-semibold text-gray-700 mb-2">
-                          📊 Precios por volumen
-                        </p>
-                        <div className="space-y-1">
-                          {item.product.priceTiers!.map((tier) => {
-                            const isActive = currentTier?.min === tier.min;
-                            return (
-                              <div
-                                key={tier.min}
-                                className={`flex justify-between text-xs px-2 py-1 rounded ${
-                                  isActive
-                                    ? 'bg-green-100 text-green-800 font-medium'
-                                    : 'text-gray-500'
-                                }`}
-                              >
-                                <span>
-                                  {tier.max === null
-                                    ? `${tier.min}+ m²`
-                                    : `${tier.min}-${tier.max} m²`}
-                                </span>
-                                <span>
-                                  {isActive && '← ACTUAL '}
-                                  Gs. {tier.price.toLocaleString()}/m²
-                                </span>
-                              </div>
-                            );
-                          })}
+                      {/* Detalles principales */}
+                      <div className="flex-1 min-w-0 flex flex-col justify-between">
+                        <div className="pr-8 sm:pr-0 relative">
+                          <h3 className="font-bold text-gray-900 leading-tight mb-1" style={{ wordBreak: 'break-word' }}>
+                            {item.product.name}
+                          </h3>
+                          <p className="text-sm text-gray-500 font-medium">
+                            {formatPrice(item.unitPrice)} / {formatUnit(item.product.unit)}
+                          </p>
+                          
+                          {/* Trash button absolute on mobile, inline on desktop */}
+                          <button 
+                            onClick={() => removeItem(item.product.id)}
+                            className="absolute top-0 right-0 sm:hidden p-2 -mt-2 -mr-2 text-gray-400 hover:text-red-500 rounded-lg"
+                            title="Eliminar"
+                          >
+                            <Trash2 size={18} />
+                          </button>
                         </div>
-                        {getTierMessage(item)}
+
+                        {/* Controles y Total (Fila inferior) */}
+                        <div className="flex flex-col sm:flex-row sm:items-end justify-between mt-4 sm:mt-auto gap-4 sm:gap-2">
+                          
+                          {/* Controles de Cantidad */}
+                          <div className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-lg p-1 w-fit shadow-sm">
+                            <button
+                              onClick={() => {
+                                updateQuantity(item.product.id, Math.max(item.product.minQuantity, item.quantity - 1));
+                                trackQuoteStarted();
+                              }}
+                              className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+                            >
+                              <Minus size={16} strokeWidth={2.5} />
+                            </button>
+
+                            <input
+                              type="number"
+                              min={item.product.minQuantity}
+                              value={item.quantity}
+                              onChange={(e) => {
+                                const val = parseInt(e.target.value) || item.product.minQuantity;
+                                updateQuantity(item.product.id, Math.max(item.product.minQuantity, val));
+                                trackQuoteStarted();
+                              }}
+                              className="w-12 text-center text-sm font-semibold bg-transparent focus:outline-none"
+                            />
+
+                            <button 
+                              onClick={() => {
+                                updateQuantity(item.product.id, item.quantity + 1);
+                                trackQuoteStarted();
+                              }}
+                              className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+                            >
+                              <Plus size={16} strokeWidth={2.5} />
+                            </button>
+                          </div>
+
+                          {/* Subtotal y Eliminar (Desktop) */}
+                          <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto">
+                            <div className="text-left sm:text-right">
+                              <span className="text-[11px] text-gray-400 font-medium block sm:hidden uppercase tracking-wider mb-0.5">Subtotal</span>
+                              <p className="font-bold text-gray-900 text-lg">
+                                {formatPrice(item.total)}
+                              </p>
+                            </div>
+                            <button 
+                              onClick={() => removeItem(item.product.id)}
+                              className="hidden sm:flex p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                              title="Eliminar"
+                            >
+                              <Trash2 size={20} />
+                            </button>
+                          </div>
+
+                        </div>
+                        
+                        {/* Mensaje de Volumen (Si aplica) */}
+                        {hasTiers && (
+                          <div className="mt-3 pt-3 border-t border-gray-100 border-dashed">
+                            {getTierMessage(item)}
+                          </div>
+                        )}
+                        
                       </div>
-                    )}
+                    </div>
                   </div>
-
-                  <div className="flex flex-col sm:flex-row items-end sm:items-center justify-between mt-4 w-full pt-3 border-t border-gray-100 sm:border-none sm:pt-0 sm:mt-0 sm:w-auto">
-                    <p className="font-bold text-corpicia-green text-lg md:text-xl w-full sm:w-auto text-left sm:text-right mb-2 sm:mb-0">
-                      {formatPrice(item.total)}
-                    </p>
-                    <button 
-                      onClick={() => removeItem(item.product.id)}
-                      className="p-2 text-red-500 hover:bg-red-50 rounded transition-colors self-end sm:ml-4"
-                      title="Eliminar producto"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-
-          <div className="flex justify-start">
-            <Button variant="ghost" className="text-gray-500 hover:text-red-600" onClick={clearBudget}>
-              Vaciar presupuesto
-            </Button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
-        {/* RESUMEN Y FORMULARIO */}
-        <div className="space-y-4">
-          <Card className="sticky top-4 overflow-hidden border-2 border-transparent shadow-xl">
-            <CardContent className="p-0">
-              {/* Encabezado del Resumen */}
-              <div className="bg-gray-50 p-6 border-b">
-                <h2 className="font-bold text-xl mb-4">Resumen de solicitud</h2>
-                <div className="space-y-2 text-sm mb-4">
-                  {items.map((item) => (
-                    <div key={item.product.id} className="flex justify-between text-gray-600">
-                      <span className="truncate pr-4">{item.quantity} {formatUnit(item.product.unit)} × {item.product.name}</span>
-                      <span className="flex-shrink-0">{formatPrice(item.total)}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="border-t border-gray-200 pt-3 flex justify-between font-bold text-xl text-gray-900">
-                  <span>Total Estimado</span>
-                  <span>{formatPrice(getTotal())}</span>
-                </div>
-                
-                <div className="text-xs text-gray-500 space-y-1 mt-4">
+        {/* COLUMNA DERECHA: RESUMEN Y FORMULARIO (5 columnas) */}
+        <div className="lg:col-span-5 flex flex-col gap-6">
+          <div className="bg-white rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 overflow-hidden lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto custom-scrollbar">
+            
+            {/* Cabecera Resumen Total */}
+            <div className="bg-gray-900 p-6 sm:p-8 text-white relative overflow-hidden">
+              <div className="relative z-10">
+                <p className="text-gray-300 text-sm font-medium mb-1">Total Estimado</p>
+                <p className="text-3xl sm:text-4xl font-bold tracking-tight">{formatPrice(getTotal())}</p>
+                <div className="text-xs text-gray-400 mt-3 flex flex-col gap-1">
                   <p>• Los precios no incluyen IVA.</p>
-                  <p>• Empastado: el precio no incluye preparación del terreno.</p>
+                  <p>• Empastado: no incluye preparación del terreno.</p>
                 </div>
               </div>
+              <div className="absolute -right-10 -top-10 opacity-10">
+                <ShoppingCart size={140} strokeWidth={1} />
+              </div>
+            </div>
 
-              {/* Formulario */}
-              <div className="p-6">
-                <h3 className="font-semibold text-gray-900 mb-4">Completá tus datos</h3>
+            {/* Formulario */}
+            <div className="p-6 sm:p-8">
+              <h3 className="font-bold text-gray-900 text-lg mb-6 tracking-tight">Completá tus datos</h3>
+              
+              {submitResult?.success === false && (
+                <div className="mb-6 p-4 bg-red-50 text-red-700 text-sm rounded-xl border border-red-200 font-medium">
+                  {submitResult.message}
+                </div>
+              )}
+              
+              <form onSubmit={handleFormSubmit} onChangeCapture={trackQuoteStarted} className="space-y-8">
                 
-                {submitResult?.success === false && (
-                  <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-md border border-red-200">
-                    {submitResult.message}
+                {/* SECCIÓN A: CONTACTO */}
+                <div className="space-y-4">
+                  <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                    <span className="w-5 h-[1px] bg-gray-300"></span> Datos de contacto
+                  </h4>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">Nombre completo *</label>
+                      <Input name="name" required placeholder="Ej: Juan Pérez" className="h-12 rounded-xl bg-gray-50 border-gray-200 focus:bg-white" onFocus={trackQuoteStarted} />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">Teléfono / WhatsApp *</label>
+                      <Input name="phone" required placeholder="Ej: 0981 123 456" className="h-12 rounded-xl bg-gray-50 border-gray-200 focus:bg-white" />
+                    </div>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email <span className="font-normal text-gray-400">(Opcional)</span></label>
+                        <Input name="email" type="email" placeholder="Ej: juan@mail.com" className="h-12 rounded-xl bg-gray-50 border-gray-200 focus:bg-white" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Ciudad <span className="font-normal text-gray-400">(Opcional)</span></label>
+                        <Input name="location" placeholder="Ej: Asunción" className="h-12 rounded-xl bg-gray-50 border-gray-200 focus:bg-white" />
+                      </div>
+                    </div>
                   </div>
-                )}
-                
-                <form onSubmit={handleFormSubmit} onChangeCapture={trackQuoteStarted} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Nombre completo *</label>
-                    <Input name="name" required placeholder="Ej: Juan Pérez" onFocus={trackQuoteStarted} />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Teléfono / WhatsApp *</label>
-                    <Input name="phone" required placeholder="Ej: 0981 123 456" />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Email <span className="text-gray-400 font-normal">(Opcional)</span></label>
-                    <Input name="email" type="email" placeholder="Ej: juan@mail.com" />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Ciudad / Zona <span className="text-gray-400 font-normal">(Opcional)</span></label>
-                    <Input name="location" placeholder="Ej: Asunción, Carmelitas" />
-                  </div>
+                </div>
 
-                  {/* Ubicación exacta interactiva */}
-                  <div className="pt-2">
+                {/* SECCIÓN B: UBICACIÓN EXACTA */}
+                <div className="space-y-4 pt-2">
+                  <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                    <span className="w-5 h-[1px] bg-gray-300"></span> Envío (Opcional)
+                  </h4>
+                  <div className="space-y-4">
                     <LocationPicker 
                       onLocationChange={setSelectedLocation}
                       disabled={isSubmitting}
@@ -382,52 +390,76 @@ export default function PresupuestoClient() {
                       </>
                     )}
                     
-                    <div className="mt-3 space-y-1">
-                      <label className="block text-xs font-medium text-gray-700">Referencia adicional (Opcional)</label>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">Referencia adicional <span className="font-normal text-gray-400">(Opcional)</span></label>
                       <Input 
                         name="locationReference"
-                        placeholder="Ej: Portón negro, frente a la plaza, etc."
+                        placeholder="Ej: Portón negro, frente a la plaza"
                         value={locationReference}
                         onChange={(e) => setLocationReference(e.target.value)}
                         disabled={isSubmitting}
+                        className="h-12 rounded-xl bg-gray-50 border-gray-200 focus:bg-white"
                       />
                     </div>
                   </div>
-                  
+                </div>
+                
+                {/* SECCIÓN C: COMENTARIOS */}
+                <div className="space-y-4 pt-2">
+                  <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                    <span className="w-5 h-[1px] bg-gray-300"></span> Comentarios
+                  </h4>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Mensaje adicional <span className="text-gray-400 font-normal">(Opcional)</span></label>
                     <textarea 
                       name="notes"
-                      className="w-full flex min-h-[80px] rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                      placeholder="Detalles sobre tu proyecto, dudas..."
+                      className="w-full flex min-h-[100px] rounded-xl border border-gray-200 bg-gray-50 focus:bg-white px-4 py-3 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1F4E79]/20 focus:border-[#1F4E79] transition-all resize-y"
+                      placeholder="Detalles sobre tu proyecto, dudas, requerimientos especiales..."
                     />
                   </div>
-                  
-                  <Button type="submit" className="w-full bg-[#1F4E79] hover:bg-[#163A5A] text-white h-12 text-base font-semibold transition-colors" disabled={isSubmitting}>
-                    {isSubmitting ? 'Enviando...' : (
+                </div>
+                
+                {/* BOTONES */}
+                <div className="pt-4 space-y-4">
+                  <Button type="submit" className="w-full bg-[#1F4E79] hover:bg-[#163A5A] text-white h-14 rounded-xl text-base font-bold shadow-md shadow-[#1F4E79]/20 transition-all hover:shadow-lg hover:-translate-y-0.5" disabled={isSubmitting}>
+                    {isSubmitting ? 'Procesando...' : (
                       <>
-                        <Send className="mr-2" size={18} />
+                        <Send className="mr-2" size={20} />
                         Enviar solicitud de presupuesto
                       </>
                     )}
                   </Button>
-                </form>
-                
-                <div className="relative flex items-center py-6">
-                  <div className="flex-grow border-t border-gray-200"></div>
-                  <span className="flex-shrink-0 mx-4 text-gray-400 text-sm">o también podés</span>
-                  <div className="flex-grow border-t border-gray-200"></div>
+                  
+                  <div className="relative flex items-center py-2">
+                    <div className="flex-grow border-t border-gray-200"></div>
+                    <span className="flex-shrink-0 mx-4 text-gray-400 text-xs font-medium uppercase tracking-wider">o si preferís</span>
+                    <div className="flex-grow border-t border-gray-200"></div>
+                  </div>
+                  
+                  <Button onClick={handleWhatsAppClick} variant="outline" className="w-full border-2 border-green-600 text-green-700 hover:bg-green-50 h-14 rounded-xl text-base font-bold transition-colors" type="button">
+                    <MessageCircle className="mr-2" size={20} />
+                    Consultar por WhatsApp
+                  </Button>
                 </div>
-                
-                <Button onClick={handleWhatsAppClick} variant="outline" className="w-full border-green-600 text-green-700 hover:bg-green-50 h-12" type="button">
-                  <MessageCircle className="mr-2" size={18} />
-                  Enviar directo por WhatsApp
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+
+              </form>
+            </div>
+          </div>
         </div>
       </div>
+
+      <style jsx global>{`
+        /* Scrollbar personalizado para el contenedor sticky del formulario */
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background-color: #cbd5e1;
+          border-radius: 20px;
+        }
+      `}</style>
     </div>
   );
 }
