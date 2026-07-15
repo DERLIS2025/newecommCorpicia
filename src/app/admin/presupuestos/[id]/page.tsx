@@ -26,7 +26,7 @@ export default async function AdminQuoteDetailPage({ params }: { params: { id: s
 
   const renderNotesWithLinks = (text: string) => {
     if (!text) return null;
-    const parts = text.split(/(https:\/\/(?:www\.)?google\.com\/maps[^\s]+|https:\/\/maps\.app\.goo\.gl\/[^\s]+)/g);
+    const parts = text.split(/(https:\/\/(?:www\.)?google\.com\/maps[^\s]+|https:\/\/maps\.app\.goo\.gl\/[^\s]+|https:\/\/(?:www\.)?openstreetmap\.org\/[^\s]+)/g);
     
     return (
       <>
@@ -35,7 +35,7 @@ export default async function AdminQuoteDetailPage({ params }: { params: { id: s
           if (part.startsWith('https://')) {
             return (
               <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium break-all">
-                Abrir en Google Maps
+                Abrir ubicación en el mapa
               </a>
             );
           }

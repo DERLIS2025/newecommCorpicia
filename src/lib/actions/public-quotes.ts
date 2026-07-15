@@ -54,7 +54,7 @@ export async function submitQuoteRequest(
       if (Number.isFinite(lat) && Number.isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
         validLat = Number(lat.toFixed(6));
         validLng = Number(lng.toFixed(6));
-        mapsUrl = `https://www.google.com/maps?q=${validLat},${validLng}`;
+        mapsUrl = `https://www.openstreetmap.org/?mlat=${validLat}&mlon=${validLng}#map=18/${validLat}/${validLng}`;
       }
     }
 
@@ -126,7 +126,7 @@ export async function submitQuoteRequest(
       if (exactAddress) locationBlock += `\nDirección: ${exactAddress}`;
       if (mapsUrl) {
         locationBlock += `\nCoordenadas: ${validLat}, ${validLng}`;
-        locationBlock += `\nGoogle Maps: ${mapsUrl}`;
+        locationBlock += `\nMapa: ${mapsUrl}`;
       }
       if (locationReference) locationBlock += `\nReferencia: ${locationReference}`;
     }

@@ -378,7 +378,7 @@ export default function PresupuestoClient() {
                         <input type="hidden" name="exactLatitude" value={selectedLocation.latitude} />
                         <input type="hidden" name="exactLongitude" value={selectedLocation.longitude} />
                         <input type="hidden" name="exactAddress" value={selectedLocation.formattedAddress} />
-                        <input type="hidden" name="exactLocationUrl" value={selectedLocation.googleMapsUrl} />
+                        <input type="hidden" name="exactMapUrl" value={selectedLocation.mapUrl} />
                       </>
                     )}
                     
