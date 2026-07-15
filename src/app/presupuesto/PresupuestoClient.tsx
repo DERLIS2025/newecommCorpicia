@@ -314,7 +314,7 @@ export default function PresupuestoClient() {
           <div className="bg-white rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 overflow-hidden">
             
             {/* Cabecera Resumen Total */}
-            <div className="bg-gray-900 p-6 sm:p-8 text-white relative overflow-hidden">
+            <div className="bg-gray-900 p-5 sm:p-6 text-white relative overflow-hidden">
               <div className="relative z-10">
                 <p className="text-gray-300 text-sm font-medium mb-1">Total Estimado</p>
                 <p className="text-3xl sm:text-4xl font-bold tracking-tight">{formatPrice(getTotal())}</p>
@@ -329,52 +329,52 @@ export default function PresupuestoClient() {
             </div>
 
             {/* Formulario */}
-            <div className="p-6 sm:p-8">
-              <h3 className="font-bold text-gray-900 text-lg mb-6 tracking-tight">Completá tus datos</h3>
+            <div className="p-5 sm:p-6">
+              <h3 className="font-bold text-gray-900 text-base mb-4 tracking-tight">Completá tus datos</h3>
               
               {submitResult?.success === false && (
-                <div className="mb-6 p-4 bg-red-50 text-red-700 text-sm rounded-xl border border-red-200 font-medium">
+                <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-xl border border-red-200 font-medium">
                   {submitResult.message}
                 </div>
               )}
               
-              <form onSubmit={handleFormSubmit} onChangeCapture={trackQuoteStarted} className="space-y-8">
+              <form onSubmit={handleFormSubmit} onChangeCapture={trackQuoteStarted} className="space-y-5">
                 
                 {/* SECCIÓN A: CONTACTO */}
-                <div className="space-y-4">
-                  <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                    <span className="w-5 h-[1px] bg-gray-300"></span> Datos de contacto
+                <div className="space-y-3">
+                  <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                    <span className="w-4 h-[1px] bg-gray-300"></span> Datos de contacto
                   </h4>
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">Nombre completo *</label>
-                      <Input name="name" required placeholder="Ej: Juan Pérez" className="h-12 rounded-xl bg-gray-50 border-gray-200 focus:bg-white" onFocus={trackQuoteStarted} />
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">Nombre completo *</label>
+                      <Input name="name" required placeholder="Ej: Juan Pérez" className="h-10 sm:h-11 rounded-xl bg-gray-50 border-gray-200 focus:bg-white" onFocus={trackQuoteStarted} />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">Teléfono / WhatsApp *</label>
-                      <Input name="phone" required placeholder="Ej: 0981 123 456" className="h-12 rounded-xl bg-gray-50 border-gray-200 focus:bg-white" />
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">Teléfono / WhatsApp *</label>
+                      <Input name="phone" required placeholder="Ej: 0981 123 456" className="h-10 sm:h-11 rounded-xl bg-gray-50 border-gray-200 focus:bg-white" />
                     </div>
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email <span className="font-normal text-gray-400">(Opcional)</span></label>
-                        <Input name="email" type="email" placeholder="Ej: juan@mail.com" className="h-12 rounded-xl bg-gray-50 border-gray-200 focus:bg-white" />
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">Email <span className="font-normal text-gray-400">(Opcional)</span></label>
+                        <Input name="email" type="email" placeholder="Ej: juan@mail.com" className="h-10 sm:h-11 rounded-xl bg-gray-50 border-gray-200 focus:bg-white" />
                       </div>
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Ciudad <span className="font-normal text-gray-400">(Opcional)</span></label>
-                        <Input name="location" placeholder="Ej: Asunción" className="h-12 rounded-xl bg-gray-50 border-gray-200 focus:bg-white" />
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">Ciudad <span className="font-normal text-gray-400">(Opcional)</span></label>
+                        <Input name="location" placeholder="Ej: Asunción" className="h-10 sm:h-11 rounded-xl bg-gray-50 border-gray-200 focus:bg-white" />
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* SECCIÓN B: UBICACIÓN EXACTA */}
-                <div className="space-y-4 pt-2">
-                  <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                    <span className="w-5 h-[1px] bg-gray-300"></span> Envío (Opcional)
+                {/* SECCIÓN B: UBICACIÓN EXACTA Y COMENTARIOS */}
+                <div className="space-y-3 pt-1">
+                  <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                    <span className="w-4 h-[1px] bg-gray-300"></span> Envío y detalles
                   </h4>
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     <LocationPicker 
                       onLocationChange={setSelectedLocation}
                       disabled={isSubmitting}
@@ -390,53 +390,43 @@ export default function PresupuestoClient() {
                       </>
                     )}
                     
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">Referencia adicional <span className="font-normal text-gray-400">(Opcional)</span></label>
-                      <Input 
-                        name="locationReference"
-                        placeholder="Ej: Portón negro, frente a la plaza"
-                        value={locationReference}
-                        onChange={(e) => setLocationReference(e.target.value)}
-                        disabled={isSubmitting}
-                        className="h-12 rounded-xl bg-gray-50 border-gray-200 focus:bg-white"
-                      />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">Referencia <span className="font-normal text-gray-400">(Opcional)</span></label>
+                        <Input 
+                          name="locationReference"
+                          placeholder="Ej: Portón negro, etc."
+                          value={locationReference}
+                          onChange={(e) => setLocationReference(e.target.value)}
+                          disabled={isSubmitting}
+                          className="h-10 sm:h-11 rounded-xl bg-gray-50 border-gray-200 focus:bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">Comentarios <span className="font-normal text-gray-400">(Opcional)</span></label>
+                        <Input 
+                          name="notes"
+                          placeholder="Dudas o requerimientos..."
+                          className="h-10 sm:h-11 rounded-xl bg-gray-50 border-gray-200 focus:bg-white"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
                 
-                {/* SECCIÓN C: COMENTARIOS */}
-                <div className="space-y-4 pt-2">
-                  <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                    <span className="w-5 h-[1px] bg-gray-300"></span> Comentarios
-                  </h4>
-                  <div>
-                    <textarea 
-                      name="notes"
-                      className="w-full flex min-h-[100px] rounded-xl border border-gray-200 bg-gray-50 focus:bg-white px-4 py-3 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1F4E79]/20 focus:border-[#1F4E79] transition-all resize-y"
-                      placeholder="Detalles sobre tu proyecto, dudas, requerimientos especiales..."
-                    />
-                  </div>
-                </div>
-                
                 {/* BOTONES */}
-                <div className="pt-4 space-y-4">
-                  <Button type="submit" className="w-full bg-[#1F4E79] hover:bg-[#163A5A] text-white h-14 rounded-xl text-base font-bold shadow-md shadow-[#1F4E79]/20 transition-all hover:shadow-lg hover:-translate-y-0.5" disabled={isSubmitting}>
+                <div className="pt-2 space-y-3">
+                  <Button type="submit" className="w-full bg-[#1F4E79] hover:bg-[#163A5A] text-white h-12 rounded-xl text-base font-bold shadow-md shadow-[#1F4E79]/20 transition-all hover:shadow-lg hover:-translate-y-0.5" disabled={isSubmitting}>
                     {isSubmitting ? 'Procesando...' : (
                       <>
-                        <Send className="mr-2" size={20} />
+                        <Send className="mr-2" size={18} />
                         Enviar solicitud de presupuesto
                       </>
                     )}
                   </Button>
                   
-                  <div className="relative flex items-center py-2">
-                    <div className="flex-grow border-t border-gray-200"></div>
-                    <span className="flex-shrink-0 mx-4 text-gray-400 text-xs font-medium uppercase tracking-wider">o si preferís</span>
-                    <div className="flex-grow border-t border-gray-200"></div>
-                  </div>
-                  
-                  <Button onClick={handleWhatsAppClick} variant="outline" className="w-full border-2 border-green-600 text-green-700 hover:bg-green-50 h-14 rounded-xl text-base font-bold transition-colors" type="button">
-                    <MessageCircle className="mr-2" size={20} />
+                  <Button onClick={handleWhatsAppClick} variant="outline" className="w-full border-2 border-green-600 text-green-700 hover:bg-green-50 h-12 rounded-xl text-base font-bold transition-colors" type="button">
+                    <MessageCircle className="mr-2" size={18} />
                     Consultar por WhatsApp
                   </Button>
                 </div>

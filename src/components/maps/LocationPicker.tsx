@@ -230,7 +230,7 @@ export default function LocationPicker({
       )}
 
       {/* Contenedor del Mapa */}
-      <div className="relative w-full h-[280px] sm:h-[360px] bg-gray-200 rounded-lg overflow-hidden border border-gray-200">
+      <div className="relative w-full h-[280px] sm:h-[220px] bg-gray-200 rounded-lg overflow-hidden border border-gray-200">
         <LeafletMap 
           center={center}
           markerPosition={markerPosition}
