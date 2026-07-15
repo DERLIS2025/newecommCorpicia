@@ -6,13 +6,39 @@ import { getWhatsAppUrl } from '@/lib/utils';
 import { getServices } from '@/lib/repositories/services';
 import Image from 'next/image';
 
-export const metadata: Metadata = {
-  title: 'Servicios - Corpicia | Instalación y Mantenimiento',
-  description: 'Servicios profesionales de instalación de césped, mantenimiento de jardines, paisajismo y sistemas de riego en Paraguay.',
-  alternates: {
-    canonical: '/servicios/',
-  },
-};
+import { getSeoEntry } from '@/lib/repositories/seo';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getSeoEntry('/servicios');
+
+  const defaultMeta = {
+    title: 'Servicios - Corpicia | Instalación y Mantenimiento',
+    description: 'Servicios profesionales de instalación de césped, mantenimiento de jardines, paisajismo y sistemas de riego en Paraguay.',
+    alternates: { canonical: '/servicios/' },
+  };
+
+  if (!seo) return defaultMeta;
+
+  const seoTitle = seo.title || defaultMeta.title;
+  const seoDescription = seo.description || defaultMeta.description;
+
+  return {
+    title: seoTitle,
+    description: seoDescription,
+    keywords: seo.keywords ? seo.keywords.split(',').map((k: string) => k.trim()) : undefined,
+    alternates: defaultMeta.alternates,
+    openGraph: {
+      title: seoTitle,
+      description: seoDescription,
+      images: seo.og_image ? [{ url: seo.og_image }] : undefined,
+    },
+    twitter: {
+      title: seoTitle,
+      description: seoDescription,
+      images: seo.og_image ? [seo.og_image] : undefined,
+    }
+  };
+}
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;

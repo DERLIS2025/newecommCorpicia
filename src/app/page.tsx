@@ -10,14 +10,39 @@ import { getProducts } from '@/lib/repositories/products';
 import { getBanners } from '@/lib/repositories/banners';
 import { BannerCarousel } from '@/components/home/BannerCarousel';
 
-export const metadata: Metadata = {
-  title: 'Corpicia | Paisajismo, Riego Automático y Venta de Césped en Paraguay',
-  description:
-    'Líderes en jardinería, paisajismo y sistemas de riego en Asunción y gran Asunción. Venta de césped natural, insumos para jardines y asesoramiento profesional.',
-  alternates: {
-    canonical: '/',
-  },
-};
+import { getSeoEntry } from '@/lib/repositories/seo';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getSeoEntry('/');
+
+  const defaultMeta = {
+    title: 'Corpicia | Paisajismo, Riego Automático y Venta de Césped en Paraguay',
+    description: 'Líderes en jardinería, paisajismo y sistemas de riego en Asunción y gran Asunción. Venta de césped natural, insumos para jardines y asesoramiento profesional.',
+    alternates: { canonical: '/' },
+  };
+
+  if (!seo) return defaultMeta;
+
+  const seoTitle = seo.title || defaultMeta.title;
+  const seoDescription = seo.description || defaultMeta.description;
+
+  return {
+    title: seoTitle,
+    description: seoDescription,
+    keywords: seo.keywords ? seo.keywords.split(',').map((k: string) => k.trim()) : undefined,
+    alternates: defaultMeta.alternates,
+    openGraph: {
+      title: seoTitle,
+      description: seoDescription,
+      images: seo.og_image ? [{ url: seo.og_image }] : undefined,
+    },
+    twitter: {
+      title: seoTitle,
+      description: seoDescription,
+      images: seo.og_image ? [seo.og_image] : undefined,
+    }
+  };
+}
 
 export default async function HomePage() {
   const productsCatalog = await getProducts();

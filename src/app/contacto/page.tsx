@@ -5,13 +5,39 @@ import { Phone, Mail, MapPin, Clock } from 'lucide-react';
 import type { Metadata } from 'next';
 import { getWhatsAppUrl } from '@/lib/utils';
 
-export const metadata: Metadata = {
-  title: 'Contacto - Corpicia | Césped Natural en Paraguay',
-  description: 'Contactanos para solicitar tu presupuesto. Atendemos Asunción y todo Paraguay. WhatsApp: +595 992 588 770',
-  alternates: {
-    canonical: '/contacto/',
-  },
-};
+import { getSeoEntry } from '@/lib/repositories/seo';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getSeoEntry('/contacto');
+
+  const defaultMeta = {
+    title: 'Contacto - Corpicia | Césped Natural en Paraguay',
+    description: 'Contactanos para solicitar tu presupuesto. Atendemos Asunción y todo Paraguay. WhatsApp: +595 992 588 770',
+    alternates: { canonical: '/contacto/' },
+  };
+
+  if (!seo) return defaultMeta;
+
+  const seoTitle = seo.title || defaultMeta.title;
+  const seoDescription = seo.description || defaultMeta.description;
+
+  return {
+    title: seoTitle,
+    description: seoDescription,
+    keywords: seo.keywords ? seo.keywords.split(',').map((k: string) => k.trim()) : undefined,
+    alternates: defaultMeta.alternates,
+    openGraph: {
+      title: seoTitle,
+      description: seoDescription,
+      images: seo.og_image ? [{ url: seo.og_image }] : undefined,
+    },
+    twitter: {
+      title: seoTitle,
+      description: seoDescription,
+      images: seo.og_image ? [seo.og_image] : undefined,
+    }
+  };
+}
 
 const contactInfo = [
   {

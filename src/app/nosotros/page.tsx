@@ -17,19 +17,39 @@ import { getWhatsAppUrl } from '@/lib/utils';
 import fs from 'fs';
 import path from 'path';
 
-export const metadata: Metadata = {
-  title: 'Nosotros - Corpicia | Césped Natural en Paraguay',
-  description:
-    'Conocé a Corpicia, especialistas en césped natural, riego y jardinería en Paraguay. Más de 10 años transformando espacios verdes con instalación profesional.',
-  alternates: {
-    canonical: '/nosotros/',
-  },
-  openGraph: {
+import { getSeoEntry } from '@/lib/repositories/seo';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getSeoEntry('/nosotros');
+
+  const defaultMeta = {
     title: 'Nosotros - Corpicia | Césped Natural en Paraguay',
-    description: 'Más de 10 años transformando espacios verdes en Paraguay.',
-    type: 'website',
-  },
-};
+    description: 'Conocé a Corpicia, especialistas en césped natural, riego y jardinería en Paraguay. Más de 10 años transformando espacios verdes con instalación profesional.',
+    alternates: { canonical: '/nosotros/' },
+  };
+
+  if (!seo) return defaultMeta;
+
+  const seoTitle = seo.title || defaultMeta.title;
+  const seoDescription = seo.description || defaultMeta.description;
+
+  return {
+    title: seoTitle,
+    description: seoDescription,
+    keywords: seo.keywords ? seo.keywords.split(',').map((k: string) => k.trim()) : undefined,
+    alternates: defaultMeta.alternates,
+    openGraph: {
+      title: seoTitle,
+      description: seoDescription,
+      images: seo.og_image ? [{ url: seo.og_image }] : undefined,
+    },
+    twitter: {
+      title: seoTitle,
+      description: seoDescription,
+      images: seo.og_image ? [seo.og_image] : undefined,
+    }
+  };
+}
 
 function OrganizationSchema() {
   const schema = {
