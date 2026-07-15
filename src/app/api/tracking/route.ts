@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 4. Insert into database using admin client to bypass RLS
-    const { error } = await supabaseAdmin.from('analytics_events').insert({
+    const { error } = await (supabaseAdmin as any).from('analytics_events').insert({
       visitor_id: truncate(visitor_id, 100),
       session_id: truncate(session_id, 100),
       event_name,

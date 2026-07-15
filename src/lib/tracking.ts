@@ -150,3 +150,35 @@ export function trackEvent(payload: TrackEventPayload) {
   eventQueue.push(payload);
   processQueue();
 }
+
+export function trackWhatsAppClick(source: string, identifier: string) {
+  if (typeof window === 'undefined') return;
+  trackEvent({
+    event_name: 'whatsapp_click',
+    page_path: window.location.pathname,
+    metadata: { source, identifier },
+  });
+}
+
+export function trackProductView(productName: string, productSlug: string) {
+  if (typeof window === 'undefined') return;
+  trackEvent({
+    event_name: 'product_view',
+    page_path: window.location.pathname,
+    entity_type: 'product',
+    entity_id: String(productSlug),
+    metadata: { productName },
+  });
+}
+
+export function trackAddToBudget(productName: string, quantity: number) {
+  if (typeof window === 'undefined') return;
+  trackEvent({
+    event_name: 'quote_item_added',
+    page_path: window.location.pathname,
+    entity_type: 'product',
+    entity_id: String(productName), // Note: original code passes name here in some places, so we use it as ID for now or just metadata
+    metadata: { productName, quantity },
+  });
+}
+

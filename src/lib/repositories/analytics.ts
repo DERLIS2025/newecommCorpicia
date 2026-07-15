@@ -24,7 +24,7 @@ export async function getDashboardSummary() {
 
     // 3. Get basic events data
     // Usually we would filter by date, but for V1 we just show totals or 'Sin datos suficientes'
-    const { data: eventsData, error: eventsError } = await supabaseAdmin
+    const { data: eventsData, error: eventsError } = await (supabaseAdmin as any)
       .from('analytics_events')
       .select('event_name, device_type, utm_source');
 
