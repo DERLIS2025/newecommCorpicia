@@ -25,12 +25,18 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
       .from('analytics_events')
       .select('visitor_id, session_id, event_name, page_path, entity_id, device_type, utm_source, utm_medium, referrer, engagement_seconds, button_location, country, city, metadata')
       .gte('created_at', startDateIso)
+      .not('page_path', 'ilike', '/admin%')
+      .not('page_path', 'ilike', '/api%')
+      .not('page_path', 'ilike', '/_next%')
       .limit(50000);
 
     if (eventsError) throw eventsError;
 
     // 3. Procesamiento en memoria
-    const events = eventsData || [];
+    const events = (eventsData || []).filter((ev: any) => {
+      const p = ev.page_path || '';
+      return !p.startsWith('/admin') && !p.startsWith('/api') && !p.startsWith('/_next');
+    });
     const hasData = events.length > 0;
 
     // Sets para métricas únicas

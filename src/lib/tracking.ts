@@ -11,6 +11,15 @@ function generateId(): string {
       });
 }
 
+export function shouldTrackPath(pathname: string): boolean {
+  if (!pathname) return false;
+  return (
+    !pathname.startsWith('/admin') &&
+    !pathname.startsWith('/api') &&
+    !pathname.startsWith('/_next')
+  );
+}
+
 // Get or create persistent visitor ID
 export function getVisitorId(): string {
   if (typeof window === 'undefined') return '';

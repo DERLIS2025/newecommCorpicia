@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { trackEvent } from '@/lib/tracking';
+import { trackEvent, shouldTrackPath } from '@/lib/tracking';
 
 export function InternalPageTracker() {
   const pathname = usePathname();
@@ -18,6 +18,10 @@ export function InternalPageTracker() {
 
     if (trackedUrlRef.current === currentUrl) {
       return; // Already tracked this exact URL
+    }
+
+    if (!shouldTrackPath(pathname)) {
+      return;
     }
 
     trackedUrlRef.current = currentUrl;

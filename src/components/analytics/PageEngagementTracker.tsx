@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
-import { trackEvent } from '@/lib/tracking';
+import { trackEvent, shouldTrackPath } from '@/lib/tracking';
 
 const INACTIVITY_THRESHOLD = 30000; // 30 seconds
 const MAX_ENGAGEMENT_SECONDS = 1800; // 30 minutes max per flush
@@ -25,7 +25,7 @@ export function PageEngagementTracker() {
       secondsToReport = MAX_ENGAGEMENT_SECONDS;
     }
 
-    if (secondsToReport > 0) {
+    if (secondsToReport > 0 && shouldTrackPath(currentPathRef.current)) {
       trackEvent({
         event_name: 'page_engagement',
         page_path: currentPathRef.current,
@@ -38,6 +38,7 @@ export function PageEngagementTracker() {
   };
 
   const startTracking = () => {
+    if (!currentPathRef.current || !shouldTrackPath(currentPathRef.current)) return;
     if (!isTrackingRef.current && document.visibilityState === 'visible') {
       isTrackingRef.current = true;
       engagementStartRef.current = Date.now();
