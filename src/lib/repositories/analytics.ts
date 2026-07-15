@@ -302,7 +302,10 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
     const topProducts = Array.from(productsMap.entries())
       .map(([id, data]) => {
         // Unir visitantes de adds y whatsapp
-        const converters = new Set([...data.adders, ...data.whatsappers]);
+        const converters = new Set([
+          ...Array.from(data.adders),
+          ...Array.from(data.whatsappers),
+        ]);
         const convRate = data.viewers.size > 0 ? (converters.size / data.viewers.size) * 100 : 0;
         return {
           id: data.name,
