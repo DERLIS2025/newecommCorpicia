@@ -46,17 +46,37 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
     let totalProductViews = 0;
     let totalQuoteItemAdded = 0;
 
-<<<<<<< Updated upstream
-    if (!eventsError && eventsData && eventsData.length > 0) {
-      hasEvents = true;
-      eventsData.forEach((ev: any) => {
-        if (ev.event_name === 'page_view') totalPageViews++;
-        
-        if (ev.device_type === 'mobile') devices.mobile++;
-        else if (ev.device_type === 'desktop') devices.desktop++;
-        else if (ev.device_type === 'tablet') devices.tablet++;
-      });
-=======
+    // ==========================================
+    // FASE 1: CRM & QUOTES SUMMARY
+    // ==========================================
+    
+    // 1. Get Leads from clients
+    const { count: leadsCount } = await (supabaseAdmin as any)
+      .from('clients')
+      .select('*', { count: 'exact', head: true });
+
+    // 2. Get Quotes summary
+    const { count: quotesCount } = await (supabaseAdmin as any)
+      .from('quotes')
+      .select('*', { count: 'exact', head: true });
+
+    const { count: pendingQuotes } = await (supabaseAdmin as any)
+      .from('quotes')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'Nuevo');
+
+    const { count: approvedQuotes } = await (supabaseAdmin as any)
+      .from('quotes')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'Aprobado');
+
+    // ==========================================
+    // FASE 2: ADVANCED ANALYTICS MAPS
+    // ==========================================
+
+    let devices = { mobile: 0, desktop: 0, tablet: 0 };
+    let topDevice = 'Sin datos';
+
     // Mapas para agrupaciones
     const productsMap = new Map<string, { views: number; uniqueVisitors: Set<string>; adds: number; whatsapp: number }>();
     const pagesMap = new Map<string, { views: number; visitors: Set<string>; engagement: number }>();
@@ -66,9 +86,12 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
     
     // Para atribuir fuente por sesión
     const sessionSources = new Map<string, string>();
->>>>>>> Stashed changes
 
-    events.forEach(ev => {
+    events.forEach((ev: any) => {
+      if (ev.device_type === 'mobile') devices.mobile++;
+      else if (ev.device_type === 'desktop') devices.desktop++;
+      else if (ev.device_type === 'tablet') devices.tablet++;
+
       if (ev.visitor_id) uniqueVisitors.add(ev.visitor_id);
       if (ev.session_id) uniqueSessions.add(ev.session_id);
 
@@ -149,6 +172,13 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
       }
     });
 
+    const max = Math.max(devices.mobile, devices.desktop, devices.tablet);
+    if (max > 0) {
+      if (max === devices.mobile) topDevice = `Móvil (${Math.round((devices.mobile / events.length) * 100)}%)`;
+      else if (max === devices.desktop) topDevice = `Desktop (${Math.round((devices.desktop / events.length) * 100)}%)`;
+      else if (max === devices.tablet) topDevice = `Tablet (${Math.round((devices.tablet / events.length) * 100)}%)`;
+    }
+
     // Procesar ubicaciones únicas por sesión
     const sessionLocations = new Set<string>();
     events.forEach(ev => {
@@ -221,6 +251,9 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
     }
 
     return {
+      leads: { total: leadsCount || 0 },
+      quotes: { total: quotesCount || 0, pending: pendingQuotes || 0, approved: approvedQuotes || 0 },
+      analytics: { hasData: hasData, pageViews: totalPageViews, topDevice: topDevice },
       summary: {
         uniqueVisitors: uniqueVisitors.size,
         sessions: uniqueSessions.size,
@@ -242,6 +275,9 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
   } catch (error) {
     console.error('Error fetching dashboard summary:', error);
     return {
+      leads: { total: 0 },
+      quotes: { total: 0, pending: 0, approved: 0 },
+      analytics: { hasData: false, pageViews: 0, topDevice: 'Error' },
       summary: { uniqueVisitors: 0, sessions: 0, pageViews: 0, avgEngagementSeconds: 0, whatsappClicks: 0, quotesSubmitted: 0, conversionRate: 0 },
       topProducts: [], topPages: [], topSources: [], topCities: [], topWhatsApp: [], funnel: { visitors: 0, productViews: 0, itemAdded: 0, quoteStarted: 0, quoteSubmitted: 0, whatsappClick: 0 },
       alerts: [{ message: 'Error al cargar los datos', type: 'danger' }],
