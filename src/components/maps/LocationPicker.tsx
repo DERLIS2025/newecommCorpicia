@@ -180,10 +180,10 @@ export default function LocationPicker({
   };
 
   return (
-    <div className="bg-gray-50 border border-gray-100 rounded-xl overflow-hidden flex flex-col space-y-3 p-4">
-      <div className="space-y-1">
-        <h3 className="font-semibold text-sm text-gray-900">Ubicación del proyecto</h3>
-        <p className="text-xs text-gray-500">Marcá en el mapa dónde se realizará el trabajo. Este dato es opcional.</p>
+    <div className="flex flex-col space-y-2">
+      <div className="space-y-0.5 mb-1">
+        <h3 className="font-semibold text-xs text-gray-700">Ubicación del proyecto (Opcional)</h3>
+        <p className="text-[10px] text-gray-500 leading-tight">Buscá tu dirección o usá tu ubicación actual para marcar el mapa.</p>
       </div>
 
       {/* Controles: Buscador y Ubicación Actual */}
@@ -194,18 +194,18 @@ export default function LocationPicker({
           </div>
           <Input 
             type="text" 
-            placeholder="Buscar dirección o zona..." 
+            placeholder="Buscar zona..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="pl-9 bg-white w-full h-12 sm:h-10 rounded-r-none border-r-0"
+            className="pl-8 bg-white w-full h-10 rounded-r-none border-r-0 text-sm"
             disabled={disabled || isSearching}
           />
           <Button 
             type="button" 
             onClick={handleSearch}
             disabled={disabled || isSearching || !searchQuery.trim()}
-            className="h-12 sm:h-10 rounded-l-none bg-blue-600 hover:bg-blue-700 text-white px-4"
+            className="h-10 rounded-l-none bg-blue-600 hover:bg-blue-700 text-white px-3 text-sm"
           >
             {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Buscar'}
           </Button>
@@ -215,12 +215,12 @@ export default function LocationPicker({
           variant="outline" 
           onClick={handleGetCurrentLocation}
           disabled={disabled || isLocating}
-          className="h-12 sm:h-10 bg-white border-gray-300 whitespace-nowrap"
+          className="h-10 bg-white border-gray-300 whitespace-nowrap text-sm px-3"
         >
           {isLocating ? (
-             <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Detectando...</>
+             <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> ...</>
           ) : (
-            <><MapPin className="w-4 h-4 mr-2 text-blue-500" /> Usar mi ubicación</>
+            <><MapPin className="w-3.5 h-3.5 mr-1.5 text-blue-500" /> Mi ubicación</>
           )}
         </Button>
       </div>
@@ -230,7 +230,7 @@ export default function LocationPicker({
       )}
 
       {/* Contenedor del Mapa */}
-      <div className="relative w-full h-[280px] sm:h-[220px] bg-gray-200 rounded-lg overflow-hidden border border-gray-200">
+      <div className="relative w-full h-[220px] lg:h-[180px] bg-gray-200 rounded-lg overflow-hidden border border-gray-200">
         <LeafletMap 
           center={center}
           markerPosition={markerPosition}

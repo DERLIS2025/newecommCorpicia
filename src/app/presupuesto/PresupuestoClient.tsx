@@ -310,27 +310,27 @@ export default function PresupuestoClient() {
         </div>
 
         {/* COLUMNA DERECHA: RESUMEN Y FORMULARIO (5 columnas) */}
-        <div className="lg:col-span-5 flex flex-col gap-6">
+        <div className="lg:col-span-5 flex flex-col gap-4 lg:gap-3">
           <div className="bg-white rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 overflow-hidden">
             
             {/* Cabecera Resumen Total */}
-            <div className="bg-gray-900 p-5 sm:p-6 text-white relative overflow-hidden">
+            <div className="bg-gray-900 p-4 sm:p-5 text-white relative overflow-hidden flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 lg:gap-0">
               <div className="relative z-10">
-                <p className="text-gray-300 text-sm font-medium mb-1">Total Estimado</p>
-                <p className="text-3xl sm:text-4xl font-bold tracking-tight">{formatPrice(getTotal())}</p>
-                <div className="text-xs text-gray-400 mt-3 flex flex-col gap-1">
-                  <p>• Los precios no incluyen IVA.</p>
-                  <p>• Empastado: no incluye preparación del terreno.</p>
-                </div>
+                <p className="text-gray-300 text-xs sm:text-sm lg:text-xs font-medium mb-0.5">Total Estimado</p>
+                <p className="text-3xl sm:text-4xl lg:text-2xl font-bold tracking-tight">{formatPrice(getTotal())}</p>
               </div>
-              <div className="absolute -right-10 -top-10 opacity-10">
+              <div className="relative z-10 text-xs lg:text-[10px] text-gray-400 flex flex-col lg:items-end lg:text-right">
+                <p>• Los precios no incluyen IVA.</p>
+                <p>• Empastado: no incluye prep. del terreno.</p>
+              </div>
+              <div className="absolute -right-10 -top-10 opacity-10 lg:hidden">
                 <ShoppingCart size={140} strokeWidth={1} />
               </div>
             </div>
 
             {/* Formulario */}
-            <div className="p-5 sm:p-6">
-              <h3 className="font-bold text-gray-900 text-base mb-4 tracking-tight">Completá tus datos</h3>
+            <div className="p-4 sm:p-5">
+              <h3 className="font-bold text-gray-900 text-base mb-3 lg:hidden tracking-tight">Completá tus datos</h3>
               
               {submitResult?.success === false && (
                 <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-xl border border-red-200 font-medium">
@@ -338,49 +338,52 @@ export default function PresupuestoClient() {
                 </div>
               )}
               
-              <form onSubmit={handleFormSubmit} onChangeCapture={trackQuoteStarted} className="space-y-5">
-                
-                {/* SECCIÓN A: CONTACTO */}
-                <div className="space-y-3">
-                  <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                    <span className="w-4 h-[1px] bg-gray-300"></span> Datos de contacto
-                  </h4>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-1">Nombre completo *</label>
-                      <Input name="name" required placeholder="Ej: Juan Pérez" className="h-10 sm:h-11 rounded-xl bg-gray-50 border-gray-200 focus:bg-white" onFocus={trackQuoteStarted} />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-1">Teléfono / WhatsApp *</label>
-                      <Input name="phone" required placeholder="Ej: 0981 123 456" className="h-10 sm:h-11 rounded-xl bg-gray-50 border-gray-200 focus:bg-white" />
-                    </div>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">Email <span className="font-normal text-gray-400">(Opcional)</span></label>
-                        <Input name="email" type="email" placeholder="Ej: juan@mail.com" className="h-10 sm:h-11 rounded-xl bg-gray-50 border-gray-200 focus:bg-white" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">Ciudad <span className="font-normal text-gray-400">(Opcional)</span></label>
-                        <Input name="location" placeholder="Ej: Asunción" className="h-10 sm:h-11 rounded-xl bg-gray-50 border-gray-200 focus:bg-white" />
-                      </div>
-                    </div>
+              <form onSubmit={handleFormSubmit} onChangeCapture={trackQuoteStarted}>
+                <div className="flex flex-col space-y-4 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-4 lg:items-start">
+                  
+                  {/* SECCIÓN CONTACTO (Mobile Only Title) */}
+                  <div className="lg:hidden">
+                    <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                      <span className="w-4 h-[1px] bg-gray-300"></span> Datos de contacto
+                    </h4>
                   </div>
-                </div>
 
-                {/* SECCIÓN B: UBICACIÓN EXACTA Y COMENTARIOS */}
-                <div className="space-y-3 pt-1">
-                  <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                    <span className="w-4 h-[1px] bg-gray-300"></span> Envío y detalles
-                  </h4>
-                  <div className="space-y-3">
+                  {/* FILA 1 (Desktop) */}
+                  <div className="lg:col-span-1">
+                    <label className="block text-sm lg:text-xs font-semibold text-gray-700 mb-1">Nombre completo *</label>
+                    <Input name="name" required placeholder="Ej: Juan Pérez" className="h-11 lg:h-10 rounded-xl bg-gray-50 border-gray-200 focus:bg-white text-sm" onFocus={trackQuoteStarted} />
+                  </div>
+                  
+                  <div className="lg:col-span-1">
+                    <label className="block text-sm lg:text-xs font-semibold text-gray-700 mb-1">Teléfono / WhatsApp *</label>
+                    <Input name="phone" required placeholder="Ej: 0981 123 456" className="h-11 lg:h-10 rounded-xl bg-gray-50 border-gray-200 focus:bg-white text-sm" />
+                  </div>
+                  
+                  {/* FILA 2 (Desktop) */}
+                  <div className="lg:col-span-1">
+                    <label className="block text-sm lg:text-xs font-semibold text-gray-700 mb-1">Email <span className="font-normal text-gray-400">(Opcional)</span></label>
+                    <Input name="email" type="email" placeholder="Ej: juan@mail.com" className="h-11 lg:h-10 rounded-xl bg-gray-50 border-gray-200 focus:bg-white text-sm" />
+                  </div>
+                  <div className="lg:col-span-1">
+                    <label className="block text-sm lg:text-xs font-semibold text-gray-700 mb-1">Ciudad <span className="font-normal text-gray-400">(Opcional)</span></label>
+                    <Input name="location" placeholder="Ej: Asunción" className="h-11 lg:h-10 rounded-xl bg-gray-50 border-gray-200 focus:bg-white text-sm" />
+                  </div>
+
+                  {/* SECCIÓN B: UBICACIÓN Y DETALLES (Mobile Only Title) */}
+                  <div className="lg:hidden mt-2">
+                    <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                      <span className="w-4 h-[1px] bg-gray-300"></span> Envío y detalles
+                    </h4>
+                  </div>
+
+                  {/* FILA 3 (Desktop): Ubicación (Col 1) | Referencia y Comentarios (Col 2) */}
+                  <div className="lg:col-span-1 lg:h-full">
                     <LocationPicker 
                       onLocationChange={setSelectedLocation}
                       disabled={isSubmitting}
                     />
                     
-                    {/* Campos hidden para enviar en el form */}
+                    {/* Campos hidden */}
                     {selectedLocation && (
                       <>
                         <input type="hidden" name="exactLatitude" value={selectedLocation.latitude} />
@@ -389,48 +392,48 @@ export default function PresupuestoClient() {
                         <input type="hidden" name="exactMapUrl" value={selectedLocation.mapUrl} />
                       </>
                     )}
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">Referencia <span className="font-normal text-gray-400">(Opcional)</span></label>
-                        <Input 
-                          name="locationReference"
-                          placeholder="Ej: Portón negro, etc."
-                          value={locationReference}
-                          onChange={(e) => setLocationReference(e.target.value)}
-                          disabled={isSubmitting}
-                          className="h-10 sm:h-11 rounded-xl bg-gray-50 border-gray-200 focus:bg-white"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">Comentarios <span className="font-normal text-gray-400">(Opcional)</span></label>
-                        <Input 
-                          name="notes"
-                          placeholder="Dudas o requerimientos..."
-                          className="h-10 sm:h-11 rounded-xl bg-gray-50 border-gray-200 focus:bg-white"
-                        />
-                      </div>
+                  </div>
+                  
+                  <div className="lg:col-span-1 flex flex-col gap-3 lg:gap-4 lg:h-full">
+                    <div>
+                      <label className="block text-sm lg:text-xs font-semibold text-gray-700 mb-1">Referencia de ubicación <span className="font-normal text-gray-400">(Opcional)</span></label>
+                      <Input 
+                        name="locationReference"
+                        placeholder="Ej: Portón negro, etc."
+                        value={locationReference}
+                        onChange={(e) => setLocationReference(e.target.value)}
+                        disabled={isSubmitting}
+                        className="h-11 lg:h-10 rounded-xl bg-gray-50 border-gray-200 focus:bg-white text-sm"
+                      />
+                    </div>
+                    <div className="flex-1 flex flex-col">
+                      <label className="block text-sm lg:text-xs font-semibold text-gray-700 mb-1">Comentarios <span className="font-normal text-gray-400">(Opcional)</span></label>
+                      <textarea 
+                        name="notes"
+                        placeholder="Dudas, requerimientos especiales..."
+                        className="w-full flex-1 min-h-[80px] lg:min-h-0 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1F4E79]/20 focus:border-[#1F4E79] transition-all resize-none"
+                      />
                     </div>
                   </div>
-                </div>
-                
-                {/* BOTONES */}
-                <div className="pt-2 space-y-3">
-                  <Button type="submit" className="w-full bg-[#1F4E79] hover:bg-[#163A5A] text-white h-12 rounded-xl text-base font-bold shadow-md shadow-[#1F4E79]/20 transition-all hover:shadow-lg hover:-translate-y-0.5" disabled={isSubmitting}>
-                    {isSubmitting ? 'Procesando...' : (
-                      <>
-                        <Send className="mr-2" size={18} />
-                        Enviar solicitud de presupuesto
-                      </>
-                    )}
-                  </Button>
                   
-                  <Button onClick={handleWhatsAppClick} variant="outline" className="w-full border-2 border-green-600 text-green-700 hover:bg-green-50 h-12 rounded-xl text-base font-bold transition-colors" type="button">
-                    <MessageCircle className="mr-2" size={18} />
-                    Consultar por WhatsApp
-                  </Button>
-                </div>
+                  {/* BOTONES */}
+                  <div className="lg:col-span-2 pt-2 lg:pt-0 flex flex-col gap-3">
+                    <Button type="submit" className="w-full bg-[#1F4E79] hover:bg-[#163A5A] text-white h-12 rounded-xl text-base lg:text-sm font-bold shadow-md shadow-[#1F4E79]/20 transition-all hover:shadow-lg hover:-translate-y-0.5" disabled={isSubmitting}>
+                      {isSubmitting ? 'Procesando...' : (
+                        <>
+                          <Send className="mr-2" size={18} />
+                          Enviar solicitud de presupuesto
+                        </>
+                      )}
+                    </Button>
+                    
+                    <Button onClick={handleWhatsAppClick} variant="outline" className="w-full border-2 border-green-600 text-green-700 hover:bg-green-50 h-12 rounded-xl text-base lg:text-sm font-bold transition-colors" type="button">
+                      <MessageCircle className="mr-2" size={18} />
+                      Consultar por WhatsApp
+                    </Button>
+                  </div>
 
+                </div>
               </form>
             </div>
           </div>
