@@ -84,7 +84,7 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
     let topDevice = 'Sin datos';
 
     // Mapas para agrupaciones
-    const productsMap = new Map<string, { name: string; views: number; uniqueVisitors: Set<string>; adds: number; whatsapp: number }>();
+    const productsMap = new Map<string, { name: string; views: number; viewers: Set<string>; adds: number; adders: Set<string>; whatsapp: number; whatsappers: Set<string> }>();
     const pagesMap = new Map<string, { views: number; visitors: Set<string>; engagement: number }>();
     const sourcesMap = new Map<string, number>();
     const devicesMap = new Map<string, { label: string; visitors: Set<string>; sessions: Set<string>; pageViews: number; engagement: number; whatsapp: number; quotes: number }>();
@@ -155,6 +155,18 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
       if (ev.visitor_id) lNode.visitors.add(ev.visitor_id);
       if (ev.session_id) lNode.sessions.add(ev.session_id);
 
+      // Helper para normalizar producto
+      const normalizeProductKey = (e: any) => {
+        let raw = e.metadata?.product_slug || e.entity_id || e.metadata?.product_name || '';
+        if (!raw) return 'desconocido';
+        return raw.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      };
+      const resolveProductName = (e: any, pid: string) => {
+        if (e.metadata?.product_name && e.metadata.product_name !== pid) return e.metadata.product_name;
+        if (e.metadata?.productName && e.metadata.productName !== pid) return e.metadata.productName;
+        return pid.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
+      };
+
       // Conteo de eventos específicos
       switch (ev.event_name) {
         case 'page_view':
@@ -187,10 +199,12 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
           }
           // Si fue desde un producto, asociar
           if (ev.button_location === 'pdp' && ev.entity_id) {
-            const pid = ev.metadata?.product_slug || ev.entity_id;
-            const pName = ev.metadata?.product_name || ev.metadata?.productName || pid.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
-            if (!productsMap.has(pid)) productsMap.set(pid, { name: pName, views: 0, uniqueVisitors: new Set(), adds: 0, whatsapp: 0 });
-            productsMap.get(pid)!.whatsapp++;
+            const pid = normalizeProductKey(ev);
+            const pName = resolveProductName(ev, pid);
+            if (!productsMap.has(pid)) productsMap.set(pid, { name: pName, views: 0, viewers: new Set(), adds: 0, adders: new Set(), whatsapp: 0, whatsappers: new Set() });
+            const p = productsMap.get(pid)!;
+            p.whatsapp++;
+            if (ev.visitor_id) p.whatsappers.add(ev.visitor_id);
           }
           break;
         case 'quote_submitted':
@@ -204,21 +218,23 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
         case 'product_view':
           totalProductViews++;
           if (ev.entity_id) {
-            const pid = ev.metadata?.product_slug || ev.entity_id;
-            const pName = ev.metadata?.product_name || ev.metadata?.productName || pid.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
-            if (!productsMap.has(pid)) productsMap.set(pid, { name: pName, views: 0, uniqueVisitors: new Set(), adds: 0, whatsapp: 0 });
+            const pid = normalizeProductKey(ev);
+            const pName = resolveProductName(ev, pid);
+            if (!productsMap.has(pid)) productsMap.set(pid, { name: pName, views: 0, viewers: new Set(), adds: 0, adders: new Set(), whatsapp: 0, whatsappers: new Set() });
             const p = productsMap.get(pid)!;
             p.views++;
-            if (ev.visitor_id) p.uniqueVisitors.add(ev.visitor_id);
+            if (ev.visitor_id) p.viewers.add(ev.visitor_id);
           }
           break;
         case 'quote_item_added':
           totalQuoteItemAdded++;
           if (ev.entity_id) { 
-            const pid = ev.metadata?.product_slug || ev.entity_id;
-            const pName = ev.metadata?.product_name || ev.metadata?.productName || pid.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
-            if (!productsMap.has(pid)) productsMap.set(pid, { name: pName, views: 0, uniqueVisitors: new Set(), adds: 0, whatsapp: 0 });
-            productsMap.get(pid)!.adds++;
+            const pid = normalizeProductKey(ev);
+            const pName = resolveProductName(ev, pid);
+            if (!productsMap.has(pid)) productsMap.set(pid, { name: pName, views: 0, viewers: new Set(), adds: 0, adders: new Set(), whatsapp: 0, whatsappers: new Set() });
+            const p = productsMap.get(pid)!;
+            p.adds++;
+            if (ev.visitor_id) p.adders.add(ev.visitor_id);
           }
           break;
       }
@@ -253,23 +269,32 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
 
     // Formatear Top Products
     const topProducts = Array.from(productsMap.entries())
-      .map(([id, data]) => ({
-        id: data.name, // Usamos el nombre legible
-        views: data.views,
-        uniqueVisitors: data.uniqueVisitors.size,
-        adds: data.adds,
-        whatsapp: data.whatsapp,
-        conversion: data.uniqueVisitors.size > 0 ? (data.adds / data.uniqueVisitors.size) * 100 : 0
-      }))
+      .map(([id, data]) => {
+        // Unir visitantes de adds y whatsapp
+        const converters = new Set([...data.adders, ...data.whatsappers]);
+        const convRate = data.viewers.size > 0 ? (converters.size / data.viewers.size) * 100 : 0;
+        return {
+          id: data.name,
+          views: data.views,
+          uniqueVisitors: data.viewers.size,
+          adds: data.adds,
+          whatsapp: data.whatsapp,
+          conversion: Math.min(convRate, 100)
+        };
+      })
       .sort((a, b) => b.views - a.views)
       .slice(0, 10);
 
     // Helper para formatear rutas
-    const getPageLabel = (path: string) => {
+    const getPageLabel = (p: string) => {
+      // Normalizar ruta: sin query, sin hash, sin barra final (salvo en '/') y sin barras repetidas
+      let path = p.split('?')[0].split('#')[0].replace(/\/+/g, '/').replace(/(.)\/$/, '$1');
+      
       if (path === '/') return 'Inicio';
       if (path === '/productos') return 'Productos';
       if (path.startsWith('/productos/')) {
-        const slug = path.replace('/productos/', '').replace(/\/$/, '');
+        const slug = path.replace('/productos/', '').trim();
+        if (!slug) return 'Productos';
         return `Producto: ${slug.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}`;
       }
       if (path === '/servicios') return 'Servicios';
@@ -291,7 +316,24 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
 
     // Formatear Fuentes y otros
     const topSources = Array.from(sourcesMap.entries()).map(([source, count]) => ({ source, count })).sort((a, b) => b.count - a.count);
-    const topWhatsApp = Array.from(whatsappLocMap.entries()).map(([location, count]) => ({ location, count })).sort((a, b) => b.count - a.count);
+    
+    const getWhatsAppLabel = (loc: string) => {
+      const labels: Record<string, string> = {
+        'floating_button': 'Botón flotante',
+        'product_detail': 'Detalle de producto',
+        'product_card': 'Tarjeta de producto',
+        'budget_drawer': 'Carrito de presupuesto',
+        'quote_page': 'Página de presupuesto',
+        'service_card': 'Servicio',
+        'contact_page': 'Contacto',
+        'footer': 'Pie de página',
+        'final_cta': 'CTA final',
+        'hero': 'Banner principal'
+      };
+      return labels[loc] || loc;
+    };
+    
+    const topWhatsApp = Array.from(whatsappLocMap.entries()).map(([location, count]) => ({ location: getWhatsAppLabel(location), count })).sort((a, b) => b.count - a.count);
 
     // Embudo
     const funnel = {
