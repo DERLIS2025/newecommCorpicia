@@ -311,7 +311,7 @@ export default function PresupuestoClient() {
 
         {/* COLUMNA DERECHA: RESUMEN Y FORMULARIO (5 columnas) */}
         <div className="lg:col-span-5 flex flex-col gap-6">
-          <div className="bg-white rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 overflow-hidden lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto custom-scrollbar">
+          <div className="bg-white rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 overflow-hidden">
             
             {/* Cabecera Resumen Total */}
             <div className="bg-gray-900 p-6 sm:p-8 text-white relative overflow-hidden">
@@ -446,20 +446,6 @@ export default function PresupuestoClient() {
           </div>
         </div>
       </div>
-
-      <style jsx global>{`
-        /* Scrollbar personalizado para el contenedor sticky del formulario */
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background-color: #cbd5e1;
-          border-radius: 20px;
-        }
-      `}</style>
     </div>
   );
 }
