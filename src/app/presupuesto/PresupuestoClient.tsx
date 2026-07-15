@@ -20,7 +20,9 @@ import {
   Package,
   TrendingDown,
   CheckCircle2,
-  Send
+  Send,
+  MapPin,
+  Map
 } from 'lucide-react';
 
 export default function PresupuestoClient() {
@@ -28,6 +30,50 @@ export default function PresupuestoClient() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitResult, setSubmitResult] = useState<{ success: boolean; message: string } | null>(null);
+
+  // Ubicación
+  const [exactLocation, setExactLocation] = useState('');
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationError, setLocationError] = useState('');
+  const [locationSuccess, setLocationSuccess] = useState(false);
+
+  const handleGetLocation = () => {
+    setLocationError('');
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      setLocationError('Tu navegador no pudo detectar la ubicación. Podés ingresarla manualmente.');
+      return;
+    }
+
+    if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
+      setLocationError('Este navegador no permite detectar la ubicación automáticamente en entornos no seguros.');
+      return;
+    }
+
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude.toFixed(6);
+        const lng = position.coords.longitude.toFixed(6);
+        const mapUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+        setExactLocation(mapUrl);
+        setLocationSuccess(true);
+        setIsLocating(false);
+      },
+      (error) => {
+        setIsLocating(false);
+        if (error.code === error.PERMISSION_DENIED) {
+          setLocationError('No pudimos acceder a tu ubicación. Podés pegar un enlace de Google Maps o escribir una referencia.');
+        } else {
+          setLocationError('Tu navegador no pudo detectar la ubicación. Podés ingresarla manualmente.');
+        }
+      },
+      {
+        enableHighAccuracy: false,
+        timeout: 10000,
+        maximumAge: 300000
+      }
+    );
+  };
 
   const handleWhatsAppClick = () => {
     trackWhatsAppClick('budget_summary', 'enviar-presupuesto');
@@ -165,8 +211,8 @@ export default function PresupuestoClient() {
 
             return (
               <Card key={item.product.id}>
-                <CardContent className="p-4 flex gap-4">
-                  <div className="w-24 h-24 md:w-32 md:h-32 bg-gray-100 flex-shrink-0 rounded overflow-hidden">
+                <CardContent className="p-4 flex flex-col sm:flex-row gap-4">
+                  <div className="w-full sm:w-24 sm:h-24 md:w-32 md:h-32 bg-gray-100 flex-shrink-0 rounded overflow-hidden aspect-video sm:aspect-square">
                     {item.product.images?.length ? (
                       <Image
                          src={item.product.images[0]}
@@ -184,8 +230,10 @@ export default function PresupuestoClient() {
 
                   <div className="flex-1 min-w-0 flex flex-col justify-between">
                     <div>
-                      <h2 className="font-semibold text-lg line-clamp-2">{item.product.name}</h2>
-                      <p className="text-sm text-gray-600">
+                      <h2 className="font-semibold text-lg leading-tight mb-1" style={{ wordBreak: 'break-word' }}>
+                        {item.product.name}
+                      </h2>
+                      <p className="text-sm text-gray-600 block">
                         {formatPrice(item.unitPrice)} / {formatUnit(item.product.unit)}
                       </p>
                     </div>
@@ -268,17 +316,17 @@ export default function PresupuestoClient() {
                     )}
                   </div>
 
-                  <div className="flex flex-col justify-between items-end">
+                  <div className="flex flex-col sm:flex-row items-end sm:items-center justify-between mt-4 w-full pt-3 border-t border-gray-100 sm:border-none sm:pt-0 sm:mt-0 sm:w-auto">
+                    <p className="font-bold text-corpicia-green text-lg md:text-xl w-full sm:w-auto text-left sm:text-right mb-2 sm:mb-0">
+                      {formatPrice(item.total)}
+                    </p>
                     <button 
                       onClick={() => removeItem(item.product.id)}
-                      className="p-2 text-red-500 hover:bg-red-50 rounded transition-colors"
+                      className="p-2 text-red-500 hover:bg-red-50 rounded transition-colors self-end sm:ml-4"
                       title="Eliminar producto"
                     >
                       <Trash2 size={18} />
                     </button>
-                    <p className="font-bold text-corpicia-green text-lg md:text-xl">
-                      {formatPrice(item.total)}
-                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -348,6 +396,52 @@ export default function PresupuestoClient() {
                     <label className="block text-sm font-medium mb-1">Ciudad / Zona <span className="text-gray-400 font-normal">(Opcional)</span></label>
                     <Input name="location" placeholder="Ej: Asunción, Carmelitas" />
                   </div>
+
+                  {/* Ubicación exacta */}
+                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 space-y-3">
+                    <label className="block text-sm font-semibold mb-1">Ubicación exacta <span className="text-gray-400 font-normal text-xs">(Opcional)</span></label>
+                    
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={handleGetLocation} 
+                      disabled={isLocating}
+                      className="w-full bg-white border-gray-300 hover:bg-gray-100 text-gray-700 h-11"
+                    >
+                      {isLocating ? (
+                        'Detectando ubicación...'
+                      ) : locationSuccess ? (
+                        <span className="text-green-600 flex items-center"><CheckCircle2 className="mr-2" size={16} /> Ubicación capturada</span>
+                      ) : (
+                        <span className="flex items-center"><MapPin className="mr-2 text-blue-500" size={16} /> Usar mi ubicación actual</span>
+                      )}
+                    </Button>
+
+                    {locationError && (
+                      <p className="text-xs text-red-500 mt-1">{locationError}</p>
+                    )}
+
+                    <div className="pt-2">
+                      <label className="block text-xs text-gray-500 mb-1">O podés pegar un enlace manual (Maps) o referencia:</label>
+                      <Input 
+                        name="exactLocation" 
+                        value={exactLocation} 
+                        onChange={(e) => {
+                          setExactLocation(e.target.value);
+                          if (locationSuccess && !e.target.value.includes('google.com/maps')) {
+                            setLocationSuccess(false);
+                          }
+                        }}
+                        placeholder="Ej: https://maps.app.goo.gl/..." 
+                        className="bg-white"
+                      />
+                    </div>
+                    {exactLocation.includes('google.com/maps') && (
+                      <a href={exactLocation} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-xs text-blue-600 hover:underline mt-1">
+                        <Map size={12} className="mr-1" /> Ver ubicación en Google Maps
+                      </a>
+                    )}
+                  </div>
                   
                   <div>
                     <label className="block text-sm font-medium mb-1">Mensaje adicional <span className="text-gray-400 font-normal">(Opcional)</span></label>
@@ -358,7 +452,7 @@ export default function PresupuestoClient() {
                     />
                   </div>
                   
-                  <Button type="submit" className="w-full bg-corpicia-green hover:bg-green-700 h-12 text-base font-semibold" disabled={isSubmitting}>
+                  <Button type="submit" className="w-full bg-[#1F4E79] hover:bg-[#163A5A] text-white h-12 text-base font-semibold transition-colors" disabled={isSubmitting}>
                     {isSubmitting ? 'Enviando...' : (
                       <>
                         <Send className="mr-2" size={18} />

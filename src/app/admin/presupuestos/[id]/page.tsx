@@ -21,9 +21,29 @@ export default async function AdminQuoteDetailPage({ params }: { params: { id: s
   const client = quote.clients;
   const items = quote.quote_items || [];
   
-  // Format phone number to clean WhatsApp link
   const cleanPhone = client?.phone?.replace(/\D/g, '') || '';
   const waLink = `https://wa.me/${cleanPhone.startsWith('0') ? '595' + cleanPhone.slice(1) : cleanPhone}`;
+
+  const renderNotesWithLinks = (text: string) => {
+    if (!text) return null;
+    const parts = text.split(/(https:\/\/(?:www\.)?google\.com\/maps[^\s]+|https:\/\/maps\.app\.goo\.gl\/[^\s]+)/g);
+    
+    return (
+      <>
+        {parts.map((part, i) => {
+          if (!part || part === 'www.') return null;
+          if (part.startsWith('https://')) {
+            return (
+              <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium break-all">
+                {part}
+              </a>
+            );
+          }
+          return <span key={i}>{part}</span>;
+        })}
+      </>
+    );
+  };
 
   return (
     <div className="space-y-6 pb-12">
@@ -77,7 +97,9 @@ export default async function AdminQuoteDetailPage({ params }: { params: { id: s
           {quote.notes && (
             <div className="bg-white border rounded-xl shadow-sm p-5">
               <h3 className="font-semibold text-gray-900 mb-2">Mensaje del cliente</h3>
-              <p className="text-gray-700 whitespace-pre-wrap bg-gray-50 p-4 rounded-lg text-sm border">{quote.notes}</p>
+              <p className="text-gray-700 whitespace-pre-wrap bg-gray-50 p-4 rounded-lg text-sm border">
+                {renderNotesWithLinks(quote.notes)}
+              </p>
             </div>
           )}
         </div>
@@ -125,7 +147,9 @@ export default async function AdminQuoteDetailPage({ params }: { params: { id: s
               {client?.notes && (
                 <div className="flex items-start gap-3">
                   <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
-                  <div className="text-gray-700 whitespace-pre-wrap">{client.notes}</div>
+                  <div className="text-gray-700 whitespace-pre-wrap">
+                    {renderNotesWithLinks(client.notes)}
+                  </div>
                 </div>
               )}
               

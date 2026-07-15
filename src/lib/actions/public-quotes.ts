@@ -37,6 +37,8 @@ export async function submitQuoteRequest(
     const notes = formData.get('notes') as string;
     const itemsJson = formData.get('items') as string;
     const totalAmount = parseInt(formData.get('totalAmount') as string);
+    const exactLocationRaw = formData.get('exactLocation') as string;
+    const exactLocation = exactLocationRaw ? exactLocationRaw.trim().slice(0, 500) : '';
 
     if (!name || !phone) {
       return { success: false, message: 'El nombre y el teléfono son obligatorios.' };
@@ -98,6 +100,13 @@ export async function submitQuoteRequest(
     const randomCode = Math.random().toString(36).substring(2, 6).toUpperCase();
     const requestNumber = `PRE-${dateStr}-${randomCode}`;
 
+    let finalNotes = notes?.trim() || '';
+    if (exactLocation) {
+      finalNotes = finalNotes
+        ? `${finalNotes}\n\nUbicación exacta: ${exactLocation}`
+        : `Ubicación exacta: ${exactLocation}`;
+    }
+
     const { data: quote, error: quoteInsertError } = await (supabaseAdmin as any)
       .from('quotes')
       .insert({
@@ -105,7 +114,7 @@ export async function submitQuoteRequest(
         client_id: clientId,
         total_amount: totalAmount,
         currency: 'PYG',
-        notes: notes?.trim() || null,
+        notes: finalNotes || null,
         status: 'Nuevo',
       })
       .select('id')
