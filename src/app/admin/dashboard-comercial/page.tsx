@@ -18,7 +18,7 @@ export default async function CommercialDashboardPage({
   const activePeriod = validPeriods.includes(period) ? period : '7d';
   
   const data = await getDashboardSummary(activePeriod as DashboardPeriod);
-  const { summary, topProducts, topPages, topSources, topCities, topWhatsApp, funnel, alerts, hasData } = data;
+  const { summary, topProducts, topPages, topSources, deviceStats, locationStats, topWhatsApp, funnel, alerts, hasData, analytics } = data;
 
   const getPeriodLabel = (p: string) => {
     if (p === 'today') return 'Hoy';
@@ -235,7 +235,7 @@ export default async function CommercialDashboardPage({
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* BLOQUE E: FUENTES */}
         <Card>
           <CardHeader>
@@ -265,39 +265,6 @@ export default async function CommercialDashboardPage({
                 )}
               </tbody>
             </table>
-          </CardContent>
-        </Card>
-
-        {/* BLOQUE F: UBICACION */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-red-500" />
-              <CardTitle className="text-lg">Geolocalización (Aprox.)</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0 overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-gray-50 text-gray-600 font-medium">
-                <tr>
-                  <th className="px-4 py-3 border-b">Ubicación</th>
-                  <th className="px-4 py-3 border-b text-right">Eventos</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {topCities.length === 0 ? (
-                  <tr><td colSpan={2} className="text-center py-4 text-gray-500">Sin datos</td></tr>
-                ) : (
-                  topCities.map((c, idx) => (
-                    <tr key={idx} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-3 text-gray-900 truncate max-w-[150px]">{c.city}</td>
-                      <td className="px-4 py-3 text-right font-medium">{c.count}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-            <p className="px-4 py-3 text-xs text-gray-400 bg-gray-50 text-center">Ubicación aproximada según la conexión del visitante.</p>
           </CardContent>
         </Card>
 
@@ -333,6 +300,104 @@ export default async function CommercialDashboardPage({
           </CardContent>
         </Card>
       </div>
+
+      {/* BLOQUE: DISPOSITIVOS */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Smartphone className="w-5 h-5 text-blue-500" />
+            <CardTitle className="text-lg">Dispositivos</CardTitle>
+          </div>
+          {analytics.topDevice !== 'Sin datos' && (
+            <p className="text-sm text-gray-500 mt-1">Dispositivo principal del período: <span className="font-semibold text-gray-900">{analytics.topDevice}</span></p>
+          )}
+        </CardHeader>
+        <CardContent className="p-0 overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="bg-gray-50 text-gray-600 font-medium">
+              <tr>
+                <th className="px-4 py-3 border-b">Dispositivo</th>
+                <th className="px-4 py-3 border-b text-right">Visitantes</th>
+                <th className="px-4 py-3 border-b text-right">Sesiones</th>
+                <th className="px-4 py-3 border-b text-right">Páginas Vistas</th>
+                <th className="px-4 py-3 border-b text-right">% del Total</th>
+                <th className="px-4 py-3 border-b text-right">T. Promedio</th>
+                <th className="px-4 py-3 border-b text-right">WhatsApp</th>
+                <th className="px-4 py-3 border-b text-right">Presupuestos</th>
+                <th className="px-4 py-3 border-b text-right">Conv.</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {deviceStats.length === 0 ? (
+                <tr><td colSpan={9} className="text-center py-4 text-gray-500">Sin datos</td></tr>
+              ) : (
+                deviceStats.map((d, idx) => (
+                  <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-4 py-3 text-gray-900 font-medium">{d.label}</td>
+                    <td className="px-4 py-3 text-right">{d.visitors}</td>
+                    <td className="px-4 py-3 text-right">{d.sessions}</td>
+                    <td className="px-4 py-3 text-right">{d.pageViews}</td>
+                    <td className="px-4 py-3 text-right">{d.percentage.toFixed(1)}%</td>
+                    <td className="px-4 py-3 text-right">{d.avgEngagement}s</td>
+                    <td className="px-4 py-3 text-right">{d.whatsapp}</td>
+                    <td className="px-4 py-3 text-right">{d.quotes}</td>
+                    <td className="px-4 py-3 text-right text-corpicia-green font-medium">{Math.min(d.conversion, 100).toFixed(1)}%</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </CardContent>
+      </Card>
+
+      {/* BLOQUE: UBICACION (Avanzado) */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <MapPin className="w-5 h-5 text-red-500" />
+            <CardTitle className="text-lg">Geolocalización aproximada</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0 overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="bg-gray-50 text-gray-600 font-medium">
+              <tr>
+                <th className="px-4 py-3 border-b">Ubicación</th>
+                <th className="px-4 py-3 border-b text-right">Visitantes</th>
+                <th className="px-4 py-3 border-b text-right">Sesiones</th>
+                <th className="px-4 py-3 border-b text-right">Páginas Vistas</th>
+                <th className="px-4 py-3 border-b text-right">T. Promedio</th>
+                <th className="px-4 py-3 border-b text-right">WhatsApp</th>
+                <th className="px-4 py-3 border-b text-right">Presupuestos</th>
+                <th className="px-4 py-3 border-b text-right">Conv.</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {locationStats.length === 0 ? (
+                <tr><td colSpan={8} className="text-center py-4 text-gray-500">Sin datos</td></tr>
+              ) : (
+                locationStats.map((l, idx) => (
+                  <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-4 py-3 text-gray-900 truncate max-w-[200px]" title={l.label}>{l.label}</td>
+                    <td className="px-4 py-3 text-right">{l.visitors}</td>
+                    <td className="px-4 py-3 text-right">{l.sessions}</td>
+                    <td className="px-4 py-3 text-right">{l.pageViews}</td>
+                    <td className="px-4 py-3 text-right">{l.avgEngagement}s</td>
+                    <td className="px-4 py-3 text-right">{l.whatsapp}</td>
+                    <td className="px-4 py-3 text-right">{l.quotes}</td>
+                    <td className="px-4 py-3 text-right text-corpicia-green font-medium">{Math.min(l.conversion, 100).toFixed(1)}%</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+          <p className="px-4 py-3 text-xs text-gray-400 bg-gray-50 text-center">
+            Ubicación aproximada según la conexión del visitante. Puede variar por redes móviles, VPN o proveedores de internet.
+          </p>
+        </CardContent>
+      </Card>
+
+
     </div>
   );
 }

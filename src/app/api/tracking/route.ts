@@ -61,11 +61,28 @@ export async function POST(req: NextRequest) {
     let region = req.headers.get('x-vercel-ip-country-region') || null;
     let city = req.headers.get('x-vercel-ip-city') || null;
     
-    // Safely decode city if needed (Vercel sometimes URL-encodes headers)
+    // Safely decode and normalize strings
     if (city) {
       try {
-        city = decodeURIComponent(city);
-      } catch(e) {}
+        city = decodeURIComponent(city).trim().replace(/\s+/g, ' ');
+      } catch(e) {
+        city = city.trim().replace(/\s+/g, ' ');
+      }
+      if (city === '') city = null;
+    }
+    
+    if (region) {
+      try {
+        region = decodeURIComponent(region).trim().replace(/\s+/g, ' ');
+      } catch(e) {
+        region = region.trim().replace(/\s+/g, ' ');
+      }
+      if (region === '') region = null;
+    }
+
+    if (country) {
+      country = country.trim().toUpperCase();
+      if (country === '') country = null;
     }
 
     // 2. Validation

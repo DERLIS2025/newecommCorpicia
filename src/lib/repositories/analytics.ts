@@ -87,7 +87,8 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
     const productsMap = new Map<string, { name: string; views: number; uniqueVisitors: Set<string>; adds: number; whatsapp: number }>();
     const pagesMap = new Map<string, { views: number; visitors: Set<string>; engagement: number }>();
     const sourcesMap = new Map<string, number>();
-    const citiesMap = new Map<string, number>();
+    const devicesMap = new Map<string, { label: string; visitors: Set<string>; sessions: Set<string>; pageViews: number; engagement: number; whatsapp: number; quotes: number }>();
+    const locationsMap = new Map<string, { label: string; visitors: Set<string>; sessions: Set<string>; pageViews: number; engagement: number; whatsapp: number; quotes: number }>();
     const whatsappLocMap = new Map<string, number>();
     
     // Para atribuir fuente por sesión
@@ -115,17 +116,51 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
         sourcesMap.set(source, (sourcesMap.get(source) || 0) + 1);
       }
 
-      // Geografía (por visitante para no inflar, pero simplificaremos por evento para el dashboard si no hay map, mejor por sesión)
-      if (ev.session_id && ev.country) {
-        const locKey = ev.city ? `${ev.city}, ${ev.country}` : ev.country;
-        // Solo contamos una vez por sesión para la tabla de ubicaciones
-        // Para simplificar el código en memoria, lo aproximamos
+      // 1. Device Aggregation
+      let d = 'Desconocido';
+      if (ev.device_type === 'mobile') d = 'Teléfono';
+      else if (ev.device_type === 'desktop') d = 'Computadora';
+      else if (ev.device_type === 'tablet') d = 'Tablet';
+      else if (ev.screen_width) {
+        if (ev.screen_width < 768) d = 'Teléfono';
+        else if (ev.screen_width < 1024) d = 'Tablet';
+        else d = 'Computadora';
       }
+
+      if (!devicesMap.has(d)) {
+        devicesMap.set(d, { label: d, visitors: new Set(), sessions: new Set(), pageViews: 0, engagement: 0, whatsapp: 0, quotes: 0 });
+      }
+      const dNode = devicesMap.get(d)!;
+      if (ev.visitor_id) dNode.visitors.add(ev.visitor_id);
+      if (ev.session_id) dNode.sessions.add(ev.session_id);
+
+      // 2. Location Aggregation
+      let locKey = 'unknown';
+      let locLabel = 'Sin datos de ubicación';
+      if (ev.country) {
+        const safeCity = ev.city ? ev.city.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, ' ') : '';
+        const safeRegion = ev.region ? ev.region.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, ' ') : '';
+        const safeCountry = ev.country.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, ' ');
+        locKey = `${safeCity}|${safeRegion}|${safeCountry}`;
+        if (ev.city && ev.region) locLabel = `${ev.city}, ${ev.region}, ${ev.country}`;
+        else if (ev.city) locLabel = `${ev.city}, ${ev.country}`;
+        else if (ev.region) locLabel = `${ev.region}, ${ev.country}`;
+        else locLabel = ev.country;
+      }
+      
+      if (!locationsMap.has(locKey)) {
+        locationsMap.set(locKey, { label: locLabel, visitors: new Set(), sessions: new Set(), pageViews: 0, engagement: 0, whatsapp: 0, quotes: 0 });
+      }
+      const lNode = locationsMap.get(locKey)!;
+      if (ev.visitor_id) lNode.visitors.add(ev.visitor_id);
+      if (ev.session_id) lNode.sessions.add(ev.session_id);
 
       // Conteo de eventos específicos
       switch (ev.event_name) {
         case 'page_view':
           totalPageViews++;
+          dNode.pageViews++;
+          lNode.pageViews++;
           const pPath = ev.page_path || '/';
           if (!pagesMap.has(pPath)) pagesMap.set(pPath, { views: 0, visitors: new Set(), engagement: 0 });
           const pNode = pagesMap.get(pPath)!;
@@ -135,6 +170,8 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
         case 'page_engagement':
           if (ev.engagement_seconds && ev.engagement_seconds > 0) {
             totalEngagementSeconds += ev.engagement_seconds;
+            dNode.engagement += ev.engagement_seconds;
+            lNode.engagement += ev.engagement_seconds;
             const engPath = ev.page_path || '/';
             if (pagesMap.has(engPath)) {
               pagesMap.get(engPath)!.engagement += ev.engagement_seconds;
@@ -143,6 +180,8 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
           break;
         case 'whatsapp_click':
           totalWhatsAppClicks++;
+          dNode.whatsapp++;
+          lNode.whatsapp++;
           if (ev.button_location) {
             whatsappLocMap.set(ev.button_location, (whatsappLocMap.get(ev.button_location) || 0) + 1);
           }
@@ -156,6 +195,8 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
           break;
         case 'quote_submitted':
           totalQuoteSubmitted++;
+          dNode.quotes++;
+          lNode.quotes++;
           break;
         case 'quote_started':
           totalQuoteStarted++;
@@ -183,22 +224,32 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
       }
     });
 
-    const max = Math.max(devices.mobile, devices.desktop, devices.tablet);
-    if (max > 0) {
-      if (max === devices.mobile) topDevice = `Móvil (${Math.round((devices.mobile / events.length) * 100)}%)`;
-      else if (max === devices.desktop) topDevice = `Desktop (${Math.round((devices.desktop / events.length) * 100)}%)`;
-      else if (max === devices.tablet) topDevice = `Tablet (${Math.round((devices.tablet / events.length) * 100)}%)`;
-    }
+    // Formatear Devices
+    const deviceStats = Array.from(devicesMap.values()).map(d => ({
+      label: d.label,
+      visitors: d.visitors.size,
+      sessions: d.sessions.size,
+      pageViews: d.pageViews,
+      avgEngagement: d.sessions.size > 0 ? Math.round(d.engagement / d.sessions.size) : 0,
+      whatsapp: d.whatsapp,
+      quotes: d.quotes,
+      conversion: d.visitors.size > 0 ? ((d.quotes + d.whatsapp) / d.visitors.size) * 100 : 0,
+      percentage: uniqueVisitors.size > 0 ? (d.visitors.size / uniqueVisitors.size) * 100 : 0
+    })).sort((a, b) => b.visitors - a.visitors);
 
-    // Procesar ubicaciones únicas por sesión
-    const sessionLocations = new Set<string>();
-    events.forEach((ev: any) => {
-      if (ev.session_id && ev.country && !sessionLocations.has(ev.session_id)) {
-        sessionLocations.add(ev.session_id);
-        const locKey = ev.city ? `${ev.city}, ${ev.country}` : ev.country;
-        citiesMap.set(locKey, (citiesMap.get(locKey) || 0) + 1);
-      }
-    });
+    const topDeviceLabel = deviceStats.length > 0 && deviceStats[0].visitors > 0 ? `${deviceStats[0].label} — ${Math.round(deviceStats[0].percentage)}%` : 'Sin datos';
+
+    // Formatear Locations
+    const locationStats = Array.from(locationsMap.values()).map(l => ({
+      label: l.label,
+      visitors: l.visitors.size,
+      sessions: l.sessions.size,
+      pageViews: l.pageViews,
+      avgEngagement: l.sessions.size > 0 ? Math.round(l.engagement / l.sessions.size) : 0,
+      whatsapp: l.whatsapp,
+      quotes: l.quotes,
+      conversion: l.visitors.size > 0 ? ((l.quotes + l.whatsapp) / l.visitors.size) * 100 : 0
+    })).sort((a, b) => b.visitors - a.visitors);
 
     // Formatear Top Products
     const topProducts = Array.from(productsMap.entries())
@@ -238,9 +289,8 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
       .sort((a, b) => b.views - a.views)
       .slice(0, 10);
 
-    // Formatear Fuentes y Ciudades
+    // Formatear Fuentes y otros
     const topSources = Array.from(sourcesMap.entries()).map(([source, count]) => ({ source, count })).sort((a, b) => b.count - a.count);
-    const topCities = Array.from(citiesMap.entries()).map(([city, count]) => ({ city, count })).sort((a, b) => b.count - a.count);
     const topWhatsApp = Array.from(whatsappLocMap.entries()).map(([location, count]) => ({ location, count })).sort((a, b) => b.count - a.count);
 
     // Embudo
@@ -277,7 +327,9 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
     return {
       leads: { total: leadsCount || 0 },
       quotes: { total: quotesCount || 0, pending: pendingQuotes || 0, approved: approvedQuotes || 0 },
-      analytics: { hasData: hasData, pageViews: totalPageViews, topDevice: topDevice },
+      analytics: { hasData: hasData, pageViews: totalPageViews, topDevice: topDeviceLabel },
+      deviceStats,
+      locationStats,
       summary: {
         uniqueVisitors: uniqueVisitors.size,
         sessions: uniqueSessions.size,
@@ -290,7 +342,6 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
       topProducts,
       topPages,
       topSources,
-      topCities,
       topWhatsApp,
       funnel,
       alerts,
@@ -302,8 +353,10 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
       leads: { total: 0 },
       quotes: { total: 0, pending: 0, approved: 0 },
       analytics: { hasData: false, pageViews: 0, topDevice: 'Error' },
+      deviceStats: [],
+      locationStats: [],
       summary: { uniqueVisitors: 0, sessions: 0, pageViews: 0, avgEngagementSeconds: 0, whatsappClicks: 0, quotesSubmitted: 0, conversionRate: 0 },
-      topProducts: [], topPages: [], topSources: [], topCities: [], topWhatsApp: [], funnel: { visitors: 0, productViews: 0, itemAdded: 0, quoteStarted: 0, quoteSubmitted: 0, whatsappClick: 0 },
+      topProducts: [], topPages: [], topSources: [], topWhatsApp: [], funnel: { visitors: 0, productViews: 0, itemAdded: 0, quoteStarted: 0, quoteSubmitted: 0, whatsappClick: 0 },
       alerts: [{ message: 'Error al cargar los datos', type: 'danger' }],
       hasData: false
     };
