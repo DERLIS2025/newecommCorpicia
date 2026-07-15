@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '../supabase/admin';
+import { productsCatalog } from '@/data/productsData';
 
 export type DashboardPeriod = 'today' | '7d' | '30d' | 'this_month';
 
@@ -155,16 +156,49 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
       if (ev.visitor_id) lNode.visitors.add(ev.visitor_id);
       if (ev.session_id) lNode.sessions.add(ev.session_id);
 
-      // Helper para normalizar producto
-      const normalizeProductKey = (e: any) => {
-        let raw = e.metadata?.product_slug || e.entity_id || e.metadata?.product_name || '';
-        if (!raw) return 'desconocido';
-        return raw.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      // Helper para normalizar producto contra el catálogo real
+      const normalizeProductIdentity = (value: unknown): string => {
+        return String(value || '')
+          .trim()
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '');
       };
-      const resolveProductName = (e: any, pid: string) => {
-        if (e.metadata?.product_name && e.metadata.product_name !== pid) return e.metadata.product_name;
-        if (e.metadata?.productName && e.metadata.productName !== pid) return e.metadata.productName;
-        return pid.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
+
+      const catalogMap = new Map<string, { slug: string, name: string }>();
+      productsCatalog.forEach(p => {
+        const data = { slug: p.slug, name: p.name };
+        catalogMap.set(p.slug, data);
+        if (p.id) catalogMap.set(p.id, data);
+        catalogMap.set(normalizeProductIdentity(p.slug), data);
+        catalogMap.set(normalizeProductIdentity(p.name), data);
+        catalogMap.set(normalizeProductIdentity(p.name).replace(/-de-/g, '-'), data); // variante sin conectivas
+      });
+
+      const resolveCanonicalProduct = (e: any): { slug: string, name: string } => {
+        const candidates = [
+          e.metadata?.product_slug,
+          e.entity_id,
+          e.metadata?.product_name
+        ];
+
+        for (const cand of candidates) {
+          if (!cand) continue;
+          const exact = catalogMap.get(String(cand));
+          if (exact) return exact;
+          
+          const norm = normalizeProductIdentity(cand);
+          const normMatch = catalogMap.get(norm) || catalogMap.get(norm.replace(/-de-/g, '-'));
+          if (normMatch) return normMatch;
+        }
+        
+        // Fallback
+        const fallbackKey = normalizeProductIdentity(e.metadata?.product_slug || e.entity_id || e.metadata?.product_name);
+        const fallbackName = e.metadata?.product_name || fallbackKey.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
+        
+        return { slug: fallbackKey || 'desconocido', name: fallbackName || 'Desconocido' };
       };
 
       // Conteo de eventos específicos
@@ -198,11 +232,10 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
             whatsappLocMap.set(ev.button_location, (whatsappLocMap.get(ev.button_location) || 0) + 1);
           }
           // Si fue desde un producto, asociar
-          if (ev.button_location === 'pdp' && ev.entity_id) {
-            const pid = normalizeProductKey(ev);
-            const pName = resolveProductName(ev, pid);
-            if (!productsMap.has(pid)) productsMap.set(pid, { name: pName, views: 0, viewers: new Set(), adds: 0, adders: new Set(), whatsapp: 0, whatsappers: new Set() });
-            const p = productsMap.get(pid)!;
+          if (ev.button_location === 'pdp' && ev.entity_id && ev.entity_type === 'product') {
+            const canonical = resolveCanonicalProduct(ev);
+            if (!productsMap.has(canonical.slug)) productsMap.set(canonical.slug, { name: canonical.name, views: 0, viewers: new Set(), adds: 0, adders: new Set(), whatsapp: 0, whatsappers: new Set() });
+            const p = productsMap.get(canonical.slug)!;
             p.whatsapp++;
             if (ev.visitor_id) p.whatsappers.add(ev.visitor_id);
           }
@@ -218,10 +251,9 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
         case 'product_view':
           totalProductViews++;
           if (ev.entity_id) {
-            const pid = normalizeProductKey(ev);
-            const pName = resolveProductName(ev, pid);
-            if (!productsMap.has(pid)) productsMap.set(pid, { name: pName, views: 0, viewers: new Set(), adds: 0, adders: new Set(), whatsapp: 0, whatsappers: new Set() });
-            const p = productsMap.get(pid)!;
+            const canonical = resolveCanonicalProduct(ev);
+            if (!productsMap.has(canonical.slug)) productsMap.set(canonical.slug, { name: canonical.name, views: 0, viewers: new Set(), adds: 0, adders: new Set(), whatsapp: 0, whatsappers: new Set() });
+            const p = productsMap.get(canonical.slug)!;
             p.views++;
             if (ev.visitor_id) p.viewers.add(ev.visitor_id);
           }
@@ -229,10 +261,9 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
         case 'quote_item_added':
           totalQuoteItemAdded++;
           if (ev.entity_id) { 
-            const pid = normalizeProductKey(ev);
-            const pName = resolveProductName(ev, pid);
-            if (!productsMap.has(pid)) productsMap.set(pid, { name: pName, views: 0, viewers: new Set(), adds: 0, adders: new Set(), whatsapp: 0, whatsappers: new Set() });
-            const p = productsMap.get(pid)!;
+            const canonical = resolveCanonicalProduct(ev);
+            if (!productsMap.has(canonical.slug)) productsMap.set(canonical.slug, { name: canonical.name, views: 0, viewers: new Set(), adds: 0, adders: new Set(), whatsapp: 0, whatsappers: new Set() });
+            const p = productsMap.get(canonical.slug)!;
             p.adds++;
             if (ev.visitor_id) p.adders.add(ev.visitor_id);
           }
