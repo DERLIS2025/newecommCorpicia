@@ -181,7 +181,7 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
 
     // Procesar ubicaciones únicas por sesión
     const sessionLocations = new Set<string>();
-    events.forEach(ev => {
+    events.forEach((ev: any) => {
       if (ev.session_id && ev.country && !sessionLocations.has(ev.session_id)) {
         sessionLocations.add(ev.session_id);
         const locKey = ev.city ? `${ev.city}, ${ev.country}` : ev.country;
