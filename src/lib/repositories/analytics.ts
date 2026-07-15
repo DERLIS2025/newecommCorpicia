@@ -35,7 +35,7 @@ export async function getDashboardSummary() {
 
     if (!eventsError && eventsData && eventsData.length > 0) {
       hasEvents = true;
-      eventsData.forEach(ev => {
+      eventsData.forEach((ev: any) => {
         if (ev.event_name === 'page_view') totalPageViews++;
         
         if (ev.device_type === 'mobile') devices.mobile++;
