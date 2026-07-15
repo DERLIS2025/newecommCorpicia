@@ -172,8 +172,8 @@ export default function PresupuestoClient() {
       <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-900 tracking-tight">Solicitar Presupuesto</h1>
 
       <div className="grid lg:grid-cols-12 gap-8 lg:gap-10 items-start">
-        {/* COLUMNA IZQUIERDA: PRODUCTOS (7 columnas) */}
-        <div className="lg:col-span-7 flex flex-col gap-4">
+        {/* COLUMNA IZQUIERDA: PRODUCTOS (6 columnas) */}
+        <div className="lg:col-span-6 flex flex-col gap-4">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-4 sm:p-5 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
               <h2 className="font-semibold text-gray-800 flex items-center gap-2">
@@ -309,8 +309,8 @@ export default function PresupuestoClient() {
           </div>
         </div>
 
-        {/* COLUMNA DERECHA: RESUMEN Y FORMULARIO (5 columnas) */}
-        <div className="lg:col-span-5 flex flex-col gap-4 lg:gap-3">
+        {/* COLUMNA DERECHA: RESUMEN Y FORMULARIO (6 columnas) */}
+        <div className="lg:col-span-6 flex flex-col gap-4 lg:gap-5">
           <div className="bg-white rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 overflow-hidden">
             
             {/* Cabecera Resumen Total */}
@@ -339,7 +339,7 @@ export default function PresupuestoClient() {
               )}
               
               <form onSubmit={handleFormSubmit} onChangeCapture={trackQuoteStarted}>
-                <div className="flex flex-col space-y-4 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-4 lg:items-start">
+                <div className="flex flex-col space-y-4 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-5 lg:items-start">
                   
                   {/* SECCIÓN CONTACTO (Mobile Only Title) */}
                   <div className="lg:hidden">
@@ -348,24 +348,24 @@ export default function PresupuestoClient() {
                     </h4>
                   </div>
 
-                  {/* FILA 1 (Desktop) */}
+                  {/* FILA 1 (Desktop): Nombre y Teléfono */}
                   <div className="lg:col-span-1">
-                    <label className="block text-sm lg:text-xs font-semibold text-gray-700 mb-1">Nombre completo *</label>
+                    <label className="block text-sm lg:text-xs font-semibold text-gray-700 mb-1.5">Nombre completo *</label>
                     <Input name="name" required placeholder="Ej: Juan Pérez" className="h-11 lg:h-10 rounded-xl bg-gray-50 border-gray-200 focus:bg-white text-sm" onFocus={trackQuoteStarted} />
                   </div>
                   
                   <div className="lg:col-span-1">
-                    <label className="block text-sm lg:text-xs font-semibold text-gray-700 mb-1">Teléfono / WhatsApp *</label>
+                    <label className="block text-sm lg:text-xs font-semibold text-gray-700 mb-1.5">Teléfono / WhatsApp *</label>
                     <Input name="phone" required placeholder="Ej: 0981 123 456" className="h-11 lg:h-10 rounded-xl bg-gray-50 border-gray-200 focus:bg-white text-sm" />
                   </div>
                   
-                  {/* FILA 2 (Desktop) */}
+                  {/* FILA 2 (Desktop): Email y Ciudad */}
                   <div className="lg:col-span-1">
-                    <label className="block text-sm lg:text-xs font-semibold text-gray-700 mb-1">Email <span className="font-normal text-gray-400">(Opcional)</span></label>
+                    <label className="block text-sm lg:text-xs font-semibold text-gray-700 mb-1.5">Email <span className="font-normal text-gray-400">(Opcional)</span></label>
                     <Input name="email" type="email" placeholder="Ej: juan@mail.com" className="h-11 lg:h-10 rounded-xl bg-gray-50 border-gray-200 focus:bg-white text-sm" />
                   </div>
                   <div className="lg:col-span-1">
-                    <label className="block text-sm lg:text-xs font-semibold text-gray-700 mb-1">Ciudad <span className="font-normal text-gray-400">(Opcional)</span></label>
+                    <label className="block text-sm lg:text-xs font-semibold text-gray-700 mb-1.5">Ciudad <span className="font-normal text-gray-400">(Opcional)</span></label>
                     <Input name="location" placeholder="Ej: Asunción" className="h-11 lg:h-10 rounded-xl bg-gray-50 border-gray-200 focus:bg-white text-sm" />
                   </div>
 
@@ -376,8 +376,8 @@ export default function PresupuestoClient() {
                     </h4>
                   </div>
 
-                  {/* FILA 3 (Desktop): Ubicación (Col 1) | Referencia y Comentarios (Col 2) */}
-                  <div className="lg:col-span-1 lg:h-full">
+                  {/* FILA 3 (Desktop): Ubicación del proyecto (Ancho completo) */}
+                  <div className="lg:col-span-2">
                     <LocationPicker 
                       onLocationChange={setSelectedLocation}
                       disabled={isSubmitting}
@@ -394,30 +394,31 @@ export default function PresupuestoClient() {
                     )}
                   </div>
                   
-                  <div className="lg:col-span-1 flex flex-col gap-3 lg:gap-4 lg:h-full">
-                    <div>
-                      <label className="block text-sm lg:text-xs font-semibold text-gray-700 mb-1">Referencia de ubicación <span className="font-normal text-gray-400">(Opcional)</span></label>
-                      <Input 
-                        name="locationReference"
-                        placeholder="Ej: Portón negro, etc."
-                        value={locationReference}
-                        onChange={(e) => setLocationReference(e.target.value)}
-                        disabled={isSubmitting}
-                        className="h-11 lg:h-10 rounded-xl bg-gray-50 border-gray-200 focus:bg-white text-sm"
-                      />
-                    </div>
-                    <div className="flex-1 flex flex-col">
-                      <label className="block text-sm lg:text-xs font-semibold text-gray-700 mb-1">Comentarios <span className="font-normal text-gray-400">(Opcional)</span></label>
-                      <textarea 
-                        name="notes"
-                        placeholder="Dudas, requerimientos especiales..."
-                        className="w-full flex-1 min-h-[80px] lg:min-h-0 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1F4E79]/20 focus:border-[#1F4E79] transition-all resize-none"
-                      />
-                    </div>
+                  {/* FILA 4 (Desktop): Referencia y Comentarios */}
+                  <div className="lg:col-span-1">
+                    <label className="block text-sm lg:text-xs font-semibold text-gray-700 mb-1.5">Referencia de ubicación <span className="font-normal text-gray-400">(Opcional)</span></label>
+                    <Input 
+                      name="locationReference"
+                      placeholder="Ej: Portón negro, etc."
+                      value={locationReference}
+                      onChange={(e) => setLocationReference(e.target.value)}
+                      disabled={isSubmitting}
+                      className="h-11 lg:h-10 rounded-xl bg-gray-50 border-gray-200 focus:bg-white text-sm"
+                    />
+                  </div>
+                  
+                  <div className="lg:col-span-1">
+                    <label className="block text-sm lg:text-xs font-semibold text-gray-700 mb-1.5">Comentarios <span className="font-normal text-gray-400">(Opcional)</span></label>
+                    <Input 
+                      name="notes"
+                      placeholder="Dudas, requerimientos especiales..."
+                      disabled={isSubmitting}
+                      className="h-11 lg:h-10 rounded-xl bg-gray-50 border-gray-200 focus:bg-white text-sm"
+                    />
                   </div>
                   
                   {/* BOTONES */}
-                  <div className="lg:col-span-2 pt-2 lg:pt-0 flex flex-col gap-3">
+                  <div className="lg:col-span-2 pt-4 lg:pt-2 flex flex-col gap-3">
                     <Button type="submit" className="w-full bg-[#1F4E79] hover:bg-[#163A5A] text-white h-12 rounded-xl text-base lg:text-sm font-bold shadow-md shadow-[#1F4E79]/20 transition-all hover:shadow-lg hover:-translate-y-0.5" disabled={isSubmitting}>
                       {isSubmitting ? 'Procesando...' : (
                         <>
