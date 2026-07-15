@@ -5,6 +5,7 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { WhatsAppFloatingButton } from '@/components/WhatsAppButton';
 import { BudgetDrawer } from '@/components/BudgetDrawer';
+import { InternalPageTracker } from '@/components/analytics/InternalPageTracker';
 
 
 
@@ -360,8 +361,9 @@ export default function RootLayout({
         </Script>
 
         {/* ========================================== */}
-        {/* UI COMPONENTS */}
+        {/* UI COMPONENTS & TRACKING */}
         {/* ========================================== */}
+        <InternalPageTracker />
         <Navbar />
         <main className="min-h-screen">{children}</main>
         <Footer />
