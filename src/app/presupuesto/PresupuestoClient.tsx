@@ -9,6 +9,12 @@ import { Input } from '@/components/ui/input';
 import { useBudgetStore } from '@/store/budgetStore';
 import { trackWhatsAppClick, trackQuoteStarted, trackQuoteSubmitted } from '@/lib/tracking';
 import { submitQuoteRequest } from '@/lib/actions/public-quotes';
+import {
+  formatPrice,
+  formatUnit,
+  generateWhatsAppMessage,
+  getPriceForQuantity,
+} from '@/lib/utils';
 import LocationPicker, { SelectedLocation } from '@/components/maps/LocationPicker';
 import {
   Minus,
@@ -31,6 +37,11 @@ export default function PresupuestoClient() {
   // Ubicación
   const [selectedLocation, setSelectedLocation] = useState<SelectedLocation | null>(null);
   const [locationReference, setLocationReference] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitResult, setSubmitResult] = useState<{
+    success: boolean;
+    message: string;
+  } | null>(null);
 
   const handleWhatsAppClick = () => {
     trackWhatsAppClick('budget_summary', 'enviar-presupuesto');
