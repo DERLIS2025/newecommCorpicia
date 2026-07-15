@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { getWhatsAppUrl } from '@/lib/utils';
+import { trackBannerClick } from '@/lib/tracking';
 
 type Banner = {
   id?: string;
@@ -177,7 +178,11 @@ function SingleChunk({ chunk }: { chunk: Banner[] }) {
   const { desktopImg, mobileImg, linkUrl } = getBannerLinks(banner);
 
   return (
-    <Link href={linkUrl} className="block w-full">
+    <Link 
+      href={linkUrl} 
+      className="block w-full"
+      onClick={() => trackBannerClick(banner.id || banner.title || 'unknown', 'hero', { title: banner.title, destination_url: linkUrl })}
+    >
       <div className="relative w-full aspect-[16/9] lg:h-[380px] rounded-xl overflow-hidden bg-[#f5fbf6]">
         {/* Mobile Image */}
         <div className="block sm:hidden w-full h-full relative">
@@ -206,7 +211,11 @@ function HeroGridChunk({ chunk }: { chunk: Banner[] }) {
       {/* Mobile: Solo banner principal, laterales en scroll horizontal */}
       <div className="block md:hidden space-y-3">
         {mainBanner && mainLinks && (
-          <Link href={mainLinks.linkUrl} className="block">
+          <Link 
+            href={mainLinks.linkUrl} 
+            className="block"
+            onClick={() => trackBannerClick(mainBanner.id || mainBanner.title || 'unknown', 'hero', { title: mainBanner.title, destination_url: mainLinks.linkUrl, position: 'main' })}
+          >
             <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-[#f5fbf6]">
               <Image src={mainLinks.mobileImg as string} alt={mainBanner.title || 'Banner principal'} fill className="object-cover" priority />
             </div>
@@ -216,14 +225,22 @@ function HeroGridChunk({ chunk }: { chunk: Banner[] }) {
         {(sideBanner1 || sideBanner2) && (
           <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide">
             {sideBanner1 && side1Links && (
-              <Link href={side1Links.linkUrl} className="block flex-shrink-0 w-[85%] snap-start">
+              <Link 
+                href={side1Links.linkUrl} 
+                className="block flex-shrink-0 w-[85%] snap-start"
+                onClick={() => trackBannerClick(sideBanner1.id || sideBanner1.title || 'unknown', 'secondary', { title: sideBanner1.title, destination_url: side1Links.linkUrl, position: 'side1' })}
+              >
                 <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-[#f5fbf6]">
                   <Image src={side1Links.mobileImg as string} alt={sideBanner1.title || 'Banner lateral'} fill className="object-cover" />
                 </div>
               </Link>
             )}
             {sideBanner2 && side2Links && (
-              <Link href={side2Links.linkUrl} className="block flex-shrink-0 w-[85%] snap-start">
+              <Link 
+                href={side2Links.linkUrl} 
+                className="block flex-shrink-0 w-[85%] snap-start"
+                onClick={() => trackBannerClick(sideBanner2.id || sideBanner2.title || 'unknown', 'secondary', { title: sideBanner2.title, destination_url: side2Links.linkUrl, position: 'side2' })}
+              >
                 <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-[#f5fbf6]">
                   <Image src={side2Links.mobileImg as string} alt={sideBanner2.title || 'Banner lateral'} fill className="object-cover" />
                 </div>
@@ -236,7 +253,11 @@ function HeroGridChunk({ chunk }: { chunk: Banner[] }) {
       {/* Desktop: Layout original de 2 columnas */}
       <div className="hidden md:grid gap-4 lg:grid-cols-[2fr_1fr]">
         {mainBanner && mainLinks ? (
-          <Link href={mainLinks.linkUrl} className="block">
+          <Link 
+            href={mainLinks.linkUrl} 
+            className="block"
+            onClick={() => trackBannerClick(mainBanner.id || mainBanner.title || 'unknown', 'hero', { title: mainBanner.title, destination_url: mainLinks.linkUrl, position: 'main' })}
+          >
             <div className="relative w-full aspect-[16/9] lg:h-[500px] rounded-xl overflow-hidden bg-[#f5fbf6]">
               <Image src={mainLinks.desktopImg as string} alt={mainBanner.title || 'Banner principal'} fill className="object-contain" priority />
             </div>
@@ -247,7 +268,11 @@ function HeroGridChunk({ chunk }: { chunk: Banner[] }) {
 
         <div className="grid gap-4">
           {sideBanner1 && side1Links ? (
-            <Link href={side1Links.linkUrl} className="block h-full">
+            <Link 
+              href={side1Links.linkUrl} 
+              className="block h-full"
+              onClick={() => trackBannerClick(sideBanner1.id || sideBanner1.title || 'unknown', 'secondary', { title: sideBanner1.title, destination_url: side1Links.linkUrl, position: 'side1' })}
+            >
               <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-[#f5fbf6] h-full">
                 <Image src={side1Links.desktopImg as string} alt={sideBanner1.title || 'Banner lateral'} fill className="object-contain" />
               </div>
@@ -257,7 +282,11 @@ function HeroGridChunk({ chunk }: { chunk: Banner[] }) {
           )}
 
           {sideBanner2 && side2Links ? (
-            <Link href={side2Links.linkUrl} className="block h-full">
+            <Link 
+              href={side2Links.linkUrl} 
+              className="block h-full"
+              onClick={() => trackBannerClick(sideBanner2.id || sideBanner2.title || 'unknown', 'secondary', { title: sideBanner2.title, destination_url: side2Links.linkUrl, position: 'side2' })}
+            >
               <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-[#f5fbf6] h-full">
                 <Image src={side2Links.desktopImg as string} alt={sideBanner2.title || 'Banner lateral'} fill className="object-contain" />
               </div>

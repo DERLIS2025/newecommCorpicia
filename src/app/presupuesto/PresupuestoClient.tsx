@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useBudgetStore } from '@/store/budgetStore';
 import { formatPrice, formatUnit, generateWhatsAppMessage, getPriceForQuantity } from '@/lib/utils';
-import { trackWhatsAppClick } from '@/lib/tracking';
+import { trackWhatsAppClick, trackQuoteStarted, trackQuoteSubmitted } from '@/lib/tracking';
 import { submitQuoteRequest } from '@/lib/actions/public-quotes';
 import {
   Minus,
@@ -70,6 +70,9 @@ export default function PresupuestoClient() {
     setIsSubmitting(false);
     
     if (result.success) {
+      if (result.quoteId) {
+        trackQuoteSubmitted(result.quoteId, items.length, getTotal());
+      }
       clearBudget();
     }
   };
@@ -190,12 +193,13 @@ export default function PresupuestoClient() {
                     {/* Input de cantidad editable */}
                     <div className="flex items-center gap-2 mt-3">
                       <button
-                        onClick={() =>
+                        onClick={() => {
                           updateQuantity(
                             item.product.id,
                             Math.max(item.product.minQuantity, item.quantity - 1)
-                          )
-                        }
+                          );
+                          trackQuoteStarted();
+                        }}
                         className="p-1.5 hover:bg-gray-200 rounded bg-gray-100 transition-colors"
                       >
                         <Minus size={16} />
@@ -208,6 +212,7 @@ export default function PresupuestoClient() {
                         onChange={(e) => {
                           const val = parseInt(e.target.value) || item.product.minQuantity;
                           updateQuantity(item.product.id, Math.max(item.product.minQuantity, val));
+                          trackQuoteStarted();
                         }}
                         className="w-16 text-center text-sm font-medium border rounded py-1 px-1"
                       />
@@ -217,7 +222,10 @@ export default function PresupuestoClient() {
                       </span>
 
                       <button 
-                        onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                        onClick={() => {
+                          updateQuantity(item.product.id, item.quantity + 1);
+                          trackQuoteStarted();
+                        }}
                         className="p-1.5 hover:bg-gray-200 rounded bg-gray-100 transition-colors"
                       >
                         <Plus size={16} />
@@ -320,10 +328,10 @@ export default function PresupuestoClient() {
                   </div>
                 )}
                 
-                <form onSubmit={handleFormSubmit} className="space-y-4">
+                <form onSubmit={handleFormSubmit} onChangeCapture={trackQuoteStarted} className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium mb-1">Nombre completo *</label>
-                    <Input name="name" required placeholder="Ej: Juan Pérez" />
+                    <Input name="name" required placeholder="Ej: Juan Pérez" onFocus={trackQuoteStarted} />
                   </div>
                   
                   <div>

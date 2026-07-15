@@ -13,7 +13,8 @@ const ALLOWED_EVENTS = [
   'quote_started',
   'quote_item_added',
   'quote_submitted',
-  'search_performed'
+  'search_performed',
+  'page_engagement'
 ];
 
 // Helper to truncate text to avoid payload abuse
@@ -50,8 +51,22 @@ export async function POST(req: NextRequest) {
       utm_campaign,
       utm_content,
       utm_term,
-      metadata
+      metadata,
+      engagement_seconds,
+      button_location
     } = body;
+
+    // Geographic data exclusively from headers (Never from client payload)
+    let country = req.headers.get('x-vercel-ip-country') || null;
+    let region = req.headers.get('x-vercel-ip-country-region') || null;
+    let city = req.headers.get('x-vercel-ip-city') || null;
+    
+    // Safely decode city if needed (Vercel sometimes URL-encodes headers)
+    if (city) {
+      try {
+        city = decodeURIComponent(city);
+      } catch(e) {}
+    }
 
     // 2. Validation
     if (!visitor_id || typeof visitor_id !== 'string') {
@@ -67,11 +82,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing or invalid page_path' }, { status: 400 });
     }
 
+    // Validation for engagement_seconds
+    let safeEngagement = null;
+    if (event_name === 'page_engagement' && typeof engagement_seconds === 'number') {
+      if (engagement_seconds > 0 && engagement_seconds <= 1800) {
+        safeEngagement = engagement_seconds;
+      } else {
+        // Drop invalid engagement seconds
+        return NextResponse.json({ success: true }); // drop silently
+      }
+    }
+
     // 3. Metadata validation (ensure it's an object and not too deep/large)
     let safeMetadata = {};
     if (metadata && typeof metadata === 'object' && !Array.isArray(metadata)) {
-      // Very basic sanitization, stringifying and parsing to drop functions/weird prototypes,
-      // and ensuring it's not gigantic.
       const stringified = JSON.stringify(metadata);
       if (stringified.length <= 2048) {
         safeMetadata = JSON.parse(stringified);
@@ -85,7 +109,7 @@ export async function POST(req: NextRequest) {
       event_name,
       page_path: truncate(page_path, 500),
       entity_type: truncate(entity_type, 100),
-      entity_id: truncate(entity_id, 100), // Enforced as text in DB
+      entity_id: String(entity_id || '').substring(0, 100) || null, // Enforced as text in DB
       device_type: truncate(device_type, 50),
       screen_width: typeof screen_width === 'number' ? screen_width : null,
       browser: truncate(browser, 100),
@@ -97,7 +121,12 @@ export async function POST(req: NextRequest) {
       utm_campaign: truncate(utm_campaign, 200),
       utm_content: truncate(utm_content, 200),
       utm_term: truncate(utm_term, 200),
-      metadata: safeMetadata
+      metadata: safeMetadata,
+      engagement_seconds: safeEngagement,
+      button_location: truncate(button_location, 100),
+      country: truncate(country, 10),
+      region: truncate(region, 50),
+      city: truncate(city, 100)
     });
 
     if (error) {

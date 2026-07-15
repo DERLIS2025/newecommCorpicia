@@ -7,6 +7,7 @@ import { getServices } from '@/lib/repositories/services';
 import Image from 'next/image';
 
 import { getSeoEntry } from '@/lib/repositories/seo';
+import { ServiceCTAButton } from '@/components/services/ServiceCTAButton';
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSeoEntry('/servicios');
@@ -108,16 +109,12 @@ export default async function ServicesPage() {
                     )}
                   </div>
                   <div className="px-6 pb-6">
-                    <a
-                      href={getWhatsAppUrl()}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Button className="w-full gap-2">
-                        Solicitar Presupuesto
-                        <ArrowRight className="w-4 h-4" />
-                      </Button>
-                    </a>
+                    <ServiceCTAButton
+                      serviceId={service.id || service.slug || service.title}
+                      serviceTitle={service.title}
+                      whatsappUrl={getWhatsAppUrl()}
+                      buttonLocation="service_card"
+                    />
                   </div>
                 </CardContent>
               </Card>
@@ -136,16 +133,17 @@ export default async function ServicesPage() {
             Contactanos y te ayudamos a hacer realidad el jardín de tus sueños. 
             Atendemos proyectos residenciales y comerciales en todo Paraguay.
           </p>
-          <a
-            href={getWhatsAppUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
+          <ServiceCTAButton
+            serviceId="general-services-cta"
+            serviceTitle="Consultas Generales de Servicios"
+            whatsappUrl={getWhatsAppUrl()}
+            buttonLocation="service_cta"
           >
             <Button size="lg" className="gap-2">
               Hablar con un Experto
               <ArrowRight className="w-5 h-5" />
             </Button>
-          </a>
+          </ServiceCTAButton>
         </div>
       </div>
     </div>

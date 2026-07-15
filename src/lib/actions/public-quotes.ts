@@ -5,6 +5,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 export type PublicQuoteState = {
   success: boolean;
   message: string;
+  quoteId?: string;
 };
 
 function isUuid(value: string) {
@@ -147,7 +148,7 @@ export async function submitQuoteRequest(
         notes: 'Presupuesto recibido desde la web pública.',
       });
 
-    return { success: true, message: 'Solicitud enviada correctamente. Te contactaremos pronto.' };
+    return { success: true, message: 'Solicitud enviada correctamente. Te contactaremos pronto.', quoteId: quote.id };
   } catch (error: any) {
     console.error('Error in submitQuoteRequest:', error);
     return { success: false, message: 'Ocurrió un error inesperado al enviar la solicitud.' };

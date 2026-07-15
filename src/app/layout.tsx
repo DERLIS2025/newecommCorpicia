@@ -7,6 +7,7 @@ import { Footer } from '@/components/Footer';
 import { WhatsAppFloatingButton } from '@/components/WhatsAppButton';
 import { BudgetDrawer } from '@/components/BudgetDrawer';
 import { InternalPageTracker } from '@/components/analytics/InternalPageTracker';
+import { PageEngagementTracker } from '@/components/analytics/PageEngagementTracker';
 
 
 
@@ -366,6 +367,7 @@ export default function RootLayout({
         {/* ========================================== */}
         <Suspense fallback={null}>
           <InternalPageTracker />
+          <PageEngagementTracker />
         </Suspense>
         <Navbar />
         <main className="min-h-screen">{children}</main>

@@ -68,17 +68,34 @@ function getBrowserInfo() {
   return { browser, os, device_type };
 }
 
-// Parse UTM parameters from URL
+// Parse UTM parameters from URL and save to session
 function getUtmParams() {
   if (typeof window === 'undefined') return {};
+  
+  const savedUtmsStr = sessionStorage.getItem('corpicia_utms');
+  let savedUtms = savedUtmsStr ? JSON.parse(savedUtmsStr) : null;
+
   const params = new URLSearchParams(window.location.search);
-  return {
+  const currentUtms = {
     utm_source: params.get('utm_source') || undefined,
     utm_medium: params.get('utm_medium') || undefined,
     utm_campaign: params.get('utm_campaign') || undefined,
     utm_content: params.get('utm_content') || undefined,
     utm_term: params.get('utm_term') || undefined,
   };
+
+  // If there are current UTMs in URL, use them and save to session
+  if (currentUtms.utm_source || currentUtms.utm_medium) {
+    sessionStorage.setItem('corpicia_utms', JSON.stringify(currentUtms));
+    return currentUtms;
+  }
+
+  // Otherwise, use saved UTMs from the beginning of the session
+  if (savedUtms) {
+    return savedUtms;
+  }
+
+  return {};
 }
 
 export type TrackEventPayload = {
@@ -88,6 +105,8 @@ export type TrackEventPayload = {
   entity_id?: string;
   landing_page?: string;
   metadata?: Record<string, any>;
+  engagement_seconds?: number;
+  button_location?: string;
 };
 
 // Queue to avoid blasting the server if called rapidly
@@ -105,11 +124,22 @@ async function processQueue() {
     const { browser, os, device_type } = getBrowserInfo();
     const utms = getUtmParams();
     
-    // Save landing page if it's the very first visit of this session
+    // Save landing page and referrer if it's the very first visit of this session
     let landingPage = sessionStorage.getItem('corpicia_landing_page');
+    let firstReferrer = sessionStorage.getItem('corpicia_first_referrer');
+    
     if (!landingPage) {
       landingPage = window.location.pathname;
       sessionStorage.setItem('corpicia_landing_page', landingPage);
+      
+      const ref = document.referrer;
+      // If it's a new session, only save referrer if it's not internal
+      if (ref && !ref.includes(window.location.hostname)) {
+        firstReferrer = ref;
+      } else {
+        firstReferrer = 'direct'; // or empty string
+      }
+      sessionStorage.setItem('corpicia_first_referrer', firstReferrer || '');
     }
 
     const payload = {
@@ -121,7 +151,7 @@ async function processQueue() {
       browser,
       operating_system: os,
       screen_width: window.innerWidth,
-      referrer: document.referrer || undefined,
+      referrer: firstReferrer && firstReferrer !== 'direct' ? firstReferrer : undefined,
       landing_page: landingPage,
       ...utms,
       metadata: event.metadata || {},
@@ -156,6 +186,8 @@ export function trackWhatsAppClick(source: string, identifier: string) {
   trackEvent({
     event_name: 'whatsapp_click',
     page_path: window.location.pathname,
+    button_location: source, // normalize source as button_location
+    entity_id: identifier, // normalize identifier as entity_id
     metadata: { source, identifier },
   });
 }
@@ -179,6 +211,53 @@ export function trackAddToBudget(productName: string, quantity: number) {
     entity_type: 'product',
     entity_id: String(productName), // Note: original code passes name here in some places, so we use it as ID for now or just metadata
     metadata: { productName, quantity },
+  });
+}
+
+export function trackBannerClick(entityId: string, buttonLocation: string, metadata: any = {}) {
+  if (typeof window === 'undefined') return;
+  trackEvent({
+    event_name: 'banner_click',
+    page_path: window.location.pathname,
+    entity_type: 'banner',
+    entity_id: String(entityId),
+    button_location: buttonLocation,
+    metadata,
+  });
+}
+
+export function trackServiceView(entityId: string, metadata: any = {}) {
+  if (typeof window === 'undefined') return;
+  trackEvent({
+    event_name: 'service_view',
+    page_path: window.location.pathname,
+    entity_type: 'service',
+    entity_id: String(entityId),
+    metadata,
+  });
+}
+
+export function trackQuoteStarted() {
+  if (typeof window === 'undefined') return;
+  const key = 'corpicia_quote_started';
+  if (sessionStorage.getItem(key)) return;
+  
+  sessionStorage.setItem(key, 'true');
+  trackEvent({
+    event_name: 'quote_started',
+    page_path: window.location.pathname,
+    entity_type: 'quote'
+  });
+}
+
+export function trackQuoteSubmitted(quoteId: string, itemsCount: number, total?: number) {
+  if (typeof window === 'undefined') return;
+  trackEvent({
+    event_name: 'quote_submitted',
+    page_path: window.location.pathname,
+    entity_type: 'quote',
+    entity_id: String(quoteId),
+    metadata: { items_count: itemsCount, total_estimado: total }
   });
 }
 
