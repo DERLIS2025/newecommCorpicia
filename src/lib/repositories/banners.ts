@@ -1,21 +1,14 @@
 import { supabase } from '../supabase';
 import { homeHeroBanners, homeSecondaryBanners } from '@/data/banners';
 
-const DATA_SOURCE = process.env.NEXT_PUBLIC_DATA_SOURCE || 'supabase';
+// Remove the DATA_SOURCE block so banners always try to read from Supabase first
+// This allows the public home page to see banner updates without breaking product catalog which relies on DATA_SOURCE.
 
 function logFallback(reason: string) {
   console.info(`[Repository: Banners] Using static fallback. Reason: ${reason}`);
 }
 
 export async function getBanners(type?: 'hero' | 'secondary') {
-  if (DATA_SOURCE === 'static') {
-    logFallback('NEXT_PUBLIC_DATA_SOURCE is set to static');
-    return {
-      hero: homeHeroBanners,
-      secondary: homeSecondaryBanners
-    };
-  }
-
   if (!supabase) {
     logFallback('Supabase client is not configured');
     return {
@@ -32,7 +25,16 @@ export async function getBanners(type?: 'hero' | 'secondary') {
     const { data, error } = await query;
 
     if (error) {
-      logFallback('Supabase query error');
+      logFallback('Supabase query error: ' + error.message);
+      return {
+        hero: homeHeroBanners,
+        secondary: homeSecondaryBanners
+      };
+    }
+
+    // If Supabase returned absolutely nothing, fallback to static so the site doesn't look empty
+    if (!data || data.length === 0) {
+      logFallback('Supabase returned empty array, falling back to static');
       return {
         hero: homeHeroBanners,
         secondary: homeSecondaryBanners
@@ -47,8 +49,8 @@ export async function getBanners(type?: 'hero' | 'secondary') {
       hero: data.filter(b => b.type === 'hero'),
       secondary: data.filter(b => b.type === 'secondary')
     };
-  } catch (err) {
-    logFallback('Unexpected exception during fetch');
+  } catch (err: any) {
+    logFallback('Unexpected exception during fetch: ' + err.message);
     return {
       hero: homeHeroBanners,
       secondary: homeSecondaryBanners

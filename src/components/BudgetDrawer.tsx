@@ -5,9 +5,9 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useBudgetStore } from '@/store/budgetStore';
-import { formatPrice, formatUnit, generateWhatsAppMessage } from '@/lib/utils';
+import { formatPrice, formatUnit, generateWhatsAppMessage, getSafeMinQuantity, getSafeQuantity, getProductImage } from '@/lib/utils';
 import { trackWhatsAppClick } from '@/lib/tracking';
-import { Minus, Plus, Trash2, ShoppingCart, X, MessageCircle } from 'lucide-react';
+import { Minus, Plus, Trash2, ShoppingCart, X, MessageCircle, Package } from 'lucide-react';
 
 export function BudgetDrawer() {
   const pathname = usePathname();
@@ -72,41 +72,54 @@ export function BudgetDrawer() {
                 <div key={item.product.id} className="flex gap-4 bg-gray-50 p-3 rounded-lg">
 
                   <div className="w-20 h-20 bg-white flex-shrink-0 rounded overflow-hidden">
-                    {item.product.images?.[0] && (
-                      <img 
-                        src={item.product.images[0]} 
-                        alt={item.product.name}
-                        className="object-cover w-full h-full" 
-                      />
-                    )}
+                    {(() => {
+                      const imgUrl = getProductImage(item.product);
+                      return imgUrl ? (
+                        <img src={imgUrl} alt={item.product.name} className="object-cover w-full h-full" />
+                      ) : (
+                        <div className="flex items-center justify-center h-full text-gray-300">
+                          <Package size={28} />
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   <div className="flex-1 min-w-0">
                     <h4 className="font-medium text-sm line-clamp-2">{item.product.name}</h4>
 
-                    <p className="text-sm text-gray-500">
-                      {formatPrice(item.product.pricePerM2)} / {formatUnit(item.product.unit)}
+                    <p className="text-sm text-gray-500 font-medium">
+                      {formatPrice(item.unitPrice)} / {formatUnit(item.product.unit)}
                     </p>
 
                     <div className="flex justify-between items-center mt-2">
                       <div className="flex items-center gap-2">
-                        <button 
-                          onClick={() => updateQuantity(item.product.id, Math.max(item.product.minQuantity, item.quantity - 1))}
-                          className="p-1 hover:bg-gray-200 rounded"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
+                        {(() => {
+                          const safeMin = getSafeMinQuantity(item.product);
+                          const safeQty = getSafeQuantity(item.quantity, safeMin);
+                          const isAtMin = safeQty <= safeMin;
+                          return (
+                            <>
+                              <button 
+                                onClick={() => updateQuantity(item.product.id, Math.max(safeMin, safeQty - 1))}
+                                disabled={isAtMin}
+                                className={`p-1 rounded ${isAtMin ? 'text-gray-300 cursor-not-allowed' : 'hover:bg-gray-200'}`}
+                              >
+                                <Minus className="w-4 h-4" />
+                              </button>
 
-                        <span className="text-sm font-medium">
-                          {item.quantity} {formatUnit(item.product.unit)}
-                        </span>
+                              <span className="text-sm font-medium">
+                                {safeQty} {formatUnit(item.product.unit)}
+                              </span>
 
-                        <button 
-                          onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                          className="p-1 hover:bg-gray-200 rounded"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
+                              <button 
+                                onClick={() => updateQuantity(item.product.id, safeQty + 1)}
+                                className="p-1 hover:bg-gray-200 rounded"
+                              >
+                                <Plus className="w-4 h-4" />
+                              </button>
+                            </>
+                          );
+                        })()}
                       </div>
 
                       <button 
@@ -136,20 +149,19 @@ export function BudgetDrawer() {
               {/* ✅ BOTONES CORREGIDOS: Flex row en mobile, no superpuestos */}
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button 
-                  onClick={handleWhatsAppClick}
-                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  variant="outline" 
+                  className="flex-1 min-h-[44px]"
+                  onClick={() => setIsOpen(false)}
                 >
-                  <MessageCircle className="w-4 h-4 mr-2" /> 
-                  Enviar por WhatsApp
+                  Seguir comprando
                 </Button>
 
                 <Link href="/presupuesto" className="flex-1">
                   <Button 
-                    variant="outline" 
-                    className="w-full"
+                    className="w-full min-h-[44px] bg-green-600 hover:bg-green-700 text-white"
                     onClick={() => setIsOpen(false)}
                   >
-                    Ver detalle
+                    Ver presupuesto
                   </Button>
                 </Link>
               </div>

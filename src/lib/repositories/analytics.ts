@@ -1,0 +1,525 @@
+import { supabaseAdmin } from '../supabase/admin';
+import { productsCatalog } from '@/data/productsData';
+
+export type DashboardPeriod = 'today' | '7d' | '30d' | 'this_month';
+
+// TODO: Cuando el volumen de datos crezca, migrar estas agregaciones a vistas materializadas o funciones RPC en Supabase
+export async function getDashboardSummary(period: DashboardPeriod = '7d') {
+  try {
+    const now = new Date();
+    
+    let currentStart = new Date();
+    currentStart.setHours(0, 0, 0, 0);
+    
+    let prevStart = new Date(currentStart);
+    let prevEnd = new Date(now);
+    
+    let prevMonthStart = new Date(currentStart);
+    let prevMonthEnd = new Date(now);
+
+    if (period === 'today') {
+      prevStart.setDate(now.getDate() - 1);
+      prevEnd = new Date(currentStart); 
+      
+      prevMonthStart.setMonth(now.getMonth() - 1);
+      prevMonthEnd = new Date(now);
+      prevMonthEnd.setMonth(now.getMonth() - 1);
+    } else if (period === '7d') {
+      currentStart.setDate(now.getDate() - 7);
+      
+      prevStart = new Date(currentStart);
+      prevStart.setDate(prevStart.getDate() - 7);
+      prevEnd = new Date(currentStart);
+      
+      prevMonthStart = new Date(currentStart);
+      prevMonthStart.setMonth(prevMonthStart.getMonth() - 1);
+      prevMonthEnd = new Date(now);
+      prevMonthEnd.setMonth(now.getMonth() - 1);
+    } else if (period === '30d') {
+      currentStart.setDate(now.getDate() - 30);
+      
+      prevStart = new Date(currentStart);
+      prevStart.setDate(prevStart.getDate() - 30);
+      prevEnd = new Date(currentStart);
+      
+      prevMonthStart = new Date(currentStart);
+      prevMonthStart.setMonth(prevMonthStart.getMonth() - 1);
+      prevMonthEnd = new Date(now);
+      prevMonthEnd.setMonth(now.getMonth() - 1);
+    } else if (period === 'this_month') {
+      currentStart.setDate(1);
+      
+      prevStart = new Date(currentStart);
+      prevStart.setMonth(prevStart.getMonth() - 1);
+      prevEnd = new Date(now);
+      prevEnd.setMonth(prevEnd.getMonth() - 1);
+      
+      prevMonthStart = new Date(prevStart);
+      prevMonthEnd = new Date(prevEnd);
+    }
+
+    const oldestDate = new Date(Math.min(currentStart.getTime(), prevStart.getTime(), prevMonthStart.getTime()));
+    const oldestDateIso = oldestDate.toISOString();
+
+    const { data: eventsData, error: eventsError } = await (supabaseAdmin as any)
+      .from('analytics_events')
+      .select('created_at, visitor_id, session_id, event_name, page_path, entity_id, device_type, utm_source, utm_medium, referrer, engagement_seconds, button_location, country, city, metadata')
+      .gte('created_at', oldestDateIso)
+      .not('page_path', 'ilike', '/admin%')
+      .not('page_path', 'ilike', '/api%')
+      .not('page_path', 'ilike', '/_next%')
+      .limit(50000);
+
+    if (eventsError) throw eventsError;
+
+    const allValidEvents = (eventsData || []).filter((ev: any) => {
+      const p = ev.page_path || '';
+      return !p.startsWith('/admin') && !p.startsWith('/api') && !p.startsWith('/_next');
+    });
+    const hasData = allValidEvents.length > 0;
+
+    const currentEvents = allValidEvents.filter((e: any) => {
+      const d = new Date(e.created_at).getTime();
+      return d >= currentStart.getTime() && d <= now.getTime();
+    });
+
+    const prevEvents = allValidEvents.filter((e: any) => {
+      const d = new Date(e.created_at).getTime();
+      return d >= prevStart.getTime() && d <= prevEnd.getTime();
+    });
+
+    const prevMonthEvents = allValidEvents.filter((e: any) => {
+      const d = new Date(e.created_at).getTime();
+      return d >= prevMonthStart.getTime() && d <= prevMonthEnd.getTime();
+    });
+
+    const calcMetrics = (evts: any[]) => {
+      const uVis = new Set<string>();
+      const uSes = new Set<string>();
+      let pViews = 0;
+      let engSecs = 0;
+      let waClicks = 0;
+      let qSub = 0;
+
+      evts.forEach(e => {
+        if (e.visitor_id) uVis.add(e.visitor_id);
+        if (e.session_id) uSes.add(e.session_id);
+        if (e.event_name === 'page_view') pViews++;
+        if (e.event_name === 'page_engagement' && e.engagement_seconds) engSecs += e.engagement_seconds;
+        if (e.event_name === 'whatsapp_click') waClicks++;
+        if (e.event_name === 'quote_submitted') qSub++;
+      });
+
+      return {
+        uniqueVisitors: uVis.size,
+        sessions: uSes.size,
+        pageViews: pViews,
+        avgEngagementSeconds: uSes.size > 0 ? Math.round(engSecs / uSes.size) : 0,
+        whatsappClicks: waClicks,
+        quotesSubmitted: qSub,
+        conversionRate: uVis.size > 0 ? ((qSub + waClicks) / uVis.size) * 100 : 0
+      };
+    };
+
+    const currentMetrics = calcMetrics(currentEvents);
+    const prevMetrics = calcMetrics(prevEvents);
+    const prevMonthMetrics = calcMetrics(prevMonthEvents);
+
+    // Redirigir el procesamiento principal para usar currentEvents
+    const events = currentEvents;
+
+    // Sets para métricas únicas (re-used below)
+    const uniqueVisitors = new Set<string>();
+    const uniqueSessions = new Set<string>();
+    
+    // Contadores generales
+    let totalPageViews = 0;
+    let totalEngagementSeconds = 0;
+    let totalWhatsAppClicks = 0;
+    let totalQuoteSubmitted = 0;
+    let totalQuoteStarted = 0;
+    let totalProductViews = 0;
+    let totalQuoteItemAdded = 0;
+
+
+    // ==========================================
+    // FASE 1: CRM & QUOTES SUMMARY
+    // ==========================================
+    
+    // 1. Get Leads from clients
+    const { count: leadsCount } = await (supabaseAdmin as any)
+      .from('clients')
+      .select('*', { count: 'exact', head: true });
+
+    // 2. Get Quotes summary
+    const { count: quotesCount } = await (supabaseAdmin as any)
+      .from('quotes')
+      .select('*', { count: 'exact', head: true });
+
+    const { count: pendingQuotes } = await (supabaseAdmin as any)
+      .from('quotes')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'Nuevo');
+
+    const { count: approvedQuotes } = await (supabaseAdmin as any)
+      .from('quotes')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'Aprobado');
+
+    // ==========================================
+    // FASE 2: ADVANCED ANALYTICS MAPS
+    // ==========================================
+
+    let devices = { mobile: 0, desktop: 0, tablet: 0 };
+    let topDevice = 'Sin datos';
+
+    // Mapas para agrupaciones
+    const productsMap = new Map<string, { name: string; views: number; viewers: Set<string>; adds: number; adders: Set<string>; whatsapp: number; whatsappers: Set<string> }>();
+    const pagesMap = new Map<string, { views: number; visitors: Set<string>; engagement: number }>();
+    const sourcesMap = new Map<string, number>();
+    const devicesMap = new Map<string, { label: string; visitors: Set<string>; sessions: Set<string>; pageViews: number; engagement: number; whatsapp: number; quotes: number }>();
+    const locationsMap = new Map<string, { label: string; visitors: Set<string>; sessions: Set<string>; pageViews: number; engagement: number; whatsapp: number; quotes: number }>();
+    const whatsappLocMap = new Map<string, number>();
+    
+    // Para atribuir fuente por sesión
+    const sessionSources = new Map<string, string>();
+
+    events.forEach((ev: any) => {
+      if (ev.device_type === 'mobile') devices.mobile++;
+      else if (ev.device_type === 'desktop') devices.desktop++;
+      else if (ev.device_type === 'tablet') devices.tablet++;
+
+      if (ev.visitor_id) uniqueVisitors.add(ev.visitor_id);
+      if (ev.session_id) uniqueSessions.add(ev.session_id);
+
+      // Determinar fuente de la sesión si no se ha asignado
+      if (ev.session_id && !sessionSources.has(ev.session_id)) {
+        let source = 'Directo';
+        if (ev.utm_source) {
+          source = `${ev.utm_source} ${ev.utm_medium ? `(${ev.utm_medium})` : ''}`.trim();
+        } else if (ev.referrer) {
+          if (ev.referrer.includes('google')) source = 'Google Orgánico';
+          else if (ev.referrer.includes('facebook') || ev.referrer.includes('instagram')) source = 'Social Orgánico';
+          else source = `Referido: ${new URL(ev.referrer).hostname}`;
+        }
+        sessionSources.set(ev.session_id, source);
+        sourcesMap.set(source, (sourcesMap.get(source) || 0) + 1);
+      }
+
+      // 1. Device Aggregation
+      let d = 'Desconocido';
+      if (ev.device_type === 'mobile') d = 'Teléfono';
+      else if (ev.device_type === 'desktop') d = 'Computadora';
+      else if (ev.device_type === 'tablet') d = 'Tablet';
+      else if (ev.screen_width) {
+        if (ev.screen_width < 768) d = 'Teléfono';
+        else if (ev.screen_width < 1024) d = 'Tablet';
+        else d = 'Computadora';
+      }
+
+      if (!devicesMap.has(d)) {
+        devicesMap.set(d, { label: d, visitors: new Set(), sessions: new Set(), pageViews: 0, engagement: 0, whatsapp: 0, quotes: 0 });
+      }
+      const dNode = devicesMap.get(d)!;
+      if (ev.visitor_id) dNode.visitors.add(ev.visitor_id);
+      if (ev.session_id) dNode.sessions.add(ev.session_id);
+
+      // 2. Location Aggregation
+      let locKey = 'unknown';
+      let locLabel = 'Sin datos de ubicación';
+      if (ev.country) {
+        const safeCity = ev.city ? ev.city.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, ' ') : '';
+        const safeRegion = ev.region ? ev.region.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, ' ') : '';
+        const safeCountry = ev.country.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, ' ');
+        locKey = `${safeCity}|${safeRegion}|${safeCountry}`;
+        if (ev.city && ev.region) locLabel = `${ev.city}, ${ev.region}, ${ev.country}`;
+        else if (ev.city) locLabel = `${ev.city}, ${ev.country}`;
+        else if (ev.region) locLabel = `${ev.region}, ${ev.country}`;
+        else locLabel = ev.country;
+      }
+      
+      if (!locationsMap.has(locKey)) {
+        locationsMap.set(locKey, { label: locLabel, visitors: new Set(), sessions: new Set(), pageViews: 0, engagement: 0, whatsapp: 0, quotes: 0 });
+      }
+      const lNode = locationsMap.get(locKey)!;
+      if (ev.visitor_id) lNode.visitors.add(ev.visitor_id);
+      if (ev.session_id) lNode.sessions.add(ev.session_id);
+
+      // Helper para normalizar producto contra el catálogo real
+      const normalizeProductIdentity = (value: unknown): string => {
+        return String(value || '')
+          .trim()
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '');
+      };
+
+      const catalogMap = new Map<string, { slug: string, name: string }>();
+      productsCatalog.forEach(p => {
+        const data = { slug: p.slug, name: p.name };
+        catalogMap.set(p.slug, data);
+        if (p.id) catalogMap.set(p.id, data);
+        catalogMap.set(normalizeProductIdentity(p.slug), data);
+        catalogMap.set(normalizeProductIdentity(p.name), data);
+        catalogMap.set(normalizeProductIdentity(p.name).replace(/-de-/g, '-'), data); // variante sin conectivas
+      });
+
+      const resolveCanonicalProduct = (e: any): { slug: string, name: string } => {
+        const candidates = [
+          e.metadata?.product_slug,
+          e.entity_id,
+          e.metadata?.product_name
+        ];
+
+        for (const cand of candidates) {
+          if (!cand) continue;
+          const exact = catalogMap.get(String(cand));
+          if (exact) return exact;
+          
+          const norm = normalizeProductIdentity(cand);
+          const normMatch = catalogMap.get(norm) || catalogMap.get(norm.replace(/-de-/g, '-'));
+          if (normMatch) return normMatch;
+        }
+        
+        // Fallback
+        const fallbackKey = normalizeProductIdentity(e.metadata?.product_slug || e.entity_id || e.metadata?.product_name);
+        const fallbackName = e.metadata?.product_name || fallbackKey.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
+        
+        return { slug: fallbackKey || 'desconocido', name: fallbackName || 'Desconocido' };
+      };
+
+      // Conteo de eventos específicos
+      switch (ev.event_name) {
+        case 'page_view':
+          totalPageViews++;
+          dNode.pageViews++;
+          lNode.pageViews++;
+          const pPath = ev.page_path || '/';
+          if (!pagesMap.has(pPath)) pagesMap.set(pPath, { views: 0, visitors: new Set(), engagement: 0 });
+          const pNode = pagesMap.get(pPath)!;
+          pNode.views++;
+          if (ev.visitor_id) pNode.visitors.add(ev.visitor_id);
+          break;
+        case 'page_engagement':
+          if (ev.engagement_seconds && ev.engagement_seconds > 0) {
+            totalEngagementSeconds += ev.engagement_seconds;
+            dNode.engagement += ev.engagement_seconds;
+            lNode.engagement += ev.engagement_seconds;
+            const engPath = ev.page_path || '/';
+            if (pagesMap.has(engPath)) {
+              pagesMap.get(engPath)!.engagement += ev.engagement_seconds;
+            }
+          }
+          break;
+        case 'whatsapp_click':
+          totalWhatsAppClicks++;
+          dNode.whatsapp++;
+          lNode.whatsapp++;
+          if (ev.button_location) {
+            whatsappLocMap.set(ev.button_location, (whatsappLocMap.get(ev.button_location) || 0) + 1);
+          }
+          // Si fue desde un producto, asociar
+          if (ev.button_location === 'pdp' && ev.entity_id && ev.entity_type === 'product') {
+            const canonical = resolveCanonicalProduct(ev);
+            if (!productsMap.has(canonical.slug)) productsMap.set(canonical.slug, { name: canonical.name, views: 0, viewers: new Set(), adds: 0, adders: new Set(), whatsapp: 0, whatsappers: new Set() });
+            const p = productsMap.get(canonical.slug)!;
+            p.whatsapp++;
+            if (ev.visitor_id) p.whatsappers.add(ev.visitor_id);
+          }
+          break;
+        case 'quote_submitted':
+          totalQuoteSubmitted++;
+          dNode.quotes++;
+          lNode.quotes++;
+          break;
+        case 'quote_started':
+          totalQuoteStarted++;
+          break;
+        case 'product_view':
+          totalProductViews++;
+          if (ev.entity_id) {
+            const canonical = resolveCanonicalProduct(ev);
+            if (!productsMap.has(canonical.slug)) productsMap.set(canonical.slug, { name: canonical.name, views: 0, viewers: new Set(), adds: 0, adders: new Set(), whatsapp: 0, whatsappers: new Set() });
+            const p = productsMap.get(canonical.slug)!;
+            p.views++;
+            if (ev.visitor_id) p.viewers.add(ev.visitor_id);
+          }
+          break;
+        case 'quote_item_added':
+          totalQuoteItemAdded++;
+          if (ev.entity_id) { 
+            const canonical = resolveCanonicalProduct(ev);
+            if (!productsMap.has(canonical.slug)) productsMap.set(canonical.slug, { name: canonical.name, views: 0, viewers: new Set(), adds: 0, adders: new Set(), whatsapp: 0, whatsappers: new Set() });
+            const p = productsMap.get(canonical.slug)!;
+            p.adds++;
+            if (ev.visitor_id) p.adders.add(ev.visitor_id);
+          }
+          break;
+      }
+    });
+
+    // Formatear Devices
+    const deviceStats = Array.from(devicesMap.values()).map(d => ({
+      label: d.label,
+      visitors: d.visitors.size,
+      sessions: d.sessions.size,
+      pageViews: d.pageViews,
+      avgEngagement: d.sessions.size > 0 ? Math.round(d.engagement / d.sessions.size) : 0,
+      whatsapp: d.whatsapp,
+      quotes: d.quotes,
+      conversion: d.visitors.size > 0 ? ((d.quotes + d.whatsapp) / d.visitors.size) * 100 : 0,
+      percentage: uniqueVisitors.size > 0 ? (d.visitors.size / uniqueVisitors.size) * 100 : 0
+    })).sort((a, b) => b.visitors - a.visitors);
+
+    const topDeviceLabel = deviceStats.length > 0 && deviceStats[0].visitors > 0 ? `${deviceStats[0].label} — ${Math.round(deviceStats[0].percentage)}%` : 'Sin datos';
+
+    // Formatear Locations
+    const locationStats = Array.from(locationsMap.values()).map(l => ({
+      label: l.label,
+      visitors: l.visitors.size,
+      sessions: l.sessions.size,
+      pageViews: l.pageViews,
+      avgEngagement: l.sessions.size > 0 ? Math.round(l.engagement / l.sessions.size) : 0,
+      whatsapp: l.whatsapp,
+      quotes: l.quotes,
+      conversion: l.visitors.size > 0 ? ((l.quotes + l.whatsapp) / l.visitors.size) * 100 : 0
+    })).sort((a, b) => b.visitors - a.visitors);
+
+    // Formatear Top Products
+    const topProducts = Array.from(productsMap.entries())
+      .map(([id, data]) => {
+        // Unir visitantes de adds y whatsapp
+        const converters = new Set([
+          ...Array.from(data.adders),
+          ...Array.from(data.whatsappers),
+        ]);
+        const convRate = data.viewers.size > 0 ? (converters.size / data.viewers.size) * 100 : 0;
+        return {
+          id: data.name,
+          views: data.views,
+          uniqueVisitors: data.viewers.size,
+          adds: data.adds,
+          whatsapp: data.whatsapp,
+          conversion: Math.min(convRate, 100)
+        };
+      })
+      .sort((a, b) => b.views - a.views)
+      .slice(0, 10);
+
+    // Helper para formatear rutas
+    const getPageLabel = (p: string) => {
+      // Normalizar ruta: sin query, sin hash, sin barra final (salvo en '/') y sin barras repetidas
+      let path = p.split('?')[0].split('#')[0].replace(/\/+/g, '/').replace(/(.)\/$/, '$1');
+      
+      if (path === '/') return 'Inicio';
+      if (path === '/productos') return 'Productos';
+      if (path.startsWith('/productos/')) {
+        const slug = path.replace('/productos/', '').trim();
+        if (!slug) return 'Productos';
+        return `Producto: ${slug.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}`;
+      }
+      if (path === '/servicios') return 'Servicios';
+      if (path === '/presupuesto') return 'Presupuesto';
+      return path;
+    };
+
+    // Formatear Top Pages
+    const topPages = Array.from(pagesMap.entries())
+      .map(([path, data]) => ({
+        path: getPageLabel(path),
+        views: data.views,
+        visitors: data.visitors.size,
+        avgEngagement: data.views > 0 ? Math.round(data.engagement / data.views) : 0,
+        percentage: totalPageViews > 0 ? (data.views / totalPageViews) * 100 : 0
+      }))
+      .sort((a, b) => b.views - a.views)
+      .slice(0, 10);
+
+    // Formatear Fuentes y otros
+    const topSources = Array.from(sourcesMap.entries()).map(([source, count]) => ({ source, count })).sort((a, b) => b.count - a.count);
+    
+    const getWhatsAppLabel = (loc: string) => {
+      const labels: Record<string, string> = {
+        'floating_button': 'Botón flotante',
+        'product_detail': 'Detalle de producto',
+        'product_card': 'Tarjeta de producto',
+        'budget_drawer': 'Carrito de presupuesto',
+        'quote_page': 'Página de presupuesto',
+        'service_card': 'Servicio',
+        'contact_page': 'Contacto',
+        'footer': 'Pie de página',
+        'final_cta': 'CTA final',
+        'hero': 'Banner principal'
+      };
+      return labels[loc] || loc;
+    };
+    
+    const topWhatsApp = Array.from(whatsappLocMap.entries()).map(([location, count]) => ({ location: getWhatsAppLabel(location), count })).sort((a, b) => b.count - a.count);
+
+    // Embudo
+    const funnel = {
+      visitors: uniqueVisitors.size,
+      productViews: totalProductViews,
+      itemAdded: totalQuoteItemAdded,
+      quoteStarted: totalQuoteStarted,
+      quoteSubmitted: totalQuoteSubmitted,
+      whatsappClick: totalWhatsAppClicks // Mostrado pero no estrictamente secuencial
+    };
+
+    // Alertas Inteligentes
+    const alerts: { message: string, type: 'warning' | 'info' | 'danger' }[] = [];
+    
+    // Alerta: Productos muy vistos sin interacción
+    topProducts.forEach(p => {
+      if (p.views >= 10 && p.adds === 0 && p.whatsapp === 0) {
+        alerts.push({ message: `El producto "${p.id}" tiene ${p.views} vistas pero 0 conversiones. Revisar precio o descripción.`, type: 'warning' });
+      }
+    });
+
+    // Alerta: Páginas con alto rebote (poco engagement)
+    topPages.forEach(p => {
+      if (p.views >= 10 && p.avgEngagement < 10) {
+        alerts.push({ message: `La página "${p.path}" tiene poco tiempo de interacción (${p.avgEngagement}s). Los usuarios podrían no encontrar lo que buscan.`, type: 'danger' });
+      }
+    });
+
+    if (uniqueVisitors.size >= 20 && totalQuoteSubmitted === 0 && totalWhatsAppClicks === 0) {
+      alerts.push({ message: `Alto tráfico (${uniqueVisitors.size} visitantes) pero 0 contactos. Revisar el funcionamiento de los formularios.`, type: 'danger' });
+    }
+
+    return {
+      leads: { total: leadsCount || 0 },
+      quotes: { total: quotesCount || 0, pending: pendingQuotes || 0, approved: approvedQuotes || 0 },
+      analytics: { hasData: hasData, pageViews: totalPageViews, topDevice: topDeviceLabel },
+      deviceStats,
+      locationStats,
+      summary: {
+        ...currentMetrics,
+        comparePrev: prevMetrics,
+        comparePrevMonth: prevMonthMetrics
+      },
+      topProducts,
+      topPages,
+      topSources,
+      topWhatsApp,
+      funnel,
+      alerts,
+      hasData
+    };
+  } catch (error) {
+    console.error('Error fetching dashboard summary:', error);
+    return {
+      leads: { total: 0 },
+      quotes: { total: 0, pending: 0, approved: 0 },
+      analytics: { hasData: false, pageViews: 0, topDevice: 'Error' },
+      deviceStats: [],
+      locationStats: [],
+      summary: { uniqueVisitors: 0, sessions: 0, pageViews: 0, avgEngagementSeconds: 0, whatsappClicks: 0, quotesSubmitted: 0, conversionRate: 0, comparePrev: null, comparePrevMonth: null },
+      topProducts: [], topPages: [], topSources: [], topWhatsApp: [], funnel: { visitors: 0, productViews: 0, itemAdded: 0, quoteStarted: 0, quoteSubmitted: 0, whatsappClick: 0 },
+      alerts: [{ message: 'Error al cargar los datos', type: 'danger' }],
+      hasData: false
+    };
+  }
+}
