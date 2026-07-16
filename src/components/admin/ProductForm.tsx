@@ -26,7 +26,7 @@ export default function ProductForm({ product = null, categories = [] }: { produ
       price: Number(t.price_amount),
       label: t.label || '',
       is_promo: Boolean(t.is_promo)
-    })) || []
+    }))?.sort((a: any, b: any) => a.min_quantity - b.min_quantity) || []
   );
   const [features, setFeatures] = useState<any[]>(
     product?.product_features || []
@@ -353,66 +353,62 @@ export default function ProductForm({ product = null, categories = [] }: { produ
               </div>
             </div>
 
-            <div className="space-y-4 pt-2">
+            <div className="space-y-3 pt-2">
+              {tiers.length > 0 && (
+                <div className="grid grid-cols-[1fr_1fr_1.5fr_auto_auto] gap-4 px-4 mb-2 text-sm font-semibold text-gray-700">
+                  <div>Desde</div>
+                  <div>Hasta</div>
+                  <div>Precio por {selectedUnit === 'm2' ? 'm²' : selectedUnit}</div>
+                  <div className="text-center w-20">Promoción</div>
+                  <div className="w-8"></div>
+                </div>
+              )}
               {tiers.map((tier, idx) => (
-                <div key={idx} className="p-4 border rounded-md space-y-4 bg-gray-50 relative">
-                  <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2 text-red-600 h-8 w-8 hover:bg-red-100" title="Eliminar escala" aria-label="Eliminar escala" onClick={() => setTiers(tiers.filter((_, i) => i !== idx))}>
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pr-10">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Desde</label>
-                      <Input type="number" value={tier.min_quantity} onChange={e => {
-                        const newTiers = [...tiers];
-                        newTiers[idx].min_quantity = parseInt(e.target.value || '0', 10);
-                        setTiers(newTiers);
-                      }} />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Hasta</label>
-                      <Input type="number" placeholder="Ej: 50" value={tier.max_quantity || ''} onChange={e => {
-                        const newTiers = [...tiers];
-                        newTiers[idx].max_quantity = e.target.value ? parseInt(e.target.value, 10) : null;
-                        setTiers(newTiers);
-                      }} />
-                      <p className="text-[11px] text-gray-500 mt-1">Dejá vacío si no tiene límite máximo.</p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Precio por {selectedUnit === 'm2' ? 'm²' : selectedUnit}
-                      </label>
-                      <Input type="number" value={tier.price === 0 ? '' : tier.price} onChange={e => {
-                        const newTiers = [...tiers];
-                        newTiers[idx].price = parseInt(e.target.value || '0', 10);
-                        setTiers(newTiers);
-                      }} />
-                      <p className="text-[11px] text-gray-500 mt-1">Ingresá el precio que se cobrará por cada unidad de venta.</p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Texto visible (opcional)</label>
-                      <Input value={tier.label} onChange={e => {
-                        const newTiers = [...tiers];
-                        newTiers[idx].label = e.target.value;
-                        setTiers(newTiers);
-                      }} />
-                      <p className="text-[11px] text-gray-500 mt-1">Ejemplo: Más de 50 m², Precio mayorista, Promo.</p>
-                    </div>
+                <div key={idx} className="grid grid-cols-[1fr_1fr_1.5fr_auto_auto] gap-4 items-center bg-gray-50/50 p-2 pl-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+                  <div>
+                    <Input type="number" min="1" value={tier.min_quantity} onChange={e => {
+                      const newTiers = [...tiers];
+                      newTiers[idx].min_quantity = parseInt(e.target.value || '0', 10);
+                      setTiers(newTiers);
+                    }} className="h-10 text-center" />
                   </div>
-                  <div className="pt-2">
-                    <label className="flex items-center gap-2 text-sm font-medium cursor-pointer w-fit">
-                      <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-corpicia-green focus:ring-corpicia-green" checked={tier.is_promo} onChange={e => {
-                          const newTiers = [...tiers];
-                          newTiers[idx].is_promo = e.target.checked;
-                          setTiers(newTiers);
-                        }} />
-                      Marcar como promoción
-                    </label>
+                  <div>
+                    <Input type="number" min="1" placeholder="Ej. 50" value={tier.max_quantity || ''} onChange={e => {
+                      const newTiers = [...tiers];
+                      newTiers[idx].max_quantity = e.target.value ? parseInt(e.target.value, 10) : null;
+                      setTiers(newTiers);
+                    }} className="h-10 text-center" />
+                  </div>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-medium">Gs.</span>
+                    <Input type="number" min="0" value={tier.price === 0 ? '' : tier.price} onChange={e => {
+                      const newTiers = [...tiers];
+                      newTiers[idx].price = parseInt(e.target.value || '0', 10);
+                      setTiers(newTiers);
+                    }} className="h-10 pl-10" />
+                  </div>
+                  <div className="flex justify-center items-center w-20">
+                     <label className="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" className="sr-only peer" checked={tier.is_promo} onChange={e => {
+                            const newTiers = [...tiers];
+                            newTiers[idx].is_promo = e.target.checked;
+                            setTiers(newTiers);
+                          }} />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-corpicia-green"></div>
+                      </label>
+                  </div>
+                  <div className="flex justify-center w-8">
+                    <Button type="button" variant="ghost" size="icon" className="text-gray-400 hover:text-red-600 h-8 w-8 hover:bg-red-50" title="Eliminar escala" aria-label="Eliminar escala" onClick={() => setTiers(tiers.filter((_, i) => i !== idx))}>
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
                 </div>
               ))}
-              <Button type="button" variant="outline" className="w-full text-corpicia-green border-corpicia-green/30 hover:bg-corpicia-green/5" onClick={() => setTiers([...tiers, { min_quantity: 1, max_quantity: null, price: 0, label: '', is_promo: false }])}>
-                <Plus className="w-4 h-4 mr-2" /> + Agregar otra escala de precio
-              </Button>
+              <div className="pt-2">
+                <Button type="button" variant="outline" className="w-full text-corpicia-green border-corpicia-green/30 hover:bg-corpicia-green/5" onClick={() => setTiers([...tiers, { min_quantity: 1, max_quantity: null, price: 0, label: '', is_promo: false }])}>
+                  <Plus className="w-4 h-4 mr-2" /> Agregar otra escala de precio
+                </Button>
+              </div>
             </div>
 
             {/* Resumen */}

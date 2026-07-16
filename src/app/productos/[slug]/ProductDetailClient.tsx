@@ -123,12 +123,22 @@ export default function ProductDetailClient({ product, relatedProducts }: Props)
               {priceTiers.length > 0 && (
                 <div className="pt-1 border-t">
                   <p className="text-sm font-semibold mb-2">Precios por volumen</p>
-                  {priceTiers.map((tier) => (
-                    <div key={tier.label} className="flex justify-between text-sm py-0.5">
-                      <span>{tier.label}</span>
-                      <span>{formatPrice(tier.price)}</span>
-                    </div>
-                  ))}
+                  {priceTiers.map((tier, idx) => {
+                    const label = tier.label || (tier.maxQuantity ? `De ${tier.minQuantity} a ${tier.maxQuantity} ${formatUnit(product.unit)}` : `Desde ${tier.minQuantity} ${formatUnit(product.unit)} en adelante`);
+                    return (
+                      <div key={idx} className={`flex justify-between items-center text-sm py-1.5 ${tier.isPromo ? 'font-medium text-corpicia-green' : 'text-gray-700'}`}>
+                        <div className="flex items-center gap-2">
+                          <span>{label}</span>
+                          {tier.isPromo && (
+                            <span className="px-1.5 py-0.5 text-[10px] uppercase tracking-wide bg-corpicia-green/10 text-corpicia-green rounded font-bold">
+                              Mejor Precio
+                            </span>
+                          )}
+                        </div>
+                        <span className={tier.isPromo ? 'font-bold' : ''}>{formatPrice(tier.price)}</span>
+                      </div>
+                    );
+                  })}
 
                   {missingForPromo > 0 && (
                     <p className="text-xs text-orange-600 mt-2">

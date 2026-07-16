@@ -107,7 +107,7 @@ export async function getProduct(slug: string) {
       unit: data.unit,
       minOrderQuantity: data.min_order_quantity,
       images: data.product_images?.sort((a: any, b: any) => a.order_index - b.order_index).map((img: any) => img.image_url).filter(Boolean) || [],
-      priceTiers: data.product_price_tiers?.map((t: any) => ({
+      priceTiers: data.product_price_tiers?.sort((a: any, b: any) => a.min_quantity - b.min_quantity).map((t: any) => ({
         minQuantity: t.min_quantity,
         maxQuantity: t.max_quantity || null,
         isPromo: t.is_promo || false,
