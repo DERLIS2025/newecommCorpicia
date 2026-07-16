@@ -9,14 +9,7 @@ import { Input } from '@/components/ui/input';
 import { useBudgetStore } from '@/store/budgetStore';
 import { trackWhatsAppClick, trackQuoteStarted, trackQuoteSubmitted } from '@/lib/tracking';
 import { submitQuoteRequest } from '@/lib/actions/public-quotes';
-import {
-  formatPrice,
-  formatUnit,
-  generateWhatsAppMessage,
-  getPriceForQuantity,
-  getSafeMinQuantity,
-  getSafeQuantity
-} from '@/lib/utils';
+import { formatPrice, formatUnit, generateWhatsAppMessage, getPriceForQuantity, getSafeMinQuantity, getSafeQuantity, getProductImage } from '@/lib/utils';
 import LocationPicker, { SelectedLocation } from '@/components/maps/LocationPicker';
 import {
   Minus,
@@ -203,19 +196,22 @@ export default function PresupuestoClient() {
                       
                       {/* Imagen - Horizontal y compacta */}
                       <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-100 flex-shrink-0 rounded-xl overflow-hidden border border-gray-200">
-                        {item.product.images?.length ? (
-                          <Image
-                             src={item.product.images[0]}
-                             alt={item.product.name}
-                             width={96}
-                             height={96}
-                             className="object-cover w-full h-full"
-                          />
-                        ) : (
-                          <div className="flex items-center justify-center h-full text-gray-300">
-                            <Package size={28} />
-                          </div>
-                        )}
+                        {(() => {
+                          const imgSrc = getProductImage(item.product);
+                          return imgSrc ? (
+                            <Image
+                              src={imgSrc}
+                              alt={item.product.name}
+                              width={96}
+                              height={96}
+                              className="object-cover w-full h-full"
+                            />
+                          ) : (
+                            <div className="flex items-center justify-center h-full text-gray-300">
+                              <Package size={28} />
+                            </div>
+                          );
+                        })()}
                       </div>
 
                       {/* Detalles principales */}
@@ -383,6 +379,13 @@ export default function PresupuestoClient() {
                   </div>
                   
                   {/* BOTONES */}
+                  {/* Mapa de ubicación */}
+                  <div className="mt-4">
+                    <LocationPicker
+                      onLocationChange={setSelectedLocation}
+                      disabled={isSubmitting}
+                    />
+                  </div>
                   <div className="lg:col-span-2 pt-4 lg:pt-2 flex flex-col gap-3">
                     <p className="text-xs text-gray-500 text-center mb-1">
                       Este es un cálculo estimado. La disponibilidad, instalación y entrega serán confirmadas por Corpicia.
@@ -394,7 +397,7 @@ export default function PresupuestoClient() {
                     </Button>
 
                     <Button type="submit" variant="outline" className="w-full border-2 border-gray-200 text-gray-700 hover:bg-gray-50 h-12 rounded-xl text-base lg:text-sm font-bold transition-colors" disabled={isSubmitting}>
-                      {isSubmitting ? 'Procesando...' : 'O enviar solicitud por web'}
+                      {isSubmitting ? 'Procesando...' : 'Enviar solicitud'}
                     </Button>
                   </div>
 

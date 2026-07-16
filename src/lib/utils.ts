@@ -44,6 +44,25 @@ export function getSafeMinQuantity(product: any): number {
   return Number.isFinite(Number(min)) ? Number(min) : 1;
 }
 
+/**
+ * Returns the most appropriate image URL for a product.
+ * Order of precedence:
+ *   1. First entry of `product.images` array (if array exists and has elements)
+ *   2. `product.image`
+ *   3. `product.imageUrl`
+ *   4. Fallback based on slug: `/productos/${product.slug}.jpg`
+ *   5. Empty string (placeholder can be handled by the caller)
+ */
+export function getProductImage(product: any): string {
+  if (product?.images && Array.isArray(product.images) && product.images.length > 0) {
+    return product.images[0];
+  }
+  if (product?.image) return product.image;
+  if (product?.imageUrl) return product.imageUrl;
+  if (product?.slug) return `/productos/${product.slug}.jpg`;
+  return '';
+}
+
 export function getSafeQuantity(quantity: any, safeMinQuantity: number): number {
   const numQty = Number(quantity);
   const parsed = Number.isFinite(numQty) ? numQty : safeMinQuantity;

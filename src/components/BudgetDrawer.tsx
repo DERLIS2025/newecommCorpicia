@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useBudgetStore } from '@/store/budgetStore';
-import { formatPrice, formatUnit, generateWhatsAppMessage, getSafeMinQuantity, getSafeQuantity } from '@/lib/utils';
+import { formatPrice, formatUnit, generateWhatsAppMessage, getSafeMinQuantity, getSafeQuantity, getProductImage } from '@/lib/utils';
 import { trackWhatsAppClick } from '@/lib/tracking';
 import { Minus, Plus, Trash2, ShoppingCart, X, MessageCircle } from 'lucide-react';
 
@@ -72,13 +72,16 @@ export function BudgetDrawer() {
                 <div key={item.product.id} className="flex gap-4 bg-gray-50 p-3 rounded-lg">
 
                   <div className="w-20 h-20 bg-white flex-shrink-0 rounded overflow-hidden">
-                    {item.product.images?.[0] && (
-                      <img 
-                        src={item.product.images[0]} 
-                        alt={item.product.name}
-                        className="object-cover w-full h-full" 
-                      />
-                    )}
+                    {(() => {
+                      const imgUrl = getProductImage(item.product);
+                      return imgUrl ? (
+                        <img src={imgUrl} alt={item.product.name} className="object-cover w-full h-full" />
+                      ) : (
+                        <div className="flex items-center justify-center h-full text-gray-300">
+                          <Package size={28} />
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   <div className="flex-1 min-w-0">
