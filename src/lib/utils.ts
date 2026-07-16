@@ -66,7 +66,10 @@ export function getPriceForQuantity(
 
       const min = Number(normalizedTier.min ?? normalizedTier.minQuantity ?? 0);
       const maxRaw = normalizedTier.max ?? normalizedTier.maxQuantity;
-      const max = maxRaw === null || maxRaw === undefined || maxRaw === '' ? null : Number(maxRaw);
+      const max =
+        maxRaw === null || maxRaw === undefined
+          ? null
+          : Number(maxRaw);
 
       if (max === null) return safeQuantity >= min;
       return safeQuantity >= min && safeQuantity <= max;

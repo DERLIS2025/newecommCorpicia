@@ -65,7 +65,10 @@ export async function syncProductRelations(productId: string, formData: FormData
         const tiersPayload = tiers.map(t => ({
           product_id: productId,
           min_quantity: Number(t.min_quantity),
-          max_quantity: t.max_quantity === null || t.max_quantity === '' ? null : Number(t.max_quantity),
+          max_quantity:
+            t.max_quantity === null || t.max_quantity === undefined
+              ? null
+              : Number(t.max_quantity),
           price_amount: Number((t as any).price || (t as any).price_amount),
           label: t.label || '',
           is_promo: Boolean(t.is_promo),
