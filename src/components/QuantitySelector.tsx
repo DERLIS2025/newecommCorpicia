@@ -10,21 +10,23 @@ interface QuantitySelectorProps {
 }
 
 export function QuantitySelector({ quantity, minQuantity, onChange }: QuantitySelectorProps) {
+  const safeMin = Number.isFinite(Number(minQuantity)) ? Number(minQuantity) : 1;
+  const safeQty = Number.isFinite(Number(quantity)) ? Number(quantity) : safeMin;
+
   const decrement = () => {
-    if (quantity > minQuantity) {
-      onChange(quantity - 1);
+    if (safeQty > safeMin) {
+      onChange(Math.max(safeMin, safeQty - 1));
     }
   };
 
   const increment = () => {
-    onChange(quantity + 1);
+    onChange(safeQty + 1);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value);
-    if (!isNaN(value) && value >= minQuantity) {
-      onChange(value);
-    }
+    const newQty = Number.isFinite(value) ? value : safeMin;
+    onChange(Math.max(safeMin, newQty));
   };
 
   return (
@@ -34,16 +36,16 @@ export function QuantitySelector({ quantity, minQuantity, onChange }: QuantitySe
         variant="outline"
         size="icon"
         onClick={decrement}
-        disabled={quantity <= minQuantity}
-        className="rounded-r-none h-12 w-12"
+        disabled={safeQty <= safeMin}
+        className={`rounded-r-none h-12 w-12 ${safeQty <= safeMin ? 'text-gray-300 cursor-not-allowed' : ''}`}
       >
         <Minus className="w-4 h-4" />
       </Button>
       <input
         type="number"
-        value={quantity}
+        value={safeQty}
         onChange={handleInputChange}
-        min={minQuantity}
+        min={safeMin}
         className="h-12 w-20 text-center border-y border-gray-200 focus:outline-none focus:ring-0 [-moz-appearance:_textfield] [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
       />
       <Button

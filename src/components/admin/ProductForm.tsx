@@ -12,14 +12,25 @@ export default function ProductForm({ product = null, categories = [] }: { produ
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [selectedUnit, setSelectedUnit] = useState(product?.unit || 'm2');
+
+  const normalizeTiers = (prod: any) => {
+    const rawTiers = prod?.product_price_tiers || prod?.priceTiers || prod?.tiers || [];
+    return rawTiers.map((t: any) => ({
+      minQuantity: Number(t.minQuantity ?? t.min_quantity ?? t.min ?? 1),
+      maxQuantity: (t.maxQuantity ?? t.max_quantity ?? t.max) === null || (t.maxQuantity ?? t.max_quantity ?? t.max) === '' 
+        ? null 
+        : Number(t.maxQuantity ?? t.max_quantity ?? t.max),
+      price: Number(t.price ?? t.price_amount ?? 0),
+      isPromo: Boolean(t.isPromo ?? t.is_promo ?? false)
+    })).sort((a: any, b: any) => a.minQuantity - b.minQuantity);
+  };
 
   // Complex fields states
   const [images, setImages] = useState<any[]>(
     product?.product_images?.map((img: any) => ({ ...img, is_main: img.order_index === 0 })) || [{ image_url: '', is_main: true }]
   );
-  const [tiers, setTiers] = useState<any[]>(
-    product?.product_price_tiers || []
-  );
+  const [tiers, setTiers] = useState<any[]>(normalizeTiers(product));
   const [features, setFeatures] = useState<any[]>(
     product?.product_features || []
   );
@@ -36,9 +47,44 @@ export default function ProductForm({ product = null, categories = [] }: { produ
     setErrorMsg('');
     const formData = new FormData(e.currentTarget);
 
-    // Filter out empty complex items
+    // Validate Tiers
+    if (tiers.length > 0) {
+      for (const t of tiers) {
+        if (t.minQuantity < 1) {
+          setErrorMsg('El valor "Desde" debe ser mayor a 0 en todas las escalas de precio.');
+          setLoading(false);
+          return;
+        }
+        if (t.price <= 0) {
+          setErrorMsg('El "Precio por unidad" debe ser mayor a 0 en todas las escalas de precio.');
+          setLoading(false);
+          return;
+        }
+        if (t.maxQuantity !== null && t.maxQuantity !== '' && t.maxQuantity < t.minQuantity) {
+          setErrorMsg('El valor "Hasta" no puede ser menor que "Desde".');
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Check overlapping
+      const sortedTiers = [...tiers].sort((a, b) => a.minQuantity - b.minQuantity);
+      for (let i = 0; i < sortedTiers.length - 1; i++) {
+        const current = sortedTiers[i];
+        const next = sortedTiers[i + 1];
+        
+        const currentMax = (current.maxQuantity === null || current.maxQuantity === '') ? Infinity : current.maxQuantity;
+        
+        if (next.minQuantity <= currentMax) {
+          setErrorMsg('Hay escalas que se cruzan. Revisá los rangos.');
+          setLoading(false);
+          return;
+        }
+      }
+    }
+
     const validImages = images.filter(i => i.image_url.trim() !== '');
-    const validTiers = tiers.filter(t => t.min_quantity > 0 && t.price > 0);
+    const validTiers = tiers; // Already validated
     const validFeatures = features.filter(f => f.feature_text.trim() !== '');
     const validSpecs = specs.filter(s => s.spec_key.trim() !== '' && s.spec_value.trim() !== '');
     const validRecs = recs.filter(r => r.recommendation_text.trim() !== '');
@@ -273,13 +319,15 @@ export default function ProductForm({ product = null, categories = [] }: { produ
             <h2 className="font-semibold text-lg border-b pb-2">Precios y Cantidades</h2>
             
             <div>
-              <label className="block text-sm font-medium mb-1">Precio Base (PYG) *</label>
+              <label className="block text-sm font-medium mb-1">
+                Precio base por {selectedUnit === 'm2' ? 'm²' : selectedUnit} (PYG) *
+              </label>
               <Input name="price_amount" type="number" defaultValue={product?.price_amount || ''} required min="0" />
             </div>
 
             <div>
               <label className="block text-sm font-medium mb-1">Unidad *</label>
-              <select name="unit" defaultValue={product?.unit || 'm2'} className="w-full flex h-10 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" required>
+              <select name="unit" defaultValue={product?.unit || 'm2'} onChange={e => setSelectedUnit(e.target.value)} className="w-full flex h-10 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" required>
                 <option value="m2">m²</option>
                 <option value="unidad">Unidad</option>
                 <option value="docena">Docena</option>
@@ -295,61 +343,92 @@ export default function ProductForm({ product = null, categories = [] }: { produ
           </div>
 
           <div className="bg-white p-6 rounded-xl border shadow-sm space-y-4">
-            <h2 className="font-semibold text-lg border-b pb-2">Escalas de Precios (Tiers)</h2>
-            <div className="space-y-4">
+            <h2 className="font-semibold text-lg border-b pb-2">Precios por cantidad</h2>
+            
+            <div className="space-y-3 pt-2">
+              {tiers.length > 0 && (
+                <div className="hidden sm:flex gap-4 px-4 mb-2 text-sm font-semibold text-gray-700">
+                  <div className="flex-1 min-w-[70px]">Desde</div>
+                  <div className="flex-1 min-w-[70px]">Hasta</div>
+                  <div className="flex-[2] min-w-[140px]">Precio por {selectedUnit === 'm2' ? 'm²' : selectedUnit}</div>
+                  <div className="text-center w-20">Promoción</div>
+                  <div className="w-8"></div>
+                </div>
+              )}
               {tiers.map((tier, idx) => (
-                <div key={idx} className="p-3 border rounded-md space-y-2 bg-gray-50 relative">
-                  <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 text-red-600 h-6 w-6" onClick={() => setTiers(tiers.filter((_, i) => i !== idx))}>
-                    <Trash2 className="w-3 h-3" />
-                  </Button>
-                  <div className="grid grid-cols-2 gap-2 pr-6">
-                    <div>
-                      <label className="block text-xs font-medium mb-1">Min Qty</label>
-                      <Input type="number" value={tier.min_quantity} onChange={e => {
-                        const newTiers = [...tiers];
-                        newTiers[idx].min_quantity = parseInt(e.target.value || '0', 10);
-                        setTiers(newTiers);
-                      }} />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium mb-1">Max Qty (Vacío=∞)</label>
-                      <Input type="number" value={tier.max_quantity || ''} onChange={e => {
-                        const newTiers = [...tiers];
-                        newTiers[idx].max_quantity = e.target.value ? parseInt(e.target.value, 10) : null;
-                        setTiers(newTiers);
-                      }} />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium mb-1">Precio Unitario</label>
-                      <Input type="number" value={tier.price} onChange={e => {
+                <div key={idx} className="flex flex-wrap sm:flex-nowrap gap-4 items-center bg-gray-50/50 p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+                  <div className="flex-1 min-w-[70px] relative">
+                    <span className="sm:hidden block text-xs font-semibold text-gray-500 mb-1">Desde</span>
+                    <Input type="number" min="1" value={tier.minQuantity} onChange={e => {
+                      const newTiers = [...tiers];
+                      newTiers[idx].minQuantity = parseInt(e.target.value || '0', 10);
+                      setTiers(newTiers);
+                    }} className="h-10 text-center text-base" />
+                  </div>
+                  <div className="flex-1 min-w-[70px] relative">
+                    <span className="sm:hidden block text-xs font-semibold text-gray-500 mb-1">Hasta</span>
+                    <Input type="number" min="1" placeholder="Ej. 50" value={tier.maxQuantity ?? ''} onChange={e => {
+                      const newTiers = [...tiers];
+                      newTiers[idx].maxQuantity = e.target.value ? parseInt(e.target.value, 10) : null;
+                      setTiers(newTiers);
+                    }} className="h-10 text-center text-base" />
+                  </div>
+                  <div className="flex-[2] min-w-[160px] relative">
+                    <span className="sm:hidden block text-xs font-semibold text-gray-500 mb-1">Precio</span>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-medium">Gs.</span>
+                      <Input type="number" min="0" value={tier.price === 0 ? '' : tier.price} onChange={e => {
                         const newTiers = [...tiers];
                         newTiers[idx].price = parseInt(e.target.value || '0', 10);
                         setTiers(newTiers);
-                      }} />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium mb-1">Etiqueta</label>
-                      <Input value={tier.label} onChange={e => {
-                        const newTiers = [...tiers];
-                        newTiers[idx].label = e.target.value;
-                        setTiers(newTiers);
-                      }} />
+                      }} className="h-10 pl-10 text-base" />
                     </div>
                   </div>
-                  <label className="flex items-center gap-2 text-xs font-medium cursor-pointer">
-                    <input type="checkbox" checked={tier.is_promo} onChange={e => {
-                        const newTiers = [...tiers];
-                        newTiers[idx].is_promo = e.target.checked;
-                        setTiers(newTiers);
-                      }} />
-                    Es Promo
-                  </label>
+                  <div className="flex justify-center items-center w-20 pt-5 sm:pt-0">
+                     <label className="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" className="sr-only peer" checked={tier.isPromo} onChange={e => {
+                            const newTiers = [...tiers];
+                            newTiers[idx].isPromo = e.target.checked;
+                            setTiers(newTiers);
+                          }} />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-corpicia-green"></div>
+                      </label>
+                  </div>
+                  <div className="flex justify-center w-8 pt-5 sm:pt-0">
+                    <Button type="button" variant="ghost" size="icon" className="text-gray-400 hover:text-red-600 h-8 w-8 hover:bg-red-50" title="Eliminar escala" aria-label="Eliminar escala" onClick={() => setTiers(tiers.filter((_, i) => i !== idx))}>
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
               ))}
-              <Button type="button" variant="outline" size="sm" className="w-full" onClick={() => setTiers([...tiers, { min_quantity: 1, max_quantity: null, price: 0, label: '', is_promo: false }])}>
-                <Plus className="w-4 h-4 mr-2" /> Agregar Escala
-              </Button>
+              <div className="pt-2">
+                <Button type="button" variant="outline" className="w-full text-corpicia-green border-corpicia-green/30 hover:bg-corpicia-green/5" onClick={() => setTiers([...tiers, { minQuantity: 1, maxQuantity: null, price: 0, isPromo: false }])}>
+                  <Plus className="w-4 h-4 mr-2" /> Agregar otra escala de precio
+                </Button>
+              </div>
             </div>
+
+            {/* Resumen */}
+            <div className="mt-6 pt-4 border-t">
+              <h3 className="text-sm font-semibold mb-3">Resumen de precios</h3>
+              {tiers.length === 0 ? (
+                <p className="text-sm text-gray-500 italic">Aún no cargaste precios por cantidad.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {[...tiers].sort((a, b) => a.minQuantity - b.minQuantity).map((t, idx) => (
+                    <li key={idx} className="text-sm flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-corpicia-green/60"></span>
+                      {t.maxQuantity ? (
+                        <span>{t.minQuantity} a {t.maxQuantity} → {t.price > 0 ? `Gs. ${t.price.toLocaleString('es-PY')}` : 'Precio pendiente'}</span>
+                      ) : (
+                        <span>Desde {t.minQuantity} en adelante → {t.price > 0 ? `Gs. ${t.price.toLocaleString('es-PY')}` : 'Precio pendiente'}</span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
           </div>
         </div>
       </div>

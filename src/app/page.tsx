@@ -7,18 +7,48 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ProductCard } from '@/components/ProductCard';
 import { Leaf, Truck, Phone, Shield } from 'lucide-react';
 import { getProducts } from '@/lib/repositories/products';
+import { getBanners } from '@/lib/repositories/banners';
+import { BannerCarousel } from '@/components/home/BannerCarousel';
 
-export const metadata: Metadata = {
-  title: 'Corpicia | Paisajismo, Riego Automático y Venta de Césped en Paraguay',
-  description:
-    'Líderes en jardinería, paisajismo y sistemas de riego en Asunción y gran Asunción. Venta de césped natural, insumos para jardines y asesoramiento profesional.',
-  alternates: {
-    canonical: '/',
-  },
-};
+import { getSeoEntry } from '@/lib/repositories/seo';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getSeoEntry('/');
+
+  const defaultMeta = {
+    title: 'Corpicia | Paisajismo, Riego Automático y Venta de Césped en Paraguay',
+    description: 'Líderes en jardinería, paisajismo y sistemas de riego en Asunción y gran Asunción. Venta de césped natural, insumos para jardines y asesoramiento profesional.',
+    alternates: { canonical: '/' },
+  };
+
+  if (!seo) return defaultMeta;
+
+  const seoTitle = seo.title || defaultMeta.title;
+  const seoDescription = seo.description || defaultMeta.description;
+
+  return {
+    title: seoTitle,
+    description: seoDescription,
+    keywords: seo.keywords ? seo.keywords.split(',').map((k: string) => k.trim()) : undefined,
+    alternates: defaultMeta.alternates,
+    openGraph: {
+      title: seoTitle,
+      description: seoDescription,
+      images: seo.og_image ? [{ url: seo.og_image }] : undefined,
+    },
+    twitter: {
+      title: seoTitle,
+      description: seoDescription,
+      images: seo.og_image ? [seo.og_image] : undefined,
+    }
+  };
+}
 
 export default async function HomePage() {
   const productsCatalog = await getProducts();
+  const bannersResult = await getBanners();
+  const heroBanners = Array.isArray(bannersResult) ? bannersResult.filter((b: any) => b.type === 'hero') : bannersResult.hero;
+  const secondaryBanners = Array.isArray(bannersResult) ? bannersResult.filter((b: any) => b.type === 'secondary') : bannersResult.secondary;
 
   const featuredProducts = [
     productsCatalog.find((p: any) => p.slug === 'cesped-esmeralda'),
@@ -59,104 +89,7 @@ export default async function HomePage() {
       {/* ✅ BANNERS HERO - MEJORADO PARA MOBILE */}
       <section className="border-b">
         <div className="container mx-auto px-4 py-4 sm:py-6">
-          {/* Mobile: Solo banner principal, laterales en scroll horizontal */}
-          <div className="block md:hidden space-y-3">
-            <a
-              href={whatsappHref}
-              target="_blank"
-              rel="noreferrer"
-              className="block"
-            >
-              <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-[#f5fbf6]">
-                <Image
-                  src="/banners/hero-main-desktop.webp"
-                  alt="Banner principal"
-                  fill
-                  className="object-cover"
-                  priority
-                />
-              </div>
-            </a>
-
-            {/* Banners laterales en scroll horizontal en mobile */}
-            <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory">
-              <a
-                href={whatsappHref}
-                target="_blank"
-                rel="noreferrer"
-                className="block flex-shrink-0 w-[85%] snap-start"
-              >
-                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-[#f5fbf6]">
-                  <Image
-                    src="/banners/hero-side-1.webp"
-                    alt="Instalamos riego automático"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              </a>
-
-              <a
-                href={whatsappHref}
-                target="_blank"
-                rel="noreferrer"
-                className="block flex-shrink-0 w-[85%] snap-start"
-              >
-                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-[#f5fbf6]">
-                  <Image
-                    src="/banners/hero-side-2.jpg"
-                    alt="Diseñamos espacios verdes"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              </a>
-            </div>
-          </div>
-
-          {/* Desktop: Layout original de 2 columnas */}
-          <div className="hidden md:grid gap-4 lg:grid-cols-[2fr_1fr]">
-            <a
-              href={whatsappHref}
-              target="_blank"
-              rel="noreferrer"
-              className="block"
-            >
-              <div className="relative w-full aspect-[16/9] lg:h-[500px] rounded-xl overflow-hidden bg-[#f5fbf6]">
-                <Image
-                  src="/banners/hero-main-desktop.webp"
-                  alt="Banner principal"
-                  fill
-                  className="object-contain"
-                  priority
-                />
-              </div>
-            </a>
-
-            <div className="grid gap-4">
-              <a href={whatsappHref} target="_blank" rel="noreferrer">
-                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-[#f5fbf6]">
-                  <Image
-                    src="/banners/hero-side-1.webp"
-                    alt="Banner lateral 1"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-              </a>
-
-              <a href={whatsappHref} target="_blank" rel="noreferrer">
-                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-[#f5fbf6]">
-                  <Image
-                    src="/banners/hero-side-2.jpg"
-                    alt="Banner lateral 2"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-              </a>
-            </div>
-          </div>
+          <BannerCarousel banners={heroBanners} variant="hero-grid" />
         </div>
       </section>
 
@@ -197,16 +130,7 @@ export default async function HomePage() {
         <div className="container mx-auto px-4">
           <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
             <div className="grid gap-4">
-              <a href={whatsappHref} target="_blank" rel="noreferrer">
-                <div className="relative w-full aspect-[16/9] lg:h-[380px] rounded-xl overflow-hidden bg-[#f5fbf6]">
-                  <Image
-                    src="/banners/mixed-banner-desktop (2).jpg"
-                    alt="Banner riego automático"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-              </a>
+              <BannerCarousel banners={secondaryBanners} variant="single" />
 
               <div className="grid grid-cols-2 gap-4">
                 {underBannerProducts.map((p) => (

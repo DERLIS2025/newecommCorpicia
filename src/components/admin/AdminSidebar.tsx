@@ -16,6 +16,7 @@ import {
   Settings,
   UserCircle,
   Activity,
+  LineChart
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -39,7 +40,8 @@ const navItems = [
     { name: 'Multimedia', href: '/admin/multimedia', icon: ImageIcon },
   ]},
   { group: 'Sistema', items: [
-    { name: 'SEO & Analytics', href: '/admin/seo', icon: Globe },
+    { name: 'Dashboard Comercial', href: '/admin/dashboard-comercial', icon: LineChart },
+    { name: 'SEO', href: '/admin/seo', icon: Globe },
     { name: 'Configuración', href: '/admin/configuracion', icon: Settings },
     { name: 'Usuarios', href: '/admin/usuarios', icon: UserCircle },
     { name: 'Actividad', href: '/admin/actividad', icon: Activity },

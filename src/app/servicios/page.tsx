@@ -1,65 +1,52 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Leaf, Droplets, TreePine, Home, ArrowRight } from 'lucide-react';
+import { Leaf, Droplets, TreePine, Home, ArrowRight, Settings } from 'lucide-react';
 import type { Metadata } from 'next';
 import { getWhatsAppUrl } from '@/lib/utils';
+import { getServices } from '@/lib/repositories/services';
+import Image from 'next/image';
 
-export const metadata: Metadata = {
-  title: 'Servicios - Corpicia | Instalación y Mantenimiento',
-  description: 'Servicios profesionales de instalación de césped, mantenimiento de jardines, paisajismo y sistemas de riego en Paraguay.',
-  alternates: {
-    canonical: '/servicios/',
-  },
-};
+import { getSeoEntry } from '@/lib/repositories/seo';
+import { ServiceCTAButton } from '@/components/services/ServiceCTAButton';
 
-const services = [
-  {
-    icon: Leaf,
-    title: 'Instalación de Césped',
-    description: 'Instalación profesional de césped natural con preparación del terreno, nivelación y siembra o colocación de tepes.',
-    features: [
-      'Evaluación del terreno',
-      'Preparación y nivelación',
-      'Instalación de tepes o siembra',
-      'Garantía de instalación',
-    ],
-  },
-  {
-    icon: Droplets,
-    title: 'Sistemas de Riego',
-    description: 'Diseño e instalación de sistemas de riego automático para mantener tu jardín siempre hidratado.',
-    features: [
-      'Diseño personalizado',
-      'Instalación de aspersores',
-      'Programadores automáticos',
-      'Mantenimiento',
-    ],
-  },
-  {
-    icon: TreePine,
-    title: 'Paisajismo',
-    description: 'Diseño y ejecución de proyectos de jardinería y paisajismo para espacios residenciales y comerciales.',
-    features: [
-      'Diseño 3D del proyecto',
-      'Selección de plantas',
-      'Ejecución integral',
-      'Mantenimiento continuo',
-    ],
-  },
-  {
-    icon: Home,
-    title: 'Mantenimiento',
-    description: 'Servicio de mantenimiento regular para mantener tu jardín en óptimas condiciones todo el año.',
-    features: [
-      'Corte y bordes',
-      'Fertilización',
-      'Control de plagas',
-      'Poda de plantas',
-    ],
-  },
-];
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getSeoEntry('/servicios');
 
-export default function ServicesPage() {
+  const defaultMeta = {
+    title: 'Servicios - Corpicia | Instalación y Mantenimiento',
+    description: 'Servicios profesionales de instalación de césped, mantenimiento de jardines, paisajismo y sistemas de riego en Paraguay.',
+    alternates: { canonical: '/servicios/' },
+  };
+
+  if (!seo) return defaultMeta;
+
+  const seoTitle = seo.title || defaultMeta.title;
+  const seoDescription = seo.description || defaultMeta.description;
+
+  return {
+    title: seoTitle,
+    description: seoDescription,
+    keywords: seo.keywords ? seo.keywords.split(',').map((k: string) => k.trim()) : undefined,
+    alternates: defaultMeta.alternates,
+    openGraph: {
+      title: seoTitle,
+      description: seoDescription,
+      images: seo.og_image ? [{ url: seo.og_image }] : undefined,
+    },
+    twitter: {
+      title: seoTitle,
+      description: seoDescription,
+      images: seo.og_image ? [seo.og_image] : undefined,
+    }
+  };
+}
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+export default async function ServicesPage() {
+  const services = await getServices();
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero */}
@@ -78,41 +65,56 @@ export default function ServicesPage() {
       {/* Services */}
       <div className="container mx-auto px-4 py-16">
         <div className="grid md:grid-cols-2 gap-8">
-          {services.map((service) => {
-            const Icon = service.icon;
+          {services.map((service: any) => {
+            // Manejar compatibilidad con fallback estático o DB
+            const Icon = service.icon || Settings;
+            const hasImage = !!service.image_url;
+
             return (
-              <Card key={service.title} className="overflow-hidden">
+              <Card key={service.title || service.id} className="overflow-hidden">
                 <CardContent className="p-0">
-                  <div className="p-6">
-                    <div className="w-14 h-14 bg-corpicia-green/10 rounded-xl flex items-center justify-center mb-4">
-                      <Icon className="w-7 h-7 text-corpicia-green" />
+                  {hasImage && (
+                    <div className="relative w-full aspect-video bg-gray-100">
+                      <Image 
+                        src={service.image_url} 
+                        alt={service.title} 
+                        fill 
+                        className="object-cover" 
+                      />
                     </div>
+                  )}
+
+                  <div className="p-6">
+                    {!hasImage && (
+                      <div className="w-14 h-14 bg-corpicia-green/10 rounded-xl flex items-center justify-center mb-4">
+                        <Icon className="w-7 h-7 text-corpicia-green" />
+                      </div>
+                    )}
                     <h3 className="text-xl font-bold text-gray-900 mb-2">
                       {service.title}
                     </h3>
                     <p className="text-gray-600 mb-4">
                       {service.description}
                     </p>
-                    <ul className="space-y-2">
-                      {service.features.map((feature) => (
-                        <li key={feature} className="flex items-center gap-2 text-sm text-gray-600">
-                          <div className="w-1.5 h-1.5 bg-corpicia-green rounded-full" />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
+                    
+                    {service.features && service.features.length > 0 && (
+                      <ul className="space-y-2 mt-4">
+                        {service.features.map((feature: string) => (
+                          <li key={feature} className="flex items-center gap-2 text-sm text-gray-600">
+                            <div className="w-1.5 h-1.5 bg-corpicia-green rounded-full" />
+                            {feature}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                   <div className="px-6 pb-6">
-                    <a
-                      href={getWhatsAppUrl()}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Button className="w-full gap-2">
-                        Solicitar Presupuesto
-                        <ArrowRight className="w-4 h-4" />
-                      </Button>
-                    </a>
+                    <ServiceCTAButton
+                      serviceId={service.id || service.slug || service.title}
+                      serviceTitle={service.title}
+                      whatsappUrl={getWhatsAppUrl()}
+                      buttonLocation="service_card"
+                    />
                   </div>
                 </CardContent>
               </Card>
@@ -131,16 +133,17 @@ export default function ServicesPage() {
             Contactanos y te ayudamos a hacer realidad el jardín de tus sueños. 
             Atendemos proyectos residenciales y comerciales en todo Paraguay.
           </p>
-          <a
-            href={getWhatsAppUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
+          <ServiceCTAButton
+            serviceId="general-services-cta"
+            serviceTitle="Consultas Generales de Servicios"
+            whatsappUrl={getWhatsAppUrl()}
+            buttonLocation="service_cta"
           >
             <Button size="lg" className="gap-2">
               Hablar con un Experto
               <ArrowRight className="w-5 h-5" />
             </Button>
-          </a>
+          </ServiceCTAButton>
         </div>
       </div>
     </div>
