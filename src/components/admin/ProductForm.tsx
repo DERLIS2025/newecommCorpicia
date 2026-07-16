@@ -14,20 +14,23 @@ export default function ProductForm({ product = null, categories = [] }: { produ
   const [errorMsg, setErrorMsg] = useState('');
   const [selectedUnit, setSelectedUnit] = useState(product?.unit || 'm2');
 
+  const normalizeTiers = (prod: any) => {
+    const rawTiers = prod?.product_price_tiers || prod?.priceTiers || prod?.tiers || [];
+    return rawTiers.map((t: any) => ({
+      minQuantity: Number(t.minQuantity ?? t.min_quantity ?? t.min ?? 1),
+      maxQuantity: (t.maxQuantity ?? t.max_quantity ?? t.max) === null || (t.maxQuantity ?? t.max_quantity ?? t.max) === '' 
+        ? null 
+        : Number(t.maxQuantity ?? t.max_quantity ?? t.max),
+      price: Number(t.price ?? t.price_amount ?? 0),
+      isPromo: Boolean(t.isPromo ?? t.is_promo ?? false)
+    })).sort((a: any, b: any) => a.minQuantity - b.minQuantity);
+  };
+
   // Complex fields states
   const [images, setImages] = useState<any[]>(
     product?.product_images?.map((img: any) => ({ ...img, is_main: img.order_index === 0 })) || [{ image_url: '', is_main: true }]
   );
-  const [tiers, setTiers] = useState<any[]>(
-    product?.product_price_tiers?.map((t: any) => ({
-      id: t.id,
-      min_quantity: Number(t.min_quantity),
-      max_quantity: t.max_quantity === null ? '' : Number(t.max_quantity),
-      price: Number(t.price_amount),
-      label: t.label || '',
-      is_promo: Boolean(t.is_promo)
-    }))?.sort((a: any, b: any) => a.min_quantity - b.min_quantity) || []
-  );
+  const [tiers, setTiers] = useState<any[]>(normalizeTiers(product));
   const [features, setFeatures] = useState<any[]>(
     product?.product_features || []
   );
@@ -47,7 +50,7 @@ export default function ProductForm({ product = null, categories = [] }: { produ
     // Validate Tiers
     if (tiers.length > 0) {
       for (const t of tiers) {
-        if (t.min_quantity < 1) {
+        if (t.minQuantity < 1) {
           setErrorMsg('El valor "Desde" debe ser mayor a 0 en todas las escalas de precio.');
           setLoading(false);
           return;
@@ -57,7 +60,7 @@ export default function ProductForm({ product = null, categories = [] }: { produ
           setLoading(false);
           return;
         }
-        if (t.max_quantity !== null && t.max_quantity !== '' && t.max_quantity < t.min_quantity) {
+        if (t.maxQuantity !== null && t.maxQuantity !== '' && t.maxQuantity < t.minQuantity) {
           setErrorMsg('El valor "Hasta" no puede ser menor que "Desde".');
           setLoading(false);
           return;
@@ -65,14 +68,14 @@ export default function ProductForm({ product = null, categories = [] }: { produ
       }
 
       // Check overlapping
-      const sortedTiers = [...tiers].sort((a, b) => a.min_quantity - b.min_quantity);
+      const sortedTiers = [...tiers].sort((a, b) => a.minQuantity - b.minQuantity);
       for (let i = 0; i < sortedTiers.length - 1; i++) {
         const current = sortedTiers[i];
         const next = sortedTiers[i + 1];
         
-        const currentMax = (current.max_quantity === null || current.max_quantity === '') ? Infinity : current.max_quantity;
+        const currentMax = (current.maxQuantity === null || current.maxQuantity === '') ? Infinity : current.maxQuantity;
         
-        if (next.min_quantity <= currentMax) {
+        if (next.minQuantity <= currentMax) {
           setErrorMsg('Hay escalas que se cruzan. Revisá los rangos.');
           setLoading(false);
           return;
@@ -366,16 +369,16 @@ export default function ProductForm({ product = null, categories = [] }: { produ
               {tiers.map((tier, idx) => (
                 <div key={idx} className="grid grid-cols-[1fr_1fr_1.5fr_auto_auto] gap-4 items-center bg-gray-50/50 p-2 pl-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
                   <div>
-                    <Input type="number" min="1" value={tier.min_quantity} onChange={e => {
+                    <Input type="number" min="1" value={tier.minQuantity} onChange={e => {
                       const newTiers = [...tiers];
-                      newTiers[idx].min_quantity = parseInt(e.target.value || '0', 10);
+                      newTiers[idx].minQuantity = parseInt(e.target.value || '0', 10);
                       setTiers(newTiers);
                     }} className="h-10 text-center" />
                   </div>
                   <div>
-                    <Input type="number" min="1" placeholder="Ej. 50" value={tier.max_quantity || ''} onChange={e => {
+                    <Input type="number" min="1" placeholder="Ej. 50" value={tier.maxQuantity ?? ''} onChange={e => {
                       const newTiers = [...tiers];
-                      newTiers[idx].max_quantity = e.target.value ? parseInt(e.target.value, 10) : null;
+                      newTiers[idx].maxQuantity = e.target.value ? parseInt(e.target.value, 10) : null;
                       setTiers(newTiers);
                     }} className="h-10 text-center" />
                   </div>
@@ -389,9 +392,9 @@ export default function ProductForm({ product = null, categories = [] }: { produ
                   </div>
                   <div className="flex justify-center items-center w-20">
                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" className="sr-only peer" checked={tier.is_promo} onChange={e => {
+                        <input type="checkbox" className="sr-only peer" checked={tier.isPromo} onChange={e => {
                             const newTiers = [...tiers];
-                            newTiers[idx].is_promo = e.target.checked;
+                            newTiers[idx].isPromo = e.target.checked;
                             setTiers(newTiers);
                           }} />
                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-corpicia-green"></div>
@@ -405,7 +408,7 @@ export default function ProductForm({ product = null, categories = [] }: { produ
                 </div>
               ))}
               <div className="pt-2">
-                <Button type="button" variant="outline" className="w-full text-corpicia-green border-corpicia-green/30 hover:bg-corpicia-green/5" onClick={() => setTiers([...tiers, { min_quantity: 1, max_quantity: null, price: 0, label: '', is_promo: false }])}>
+                <Button type="button" variant="outline" className="w-full text-corpicia-green border-corpicia-green/30 hover:bg-corpicia-green/5" onClick={() => setTiers([...tiers, { minQuantity: 1, maxQuantity: null, price: 0, isPromo: false }])}>
                   <Plus className="w-4 h-4 mr-2" /> Agregar otra escala de precio
                 </Button>
               </div>
@@ -418,13 +421,13 @@ export default function ProductForm({ product = null, categories = [] }: { produ
                 <p className="text-sm text-gray-500 italic">Aún no cargaste precios por cantidad.</p>
               ) : (
                 <ul className="space-y-2">
-                  {[...tiers].sort((a, b) => a.min_quantity - b.min_quantity).map((t, idx) => (
+                  {[...tiers].sort((a, b) => a.minQuantity - b.minQuantity).map((t, idx) => (
                     <li key={idx} className="text-sm flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-corpicia-green/60"></span>
-                      {t.max_quantity ? (
-                        <span>{t.min_quantity} a {t.max_quantity} → {t.price > 0 ? `Gs. ${t.price.toLocaleString('es-PY')}` : 'Precio pendiente'}</span>
+                      {t.maxQuantity ? (
+                        <span>{t.minQuantity} a {t.maxQuantity} → {t.price > 0 ? `Gs. ${t.price.toLocaleString('es-PY')}` : 'Precio pendiente'}</span>
                       ) : (
-                        <span>Desde {t.min_quantity} en adelante → {t.price > 0 ? `Gs. ${t.price.toLocaleString('es-PY')}` : 'Precio pendiente'}</span>
+                        <span>Desde {t.minQuantity} en adelante → {t.price > 0 ? `Gs. ${t.price.toLocaleString('es-PY')}` : 'Precio pendiente'}</span>
                       )}
                     </li>
                   ))}

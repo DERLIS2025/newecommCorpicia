@@ -62,16 +62,16 @@ export async function syncProductRelations(productId: string, formData: FormData
     try {
       const tiers: PriceTierPayload[] = JSON.parse(tiersJson);
       if (Array.isArray(tiers)) {
-        const tiersPayload = tiers.map(t => ({
+        const tiersPayload = tiers.map((t: any) => ({
           product_id: productId,
-          min_quantity: Number(t.min_quantity),
+          min_quantity: Number(t.minQuantity ?? t.min_quantity),
           max_quantity:
-            t.max_quantity === null || t.max_quantity === undefined
+            (t.maxQuantity ?? t.max_quantity) === null || (t.maxQuantity ?? t.max_quantity) === undefined || (t.maxQuantity ?? t.max_quantity) === ''
               ? null
-              : Number(t.max_quantity),
-          price_amount: Number((t as any).price || (t as any).price_amount),
+              : Number(t.maxQuantity ?? t.max_quantity),
+          price_amount: Number(t.price ?? t.price_amount),
           label: t.label || '',
-          is_promo: Boolean(t.is_promo),
+          is_promo: Boolean(t.isPromo ?? t.is_promo),
         }));
 
         // Validate payload before proceeding
