@@ -46,7 +46,10 @@ export function getPriceForQuantity(
   totalPrice: number;
   activeTier: PriceTier | null;
 } {
-  const safeQuantity = Math.max(quantity, product.minQuantity);
+  const minimumQuantity =
+    Number(product.minQuantity ?? (product as Product & { minOrderQuantity?: number }).minOrderQuantity) || 1;
+
+  const safeQuantity = Math.max(Number(quantity) || minimumQuantity, minimumQuantity);
 
   if (!product.priceTiers || product.priceTiers.length === 0) {
     return {

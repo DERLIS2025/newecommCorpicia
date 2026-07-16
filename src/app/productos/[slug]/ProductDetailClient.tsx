@@ -43,7 +43,10 @@ export default function ProductDetailClient({ product, relatedProducts }: Props)
     trackProductView(product.name, product.slug);
   }, [product]);
 
-  const safeQuantity = Math.max(quantity, product.minQuantity);
+  const minimumQuantity =
+    Number(product.minOrderQuantity ?? product.minQuantity) || 1;
+
+  const safeQuantity = Math.max(Number(quantity) || minimumQuantity, minimumQuantity);
 
   const { unitPrice, totalPrice } = useMemo(
     () => getPriceForQuantity(product, quantity),
