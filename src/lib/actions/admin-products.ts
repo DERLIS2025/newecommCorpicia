@@ -59,19 +59,35 @@ export async function syncProductRelations(productId: string, formData: FormData
 
   // Tiers
   if (formData.has('price_tiers') && tiersJson) {
-    const tiers: PriceTierPayload[] = JSON.parse(tiersJson);
-    const tiersTable = supabase.from('product_price_tiers') as any;
-    await tiersTable.delete().eq('product_id', productId);
-    if (tiers.length > 0) {
-      const tiersPayload = tiers.map(t => ({
-        product_id: productId,
-        min_quantity: t.min_quantity,
-        max_quantity: t.max_quantity || null,
-        price_amount: (t as any).price || (t as any).price_amount, // fallback for legacy payload naming
-        label: t.label || '',
-        is_promo: t.is_promo || false,
-      }));
-      await tiersTable.insert(tiersPayload);
+    try {
+      const tiers: PriceTierPayload[] = JSON.parse(tiersJson);
+      if (Array.isArray(tiers)) {
+        const tiersPayload = tiers.map(t => ({
+          product_id: productId,
+          min_quantity: Number(t.min_quantity),
+          max_quantity: t.max_quantity === null || t.max_quantity === '' ? null : Number(t.max_quantity),
+          price_amount: Number((t as any).price || (t as any).price_amount),
+          label: t.label || '',
+          is_promo: Boolean(t.is_promo),
+        }));
+
+        // Validate payload before proceeding
+        const isValid = tiersPayload.every(t => !isNaN(t.min_quantity) && !isNaN(t.price_amount));
+        
+        if (isValid) {
+          const tiersTable = supabase.from('product_price_tiers') as any;
+          await tiersTable.delete().eq('product_id', productId);
+          
+          if (tiersPayload.length > 0) {
+            const { error: insertError } = await tiersTable.insert(tiersPayload);
+            if (insertError) {
+              console.error('Error inserting tiers:', insertError);
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Error processing tiers payload:', err);
     }
   }
 

@@ -64,18 +64,20 @@ export function getPriceForQuantity(
         maxQuantity?: number | null;
       };
 
-      const min = normalizedTier.min ?? normalizedTier.minQuantity ?? 0;
-      const max = normalizedTier.max ?? normalizedTier.maxQuantity;
+      const min = Number(normalizedTier.min ?? normalizedTier.minQuantity ?? 0);
+      const maxRaw = normalizedTier.max ?? normalizedTier.maxQuantity;
+      const max = maxRaw === null || maxRaw === undefined || maxRaw === '' ? null : Number(maxRaw);
 
-      if (max === null || max === undefined) return safeQuantity >= min;
+      if (max === null) return safeQuantity >= min;
       return safeQuantity >= min && safeQuantity <= max;
     }) || null;
 
-  const unitPrice = activeTier?.price ?? product.pricePerM2;
+  const unitPrice = Number(activeTier?.price) || Number(product.pricePerM2) || 0;
+  const totalPrice = unitPrice * safeQuantity;
 
   return {
     unitPrice,
-    totalPrice: unitPrice * safeQuantity,
+    totalPrice,
     activeTier,
   };
 }

@@ -65,7 +65,7 @@ export async function getProducts() {
         ...product,
         category: product.categories?.name,
         categorySlug: product.categories?.slug,
-        images: product.product_images?.sort((a: any, b: any) => a.order_index - b.order_index).map((img: any) => img.image_url) || [],
+        images: product.product_images?.sort((a: any, b: any) => a.order_index - b.order_index).map((img: any) => img.image_url).filter(Boolean) || [],
         pricePerM2: product.price_amount,
         shortDescription: product.short_description,
       })) as any[];
@@ -106,7 +106,7 @@ export async function getProduct(slug: string) {
       pricePerM2: data.price_amount,
       unit: data.unit,
       minOrderQuantity: data.min_order_quantity,
-      images: data.product_images?.sort((a: any, b: any) => a.order_index - b.order_index).map((img: any) => img.image_url) || [],
+      images: data.product_images?.sort((a: any, b: any) => a.order_index - b.order_index).map((img: any) => img.image_url).filter(Boolean) || [],
       priceTiers: data.product_price_tiers?.map((t: any) => ({
         minQuantity: t.min_quantity,
         maxQuantity: t.max_quantity || null,
@@ -164,7 +164,7 @@ export async function getProductsByCategory(categorySlug: string) {
       ...product,
       category: product.categories?.name,
       categorySlug: product.categories?.slug,
-      images: product.product_images?.sort((a: any, b: any) => a.order_index - b.order_index).map((img: any) => img.image_url) || [],
+      images: product.product_images?.sort((a: any, b: any) => a.order_index - b.order_index).map((img: any) => img.image_url).filter(Boolean) || [],
       pricePerM2: product.price_amount,
       shortDescription: product.short_description,
     })) as any[];
@@ -201,7 +201,7 @@ export async function getRelatedProducts(slug: string, categorySlug: string, lim
       ...product,
       category: product.categories?.name,
       categorySlug: product.categories?.slug,
-      images: product.product_images?.sort((a: any, b: any) => a.order_index - b.order_index).map((img: any) => img.image_url) || [],
+      images: product.product_images?.sort((a: any, b: any) => a.order_index - b.order_index).map((img: any) => img.image_url).filter(Boolean) || [],
       pricePerM2: product.price_amount,
       shortDescription: product.short_description,
     })) as any[];

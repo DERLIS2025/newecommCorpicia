@@ -20,8 +20,12 @@ export default function ProductForm({ product = null, categories = [] }: { produ
   );
   const [tiers, setTiers] = useState<any[]>(
     product?.product_price_tiers?.map((t: any) => ({
-      ...t,
-      price: Number(t.price_amount)
+      id: t.id,
+      min_quantity: Number(t.min_quantity),
+      max_quantity: t.max_quantity === null ? '' : Number(t.max_quantity),
+      price: Number(t.price_amount),
+      label: t.label || '',
+      is_promo: Boolean(t.is_promo)
     })) || []
   );
   const [features, setFeatures] = useState<any[]>(
