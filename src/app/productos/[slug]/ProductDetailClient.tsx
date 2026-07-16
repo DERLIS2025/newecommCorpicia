@@ -124,7 +124,23 @@ export default function ProductDetailClient({ product, relatedProducts }: Props)
                 <div className="pt-1 border-t">
                   <p className="text-sm font-semibold mb-2">Precios por volumen</p>
                   {priceTiers.map((tier, idx) => {
-                    const label = tier.label || (tier.maxQuantity ? `De ${tier.minQuantity} a ${tier.maxQuantity} ${formatUnit(product.unit)}` : `Desde ${tier.minQuantity} ${formatUnit(product.unit)} en adelante`);
+                    const normalizedTier = tier as typeof tier & {
+                      minQuantity?: number;
+                      maxQuantity?: number | null;
+                    };
+
+                    const minQuantity =
+                      normalizedTier.min ?? normalizedTier.minQuantity ?? 0;
+
+                    const maxQuantity =
+                      normalizedTier.max ?? normalizedTier.maxQuantity ?? null;
+
+                    const label =
+                      normalizedTier.label ||
+                      (maxQuantity !== null
+                        ? `De ${minQuantity} a ${maxQuantity} ${formatUnit(product.unit)}`
+                        : `Desde ${minQuantity} ${formatUnit(product.unit)} en adelante`);
+
                     return (
                       <div key={idx} className={`flex justify-between items-center text-sm py-1.5 ${tier.isPromo ? 'font-medium text-corpicia-green' : 'text-gray-700'}`}>
                         <div className="flex items-center gap-2">
