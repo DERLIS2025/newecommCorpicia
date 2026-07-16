@@ -76,7 +76,11 @@ export function ProductCard({ product }: ProductCardProps) {
                   </span>
                 </div>
                 <p className="text-xs text-gray-500">
-                  En compras desde {lowestTier.minQuantity} {formatUnit(product.unit)}
+                  En compras desde {
+                    (lowestTier as typeof lowestTier & { minQuantity?: number }).min ??
+                    (lowestTier as typeof lowestTier & { minQuantity?: number }).minQuantity ??
+                    0
+                  } {formatUnit(product.unit)}
                 </p>
               </>
             );
