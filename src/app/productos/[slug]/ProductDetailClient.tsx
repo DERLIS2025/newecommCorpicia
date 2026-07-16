@@ -108,7 +108,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Props)
             <div className="border rounded-xl p-5 md:p-6 bg-white space-y-5 shadow-sm">
 
               <div className="space-y-1">
-                <p className="text-xs uppercase tracking-wide text-gray-500">Precio por unidad</p>
+                <p className="text-xs uppercase tracking-wide text-gray-500">Precio aplicado por {formatUnit(product.unit)}</p>
                 <div className="text-3xl md:text-4xl font-bold text-green-600">
                   {formatPrice(unitPrice)} <span className="text-lg md:text-xl font-semibold text-green-700">/ {formatUnit(product.unit)}</span>
                 </div>
@@ -121,56 +121,92 @@ export default function ProductDetailClient({ product, relatedProducts }: Props)
               />
 
               {priceTiers.length > 0 && (
-                <div className="pt-1 border-t">
-                  <p className="text-sm font-semibold mb-2">Precios por volumen</p>
-                  {priceTiers.map((tier, idx) => {
-                    const normalizedTier = tier as typeof tier & {
-                      minQuantity?: number;
-                      maxQuantity?: number | null;
-                    };
+                <div className="pt-1 border-t space-y-3">
+                  <p className="text-sm font-semibold mt-2">Precios por volumen</p>
+                  
+                  <div className="space-y-2">
+                    {priceTiers.map((tier, idx) => {
+                      const normalizedTier = tier as typeof tier & { minQuantity?: number; maxQuantity?: number | null; };
+                      const min = normalizedTier.min ?? normalizedTier.minQuantity ?? 0;
+                      const max = normalizedTier.max ?? normalizedTier.maxQuantity ?? null;
+                      
+                      const isActive = safeQuantity >= min && (max === null || safeQuantity <= max);
+                      const isLowestPrice = tier.price === Math.min(...priceTiers.map(t => t.price));
+                      
+                      const label = max !== null
+                          ? `${min} a ${max} ${formatUnit(product.unit)}`
+                          : `Desde ${min} ${formatUnit(product.unit)}`;
 
-                    const minQuantity =
-                      normalizedTier.min ?? normalizedTier.minQuantity ?? 0;
-
-                    const maxQuantity =
-                      normalizedTier.max ?? normalizedTier.maxQuantity ?? null;
-
-                    const label =
-                      normalizedTier.label ||
-                      (maxQuantity !== null
-                        ? `De ${minQuantity} a ${maxQuantity} ${formatUnit(product.unit)}`
-                        : `Desde ${minQuantity} ${formatUnit(product.unit)} en adelante`);
-
-                    return (
-                      <div key={idx} className={`flex justify-between items-center text-sm py-1.5 ${tier.isPromo ? 'font-medium text-corpicia-green' : 'text-gray-700'}`}>
-                        <div className="flex items-center gap-2">
-                          <span>{label}</span>
-                          {tier.isPromo && (
-                            <span className="px-1.5 py-0.5 text-[10px] uppercase tracking-wide bg-corpicia-green/10 text-corpicia-green rounded font-bold">
-                              Mejor Precio
-                            </span>
-                          )}
+                      return (
+                        <div key={idx} className={`flex flex-col sm:flex-row justify-between sm:items-center text-sm p-2 rounded-lg transition-colors ${isActive ? 'bg-green-50 border border-green-200 shadow-sm' : 'border border-transparent'}`}>
+                          <div className="flex items-center flex-wrap gap-2 mb-1 sm:mb-0">
+                            <span className={`${isActive ? 'font-semibold text-green-800' : 'text-gray-700'}`}>{label}</span>
+                            {tier.isPromo && (
+                              <span className="px-1.5 py-0.5 text-[10px] uppercase tracking-wide bg-blue-100 text-blue-700 rounded font-bold">
+                                Promoción
+                              </span>
+                            )}
+                            {isLowestPrice && (
+                              <span className="px-1.5 py-0.5 text-[10px] uppercase tracking-wide bg-corpicia-green/10 text-corpicia-green rounded font-bold">
+                                Mejor Precio
+                              </span>
+                            )}
+                            {isActive && (
+                              <span className="px-1.5 py-0.5 text-[10px] uppercase tracking-wide bg-green-200 text-green-800 rounded font-bold">
+                                Aplicado
+                              </span>
+                            )}
+                          </div>
+                          <span className={`${isActive ? 'font-bold text-green-800' : 'font-medium text-gray-800'}`}>
+                            {formatPrice(tier.price)} / {formatUnit(product.unit)}
+                          </span>
                         </div>
-                        <span className={tier.isPromo ? 'font-bold' : ''}>{formatPrice(tier.price)}</span>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
 
-                  {missingForPromo > 0 && (
-                    <p className="text-xs text-orange-600 mt-2">
-                      Te faltan {missingForPromo} {formatUnit(product.unit)} para promo
-                    </p>
-                  )}
+                  {(() => {
+                    const sortedTiers = [...priceTiers].sort((a, b) => {
+                      const minA = (a as any).min ?? (a as any).minQuantity ?? 0;
+                      const minB = (b as any).min ?? (b as any).minQuantity ?? 0;
+                      return minA - minB;
+                    });
+                    const nextTier = sortedTiers.find(t => {
+                      const min = (t as any).min ?? (t as any).minQuantity ?? 0;
+                      return min > safeQuantity;
+                    });
+                    
+                    if (nextTier) {
+                      const nextMin = (nextTier as any).min ?? (nextTier as any).minQuantity ?? 0;
+                      const missing = nextMin - safeQuantity;
+                      return (
+                        <p className="text-xs text-orange-600 bg-orange-50 p-2 rounded border border-orange-100 mt-2">
+                          Te faltan {missing} {formatUnit(product.unit)} para acceder a {formatPrice(nextTier.price)} / {formatUnit(product.unit)}.
+                        </p>
+                      );
+                    } else {
+                      return (
+                        <p className="text-xs text-green-700 bg-green-50 p-2 rounded border border-green-100 mt-2">
+                          Ya tenés el mejor precio disponible.
+                        </p>
+                      );
+                    }
+                  })()}
                 </div>
               )}
 
-              <div className="text-xl font-bold pt-1 border-t">
-                Total: {formatPrice(totalPrice)}
+              <div className="pt-3 border-t">
+                <p className="text-sm text-gray-500 mb-1">
+                  {safeQuantity} {formatUnit(product.unit)} × {formatPrice(unitPrice)} / {formatUnit(product.unit)}
+                </p>
+                <div className="text-xl font-bold">
+                  Total: {formatPrice(totalPrice)}
+                </div>
               </div>
 
               {/* ✅ BOTONES CORREGIDOS: Con gap y responsive */}
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <Button onClick={handleAdd} className="flex-1">
+                <Button onClick={handleAdd} className="flex-1 min-h-[44px]">
                   <ShoppingCart className="mr-2" size={18} /> Agregar al Presupuesto
                 </Button>
 
@@ -181,7 +217,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Props)
                   onClick={() => trackWhatsAppClick('pdp', product.slug)}
                   className="flex-1"
                 >
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full min-h-[44px]">
                     WhatsApp
                   </Button>
                 </a>

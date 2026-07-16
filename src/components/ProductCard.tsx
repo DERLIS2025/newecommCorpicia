@@ -61,20 +61,36 @@ export function ProductCard({ product }: ProductCardProps) {
           {product.shortDescription || product.description}
         </p>
 
-        <div className="mb-3 flex items-baseline gap-1">
-          <span className="text-base sm:text-lg font-bold text-corpicia-green">
-            {formatPrice(product.pricePerM2)}
-          </span>
-          <span className="text-xs text-gray-400">
-            / {formatUnit(product.unit)}
-          </span>
+        <div className="mb-3 flex flex-col gap-1">
+          {product.priceTiers && product.priceTiers.length > 0 ? (() => {
+            const lowestTier = product.priceTiers.reduce((prev, curr) => curr.price < prev.price ? curr : prev);
+            return (
+              <>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-sm font-medium text-gray-500">Desde</span>
+                  <span className="text-base sm:text-lg font-bold text-corpicia-green">
+                    {formatPrice(lowestTier.price)}
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    / {formatUnit(product.unit)}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500">
+                  En compras desde {lowestTier.minQuantity} {formatUnit(product.unit)}
+                </p>
+              </>
+            );
+          })() : (
+            <div className="flex items-baseline gap-1">
+              <span className="text-base sm:text-lg font-bold text-corpicia-green">
+                {formatPrice(product.pricePerM2)}
+              </span>
+              <span className="text-xs text-gray-400">
+                / {formatUnit(product.unit)}
+              </span>
+            </div>
+          )}
         </div>
-
-        {product.priceTiers && product.priceTiers.length > 0 && (
-          <p className="text-xs text-gray-500 mb-3">
-            Precios por volumen disponibles
-          </p>
-        )}
 
         <div className="mt-auto">
           {/* ✅ BOTÓN CORREGIDO: "Cotizar" en mobile, "Agregar al Presupuesto" en desktop */}
