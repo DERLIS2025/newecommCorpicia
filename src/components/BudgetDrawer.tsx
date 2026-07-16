@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useBudgetStore } from '@/store/budgetStore';
 import { formatPrice, formatUnit, generateWhatsAppMessage, getSafeMinQuantity, getSafeQuantity, getProductImage } from '@/lib/utils';
 import { trackWhatsAppClick } from '@/lib/tracking';
-import { Minus, Plus, Trash2, ShoppingCart, X, MessageCircle } from 'lucide-react';
+import { Minus, Plus, Trash2, ShoppingCart, X, MessageCircle, Package } from 'lucide-react';
 
 export function BudgetDrawer() {
   const pathname = usePathname();
