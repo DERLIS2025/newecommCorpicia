@@ -6,6 +6,47 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+function TrendBadge({ current, prev, label, isPercent = false }: { current: number, prev: number | undefined, label: string, isPercent?: boolean }) {
+  if (prev === undefined || prev === null) return <div className="text-xs text-gray-400">No hay datos previos</div>;
+  if (prev === 0 && current === 0) return <div className="text-xs text-gray-500">— 0% vs {label} (0)</div>;
+  
+  const diff = current - prev;
+  let percent = 0;
+  if (prev === 0) {
+    percent = 100;
+  } else {
+    percent = (diff / prev) * 100;
+  }
+  
+  const isPositive = diff > 0;
+  const isNegative = diff < 0;
+  
+  let color = 'text-gray-500';
+  let arrow = '—';
+  
+  if (isPositive) {
+    color = 'text-green-600';
+    arrow = '↑';
+  } else if (isNegative) {
+    color = 'text-red-600';
+    arrow = '↓';
+  }
+  
+  const formattedPrev = typeof prev === 'number' && prev % 1 !== 0 ? prev.toFixed(1) : prev;
+  const prevSuffix = isPercent ? '%' : '';
+  
+  return (
+    <div className="text-xs flex items-center gap-1">
+      <span className={`font-medium ${color}`}>
+        {arrow} {Math.abs(percent).toFixed(1)}%
+      </span>
+      <span className="text-gray-500">
+        vs {label} ({formattedPrev}{prevSuffix})
+      </span>
+    </div>
+  );
+}
+
 export default async function CommercialDashboardPage({
   searchParams
 }: {
@@ -27,6 +68,9 @@ export default async function CommercialDashboardPage({
     if (p === 'this_month') return 'Este Mes';
     return '7 Días';
   };
+
+  const prevLabel = activePeriod === 'today' ? 'ayer' : 'período ant.';
+  const prevMonthLabel = 'mes ant.';
 
   return (
     <div className="space-y-8">
@@ -86,7 +130,12 @@ export default async function CommercialDashboardPage({
               <Users className="w-5 h-5 text-blue-500" />
             </div>
             <p className="mt-2 text-3xl font-bold text-gray-900">{summary.uniqueVisitors}</p>
-            <p className="mt-1 text-xs text-gray-500">{summary.sessions} Sesiones</p>
+            <div className="mt-3 space-y-1">
+              <TrendBadge current={summary.uniqueVisitors} prev={summary.comparePrev?.uniqueVisitors} label={prevLabel} />
+              {activePeriod !== 'this_month' && (
+                <TrendBadge current={summary.uniqueVisitors} prev={summary.comparePrevMonth?.uniqueVisitors} label={prevMonthLabel} />
+              )}
+            </div>
           </CardContent>
         </Card>
 
@@ -97,6 +146,12 @@ export default async function CommercialDashboardPage({
               <FileText className="w-5 h-5 text-purple-500" />
             </div>
             <p className="mt-2 text-3xl font-bold text-gray-900">{summary.pageViews}</p>
+            <div className="mt-3 space-y-1">
+              <TrendBadge current={summary.pageViews} prev={summary.comparePrev?.pageViews} label={prevLabel} />
+              {activePeriod !== 'this_month' && (
+                <TrendBadge current={summary.pageViews} prev={summary.comparePrevMonth?.pageViews} label={prevMonthLabel} />
+              )}
+            </div>
           </CardContent>
         </Card>
 
@@ -107,7 +162,12 @@ export default async function CommercialDashboardPage({
               <Clock className="w-5 h-5 text-orange-500" />
             </div>
             <p className="mt-2 text-3xl font-bold text-gray-900">{summary.avgEngagementSeconds}s</p>
-            <p className="mt-1 text-xs text-gray-500">Actividad real por sesión</p>
+            <div className="mt-3 space-y-1">
+              <TrendBadge current={summary.avgEngagementSeconds} prev={summary.comparePrev?.avgEngagementSeconds} label={prevLabel} />
+              {activePeriod !== 'this_month' && (
+                <TrendBadge current={summary.avgEngagementSeconds} prev={summary.comparePrevMonth?.avgEngagementSeconds} label={prevMonthLabel} />
+              )}
+            </div>
           </CardContent>
         </Card>
 
@@ -118,7 +178,12 @@ export default async function CommercialDashboardPage({
               <CheckCircle className="w-5 h-5 text-corpicia-green" />
             </div>
             <p className="mt-2 text-3xl font-bold text-gray-900">{summary.conversionRate.toFixed(1)}%</p>
-            <p className="mt-1 text-xs text-gray-500">Presupuestos + WhatsApp</p>
+            <div className="mt-3 space-y-1">
+              <TrendBadge current={summary.conversionRate} prev={summary.comparePrev?.conversionRate} label={prevLabel} isPercent />
+              {activePeriod !== 'this_month' && (
+                <TrendBadge current={summary.conversionRate} prev={summary.comparePrevMonth?.conversionRate} label={prevMonthLabel} isPercent />
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>

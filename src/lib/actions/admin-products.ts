@@ -46,29 +46,31 @@ export type ImagePayload = {
 };
 
 export async function syncProductRelations(productId: string, formData: FormData, supabase: any) {
-  const tiersJson = formData.get('tiers') as string;
+  const tiersJson = formData.get('price_tiers') as string;
   const featuresJson = formData.get('features') as string;
   const specsJson = formData.get('specifications') as string;
   const recsJson = formData.get('recommendations') as string;
   const imagesJson = formData.get('images') as string;
 
-  const tiers: TierInsert[] = tiersJson ? JSON.parse(tiersJson) : [];
   const features: FeatureInsert[] = featuresJson ? JSON.parse(featuresJson) : [];
   const specs: SpecInsert[] = specsJson ? JSON.parse(specsJson) : [];
   const recs: RecInsert[] = recsJson ? JSON.parse(recsJson) : [];
   const images: ImageInsert[] = imagesJson ? JSON.parse(imagesJson) : [];
 
   // Tiers
-  const tiersTable = supabase.from('product_price_tiers') as any;
-  await tiersTable.delete().eq('product_id', productId);
-  if (tiers.length > 0) {
-    const tiersPayload: TierInsert[] = tiers.map(t => ({
-      product_id: productId,
-      min_quantity: t.min_quantity,
-      price_amount: (t as any).price || t.price_amount, // fallback for legacy payload naming
-      label: t.label,
-    }));
-    await tiersTable.insert(tiersPayload);
+  if (formData.has('price_tiers') && tiersJson) {
+    const tiers: TierInsert[] = JSON.parse(tiersJson);
+    const tiersTable = supabase.from('product_price_tiers') as any;
+    await tiersTable.delete().eq('product_id', productId);
+    if (tiers.length > 0) {
+      const tiersPayload: TierInsert[] = tiers.map(t => ({
+        product_id: productId,
+        min_quantity: t.min_quantity,
+        price_amount: (t as any).price || t.price_amount, // fallback for legacy payload naming
+        label: t.label,
+      }));
+      await tiersTable.insert(tiersPayload);
+    }
   }
 
   // Features
@@ -143,13 +145,16 @@ export async function createProduct(
     const description = (formData.get('description') as string) || null;
     const short_description = (formData.get('short_description') as string) || null;
     const category_id = formData.get('category_id') as string;
-    const price_amount = parseInt(formData.get('price_amount') as string);
+    
+    const priceAmountRaw = formData.get('price_amount');
+    const price_amount = priceAmountRaw ? Number(priceAmountRaw) : NaN;
+    
     const unit = formData.get('unit') as string;
     const min_order_quantity = parseInt(formData.get('min_order_quantity') as string);
     const is_active = formData.get('is_active') === 'true';
     const is_featured = formData.get('is_featured') === 'true';
 
-    if (!name || !slug || !unit || price_amount < 0 || min_order_quantity <= 0) {
+    if (!name || !slug || !unit || !Number.isFinite(price_amount) || price_amount < 0 || min_order_quantity <= 0) {
       return { success: false, message: 'Datos obligatorios faltantes o inválidos' };
     }
 
@@ -209,13 +214,16 @@ export async function updateProduct(
     const description = (formData.get('description') as string) || null;
     const short_description = (formData.get('short_description') as string) || null;
     const category_id = formData.get('category_id') as string;
-    const price_amount = parseInt(formData.get('price_amount') as string);
+    
+    const priceAmountRaw = formData.get('price_amount');
+    const price_amount = priceAmountRaw ? Number(priceAmountRaw) : NaN;
+    
     const unit = formData.get('unit') as string;
     const min_order_quantity = parseInt(formData.get('min_order_quantity') as string);
     const is_active = formData.get('is_active') === 'true';
     const is_featured = formData.get('is_featured') === 'true';
 
-    if (!name || !slug || !unit || price_amount < 0 || min_order_quantity <= 0) {
+    if (!name || !slug || !unit || !Number.isFinite(price_amount) || price_amount < 0 || min_order_quantity <= 0) {
       return { success: false, message: 'Datos obligatorios faltantes o inválidos' };
     }
 

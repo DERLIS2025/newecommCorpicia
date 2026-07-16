@@ -6,26 +6,65 @@ export type DashboardPeriod = 'today' | '7d' | '30d' | 'this_month';
 // TODO: Cuando el volumen de datos crezca, migrar estas agregaciones a vistas materializadas o funciones RPC en Supabase
 export async function getDashboardSummary(period: DashboardPeriod = '7d') {
   try {
-    // 1. Calcular rango de fechas (máximo 30 días según reglas)
     const now = new Date();
-    let startDate = new Date();
-    startDate.setHours(0, 0, 0, 0);
+    
+    let currentStart = new Date();
+    currentStart.setHours(0, 0, 0, 0);
+    
+    let prevStart = new Date(currentStart);
+    let prevEnd = new Date(now);
+    
+    let prevMonthStart = new Date(currentStart);
+    let prevMonthEnd = new Date(now);
 
-    if (period === '7d') {
-      startDate.setDate(now.getDate() - 7);
+    if (period === 'today') {
+      prevStart.setDate(now.getDate() - 1);
+      prevEnd = new Date(currentStart); 
+      
+      prevMonthStart.setMonth(now.getMonth() - 1);
+      prevMonthEnd = new Date(now);
+      prevMonthEnd.setMonth(now.getMonth() - 1);
+    } else if (period === '7d') {
+      currentStart.setDate(now.getDate() - 7);
+      
+      prevStart = new Date(currentStart);
+      prevStart.setDate(prevStart.getDate() - 7);
+      prevEnd = new Date(currentStart);
+      
+      prevMonthStart = new Date(currentStart);
+      prevMonthStart.setMonth(prevMonthStart.getMonth() - 1);
+      prevMonthEnd = new Date(now);
+      prevMonthEnd.setMonth(now.getMonth() - 1);
     } else if (period === '30d') {
-      startDate.setDate(now.getDate() - 30);
+      currentStart.setDate(now.getDate() - 30);
+      
+      prevStart = new Date(currentStart);
+      prevStart.setDate(prevStart.getDate() - 30);
+      prevEnd = new Date(currentStart);
+      
+      prevMonthStart = new Date(currentStart);
+      prevMonthStart.setMonth(prevMonthStart.getMonth() - 1);
+      prevMonthEnd = new Date(now);
+      prevMonthEnd.setMonth(now.getMonth() - 1);
     } else if (period === 'this_month') {
-      startDate.setDate(1);
+      currentStart.setDate(1);
+      
+      prevStart = new Date(currentStart);
+      prevStart.setMonth(prevStart.getMonth() - 1);
+      prevEnd = new Date(now);
+      prevEnd.setMonth(prevEnd.getMonth() - 1);
+      
+      prevMonthStart = new Date(prevStart);
+      prevMonthEnd = new Date(prevEnd);
     }
 
-    const startDateIso = startDate.toISOString();
+    const oldestDate = new Date(Math.min(currentStart.getTime(), prevStart.getTime(), prevMonthStart.getTime()));
+    const oldestDateIso = oldestDate.toISOString();
 
-    // 2. Traer todos los eventos del período (Límite de seguridad: 50,000 rows)
     const { data: eventsData, error: eventsError } = await (supabaseAdmin as any)
       .from('analytics_events')
-      .select('visitor_id, session_id, event_name, page_path, entity_id, device_type, utm_source, utm_medium, referrer, engagement_seconds, button_location, country, city, metadata')
-      .gte('created_at', startDateIso)
+      .select('created_at, visitor_id, session_id, event_name, page_path, entity_id, device_type, utm_source, utm_medium, referrer, engagement_seconds, button_location, country, city, metadata')
+      .gte('created_at', oldestDateIso)
       .not('page_path', 'ilike', '/admin%')
       .not('page_path', 'ilike', '/api%')
       .not('page_path', 'ilike', '/_next%')
@@ -33,14 +72,63 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
 
     if (eventsError) throw eventsError;
 
-    // 3. Procesamiento en memoria
-    const events = (eventsData || []).filter((ev: any) => {
+    const allValidEvents = (eventsData || []).filter((ev: any) => {
       const p = ev.page_path || '';
       return !p.startsWith('/admin') && !p.startsWith('/api') && !p.startsWith('/_next');
     });
-    const hasData = events.length > 0;
+    const hasData = allValidEvents.length > 0;
 
-    // Sets para métricas únicas
+    const currentEvents = allValidEvents.filter((e: any) => {
+      const d = new Date(e.created_at).getTime();
+      return d >= currentStart.getTime() && d <= now.getTime();
+    });
+
+    const prevEvents = allValidEvents.filter((e: any) => {
+      const d = new Date(e.created_at).getTime();
+      return d >= prevStart.getTime() && d <= prevEnd.getTime();
+    });
+
+    const prevMonthEvents = allValidEvents.filter((e: any) => {
+      const d = new Date(e.created_at).getTime();
+      return d >= prevMonthStart.getTime() && d <= prevMonthEnd.getTime();
+    });
+
+    const calcMetrics = (evts: any[]) => {
+      const uVis = new Set<string>();
+      const uSes = new Set<string>();
+      let pViews = 0;
+      let engSecs = 0;
+      let waClicks = 0;
+      let qSub = 0;
+
+      evts.forEach(e => {
+        if (e.visitor_id) uVis.add(e.visitor_id);
+        if (e.session_id) uSes.add(e.session_id);
+        if (e.event_name === 'page_view') pViews++;
+        if (e.event_name === 'page_engagement' && e.engagement_seconds) engSecs += e.engagement_seconds;
+        if (e.event_name === 'whatsapp_click') waClicks++;
+        if (e.event_name === 'quote_submitted') qSub++;
+      });
+
+      return {
+        uniqueVisitors: uVis.size,
+        sessions: uSes.size,
+        pageViews: pViews,
+        avgEngagementSeconds: uSes.size > 0 ? Math.round(engSecs / uSes.size) : 0,
+        whatsappClicks: waClicks,
+        quotesSubmitted: qSub,
+        conversionRate: uVis.size > 0 ? ((qSub + waClicks) / uVis.size) * 100 : 0
+      };
+    };
+
+    const currentMetrics = calcMetrics(currentEvents);
+    const prevMetrics = calcMetrics(prevEvents);
+    const prevMonthMetrics = calcMetrics(prevMonthEvents);
+
+    // Redirigir el procesamiento principal para usar currentEvents
+    const events = currentEvents;
+
+    // Sets para métricas únicas (re-used below)
     const uniqueVisitors = new Set<string>();
     const uniqueSessions = new Set<string>();
     
@@ -52,6 +140,7 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
     let totalQuoteStarted = 0;
     let totalProductViews = 0;
     let totalQuoteItemAdded = 0;
+
 
     // ==========================================
     // FASE 1: CRM & QUOTES SUMMARY
@@ -407,13 +496,9 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
       deviceStats,
       locationStats,
       summary: {
-        uniqueVisitors: uniqueVisitors.size,
-        sessions: uniqueSessions.size,
-        pageViews: totalPageViews,
-        avgEngagementSeconds: uniqueSessions.size > 0 ? Math.round(totalEngagementSeconds / uniqueSessions.size) : 0,
-        whatsappClicks: totalWhatsAppClicks,
-        quotesSubmitted: totalQuoteSubmitted,
-        conversionRate: uniqueVisitors.size > 0 ? ((totalQuoteSubmitted + totalWhatsAppClicks) / uniqueVisitors.size) * 100 : 0
+        ...currentMetrics,
+        comparePrev: prevMetrics,
+        comparePrevMonth: prevMonthMetrics
       },
       topProducts,
       topPages,
@@ -431,7 +516,7 @@ export async function getDashboardSummary(period: DashboardPeriod = '7d') {
       analytics: { hasData: false, pageViews: 0, topDevice: 'Error' },
       deviceStats: [],
       locationStats: [],
-      summary: { uniqueVisitors: 0, sessions: 0, pageViews: 0, avgEngagementSeconds: 0, whatsappClicks: 0, quotesSubmitted: 0, conversionRate: 0 },
+      summary: { uniqueVisitors: 0, sessions: 0, pageViews: 0, avgEngagementSeconds: 0, whatsappClicks: 0, quotesSubmitted: 0, conversionRate: 0, comparePrev: null, comparePrevMonth: null },
       topProducts: [], topPages: [], topSources: [], topWhatsApp: [], funnel: { visitors: 0, productViews: 0, itemAdded: 0, quoteStarted: 0, quoteSubmitted: 0, whatsappClick: 0 },
       alerts: [{ message: 'Error al cargar los datos', type: 'danger' }],
       hasData: false
