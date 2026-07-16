@@ -109,6 +109,8 @@ export async function getProduct(slug: string) {
       images: data.product_images?.sort((a: any, b: any) => a.order_index - b.order_index).map((img: any) => img.image_url) || [],
       priceTiers: data.product_price_tiers?.map((t: any) => ({
         minQuantity: t.min_quantity,
+        maxQuantity: t.max_quantity || null,
+        isPromo: t.is_promo || false,
         price: t.price_amount,
         label: t.label,
       })) || [],

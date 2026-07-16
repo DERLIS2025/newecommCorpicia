@@ -19,7 +19,10 @@ export default function ProductForm({ product = null, categories = [] }: { produ
     product?.product_images?.map((img: any) => ({ ...img, is_main: img.order_index === 0 })) || [{ image_url: '', is_main: true }]
   );
   const [tiers, setTiers] = useState<any[]>(
-    product?.product_price_tiers || []
+    product?.product_price_tiers?.map((t: any) => ({
+      ...t,
+      price: Number(t.price_amount)
+    })) || []
   );
   const [features, setFeatures] = useState<any[]>(
     product?.product_features || []
@@ -309,7 +312,9 @@ export default function ProductForm({ product = null, categories = [] }: { produ
             <h2 className="font-semibold text-lg border-b pb-2">Precios y Cantidades</h2>
             
             <div>
-              <label className="block text-sm font-medium mb-1">Precio Base (PYG) *</label>
+              <label className="block text-sm font-medium mb-1">
+                Precio base por {selectedUnit === 'm2' ? 'm²' : selectedUnit} (PYG) *
+              </label>
               <Input name="price_amount" type="number" defaultValue={product?.price_amount || ''} required min="0" />
             </div>
 

@@ -59,15 +59,17 @@ export async function syncProductRelations(productId: string, formData: FormData
 
   // Tiers
   if (formData.has('price_tiers') && tiersJson) {
-    const tiers: TierInsert[] = JSON.parse(tiersJson);
+    const tiers: PriceTierPayload[] = JSON.parse(tiersJson);
     const tiersTable = supabase.from('product_price_tiers') as any;
     await tiersTable.delete().eq('product_id', productId);
     if (tiers.length > 0) {
-      const tiersPayload: TierInsert[] = tiers.map(t => ({
+      const tiersPayload = tiers.map(t => ({
         product_id: productId,
         min_quantity: t.min_quantity,
-        price_amount: (t as any).price || t.price_amount, // fallback for legacy payload naming
-        label: t.label,
+        max_quantity: t.max_quantity || null,
+        price_amount: (t as any).price || (t as any).price_amount, // fallback for legacy payload naming
+        label: t.label || '',
+        is_promo: t.is_promo || false,
       }));
       await tiersTable.insert(tiersPayload);
     }
