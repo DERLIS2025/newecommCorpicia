@@ -14,6 +14,8 @@ import {
   formatUnit,
   generateWhatsAppMessage,
   getPriceForQuantity,
+  getSafeMinQuantity,
+  getSafeQuantity
 } from '@/lib/utils';
 import LocationPicker, { SelectedLocation } from '@/components/maps/LocationPicker';
 import {
@@ -241,37 +243,49 @@ export default function PresupuestoClient() {
                           
                           {/* Controles de Cantidad */}
                           <div className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-lg p-1 w-fit shadow-sm">
-                            <button
-                              onClick={() => {
-                                updateQuantity(item.product.id, Math.max(item.product.minQuantity, item.quantity - 1));
-                                trackQuoteStarted();
-                              }}
-                              className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
-                            >
-                              <Minus size={16} strokeWidth={2.5} />
-                            </button>
+                            {(() => {
+                              const safeMin = getSafeMinQuantity(item.product);
+                              const safeQty = getSafeQuantity(item.quantity, safeMin);
+                              const isAtMin = safeQty <= safeMin;
+                              
+                              return (
+                                <>
+                                  <button
+                                    onClick={() => {
+                                      updateQuantity(item.product.id, Math.max(safeMin, safeQty - 1));
+                                      trackQuoteStarted();
+                                    }}
+                                    disabled={isAtMin}
+                                    className={`w-8 h-8 flex items-center justify-center rounded-md transition-colors ${isAtMin ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'}`}
+                                  >
+                                    <Minus size={16} strokeWidth={2.5} />
+                                  </button>
 
-                            <input
-                              type="number"
-                              min={item.product.minQuantity}
-                              value={item.quantity}
-                              onChange={(e) => {
-                                const val = parseInt(e.target.value) || item.product.minQuantity;
-                                updateQuantity(item.product.id, Math.max(item.product.minQuantity, val));
-                                trackQuoteStarted();
-                              }}
-                              className="w-12 text-center text-sm font-semibold bg-transparent focus:outline-none"
-                            />
+                                  <input
+                                    type="number"
+                                    min={safeMin}
+                                    value={safeQty}
+                                    onChange={(e) => {
+                                      const val = parseInt(e.target.value);
+                                      const newQty = Number.isFinite(val) ? val : safeMin;
+                                      updateQuantity(item.product.id, Math.max(safeMin, newQty));
+                                      trackQuoteStarted();
+                                    }}
+                                    className="w-12 text-center text-sm font-semibold bg-transparent focus:outline-none"
+                                  />
 
-                            <button 
-                              onClick={() => {
-                                updateQuantity(item.product.id, item.quantity + 1);
-                                trackQuoteStarted();
-                              }}
-                              className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
-                            >
-                              <Plus size={16} strokeWidth={2.5} />
-                            </button>
+                                  <button 
+                                    onClick={() => {
+                                      updateQuantity(item.product.id, safeQty + 1);
+                                      trackQuoteStarted();
+                                    }}
+                                    className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+                                  >
+                                    <Plus size={16} strokeWidth={2.5} />
+                                  </button>
+                                </>
+                              );
+                            })()}
                           </div>
 
                           {/* Subtotal y Eliminar (Desktop) */}

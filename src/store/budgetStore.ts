@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { BudgetState, Product } from '@/types';
-import { getPriceForQuantity } from '@/lib/utils';
+import { getPriceForQuantity, getSafeMinQuantity, getSafeQuantity } from '@/lib/utils';
 
 export const useBudgetStore = create<BudgetState>()(
   persist(
@@ -10,12 +10,15 @@ export const useBudgetStore = create<BudgetState>()(
 
       addItem: (product: Product, quantity: number) => {
         set((state) => {
+          const safeMin = getSafeMinQuantity(product);
+          const safeQty = getSafeQuantity(quantity, safeMin);
+
           const existingItem = state.items.find(
             (item) => item.product.id === product.id
           );
 
           if (existingItem) {
-            const newQuantity = existingItem.quantity + quantity;
+            const newQuantity = existingItem.quantity + safeQty;
             const { unitPrice, totalPrice } = getPriceForQuantity(product, newQuantity);
             
             return {
@@ -27,14 +30,14 @@ export const useBudgetStore = create<BudgetState>()(
             };
           }
 
-          const { unitPrice, totalPrice } = getPriceForQuantity(product, quantity);
+          const { unitPrice, totalPrice } = getPriceForQuantity(product, safeQty);
 
           return {
             items: [
               ...state.items,
               {
                 product,
-                quantity,
+                quantity: safeQty,
                 unitPrice,
                 total: totalPrice,
               },
@@ -54,11 +57,13 @@ export const useBudgetStore = create<BudgetState>()(
           items: state.items.map((item) => {
             if (item.product.id !== productId) return item;
             
-            const { unitPrice, totalPrice } = getPriceForQuantity(item.product, quantity);
+            const safeMin = getSafeMinQuantity(item.product);
+            const safeQty = getSafeQuantity(quantity, safeMin);
+            const { unitPrice, totalPrice } = getPriceForQuantity(item.product, safeQty);
             
             return {
               ...item,
-              quantity,
+              quantity: safeQty,
               unitPrice,
               total: totalPrice,
             };

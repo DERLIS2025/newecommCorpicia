@@ -38,6 +38,18 @@ export function getWhatsAppUrl(message?: string): string {
   return `https://wa.me/${phone}${encodedMessage}`;
 }
 
+export function getSafeMinQuantity(product: any): number {
+  if (!product) return 1;
+  const min = product.minQuantity ?? product.minOrderQuantity ?? product.min_order_quantity ?? 1;
+  return Number.isFinite(Number(min)) ? Number(min) : 1;
+}
+
+export function getSafeQuantity(quantity: any, safeMinQuantity: number): number {
+  const numQty = Number(quantity);
+  const parsed = Number.isFinite(numQty) ? numQty : safeMinQuantity;
+  return Math.max(parsed, safeMinQuantity);
+}
+
 export function getPriceForQuantity(
   product: Product,
   quantity: number
@@ -46,10 +58,8 @@ export function getPriceForQuantity(
   totalPrice: number;
   activeTier: PriceTier | null;
 } {
-  const minimumQuantity =
-    Number(product.minQuantity ?? (product as Product & { minOrderQuantity?: number }).minOrderQuantity) || 1;
-
-  const safeQuantity = Math.max(Number(quantity) || minimumQuantity, minimumQuantity);
+  const safeMinQuantity = getSafeMinQuantity(product);
+  const safeQuantity = getSafeQuantity(quantity, safeMinQuantity);
 
   if (!product.priceTiers || product.priceTiers.length === 0) {
     return {

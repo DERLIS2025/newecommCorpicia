@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useBudgetStore } from '@/store/budgetStore';
-import { formatPrice, formatUnit, generateWhatsAppMessage } from '@/lib/utils';
+import { formatPrice, formatUnit, generateWhatsAppMessage, getSafeMinQuantity, getSafeQuantity } from '@/lib/utils';
 import { trackWhatsAppClick } from '@/lib/tracking';
 import { Minus, Plus, Trash2, ShoppingCart, X, MessageCircle } from 'lucide-react';
 
@@ -90,23 +90,33 @@ export function BudgetDrawer() {
 
                     <div className="flex justify-between items-center mt-2">
                       <div className="flex items-center gap-2">
-                        <button 
-                          onClick={() => updateQuantity(item.product.id, Math.max(item.product.minQuantity, item.quantity - 1))}
-                          className="p-1 hover:bg-gray-200 rounded"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
+                        {(() => {
+                          const safeMin = getSafeMinQuantity(item.product);
+                          const safeQty = getSafeQuantity(item.quantity, safeMin);
+                          const isAtMin = safeQty <= safeMin;
+                          return (
+                            <>
+                              <button 
+                                onClick={() => updateQuantity(item.product.id, Math.max(safeMin, safeQty - 1))}
+                                disabled={isAtMin}
+                                className={`p-1 rounded ${isAtMin ? 'text-gray-300 cursor-not-allowed' : 'hover:bg-gray-200'}`}
+                              >
+                                <Minus className="w-4 h-4" />
+                              </button>
 
-                        <span className="text-sm font-medium">
-                          {item.quantity} {formatUnit(item.product.unit)}
-                        </span>
+                              <span className="text-sm font-medium">
+                                {safeQty} {formatUnit(item.product.unit)}
+                              </span>
 
-                        <button 
-                          onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                          className="p-1 hover:bg-gray-200 rounded"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
+                              <button 
+                                onClick={() => updateQuantity(item.product.id, safeQty + 1)}
+                                className="p-1 hover:bg-gray-200 rounded"
+                              >
+                                <Plus className="w-4 h-4" />
+                              </button>
+                            </>
+                          );
+                        })()}
                       </div>
 
                       <button 
