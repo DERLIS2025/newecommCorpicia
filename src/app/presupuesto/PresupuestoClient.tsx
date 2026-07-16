@@ -397,7 +397,7 @@ export default function PresupuestoClient() {
                     </Button>
 
                     <Button type="submit" variant="outline" className="w-full border-2 border-gray-200 text-gray-700 hover:bg-gray-50 h-12 rounded-xl text-base lg:text-sm font-bold transition-colors" disabled={isSubmitting}>
-                      {isSubmitting ? 'Procesando...' : 'Enviar solicitud'}
+                      {isSubmitting ? 'Procesando...' : 'O enviar solicitud por web'}
                     </Button>
                   </div>
 
