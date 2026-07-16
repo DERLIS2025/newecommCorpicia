@@ -57,7 +57,8 @@ export default function ProductDetailClient({ product, relatedProducts }: Props)
   const features = product.features ?? [];
   const specifications = product.specifications ?? {};
   const recommendations = product.recommendations ?? [];
-  const images = product.images?.length > 0 ? product.images : ['/productos/default.jpg'];
+  const fallbackImage = `/productos/${product.slug}.jpg`;
+  const images = product.images?.length > 0 ? product.images : [fallbackImage];
   const related = relatedProducts ?? [];
 
   const promoTier = priceTiers.find((t) => t.isPromo);
