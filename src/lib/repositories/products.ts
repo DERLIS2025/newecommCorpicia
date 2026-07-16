@@ -37,6 +37,19 @@ function filterStaticProductsByVisibility(products: ProductDetail[], visibilityM
   return products.filter((product) => visibilityMap[product.slug] !== false);
 }
 
+function mapPriceTiers(tiers: any[] | undefined) {
+  if (!tiers) return [];
+  return tiers
+    .sort((a: any, b: any) => a.min_quantity - b.min_quantity)
+    .map((t: any) => ({
+      minQuantity: t.min_quantity,
+      maxQuantity: t.max_quantity || null,
+      isPromo: t.is_promo || false,
+      price: t.price_amount,
+      label: t.label,
+    }));
+}
+
 export async function getProducts() {
   if (DATA_SOURCE === 'static') {
     logFallback('NEXT_PUBLIC_DATA_SOURCE is set to static');
@@ -52,7 +65,7 @@ export async function getProducts() {
     try {
       const { data, error } = await supabase
         .from('products')
-        .select('*, categories(slug, name), product_images(image_url, order_index)')
+        .select('*, categories(slug, name), product_images(image_url, order_index), product_price_tiers(*)')
         .eq('is_active', true)
         .order('created_at', { ascending: false });
   
@@ -66,6 +79,7 @@ export async function getProducts() {
         category: product.categories?.name,
         categorySlug: product.categories?.slug,
         images: product.product_images?.sort((a: any, b: any) => a.order_index - b.order_index).map((img: any) => img.image_url).filter(Boolean) || [],
+        priceTiers: mapPriceTiers(product.product_price_tiers),
         pricePerM2: product.price_amount,
         shortDescription: product.short_description,
       })) as any[];
@@ -107,13 +121,7 @@ export async function getProduct(slug: string) {
       unit: data.unit,
       minOrderQuantity: data.min_order_quantity,
       images: data.product_images?.sort((a: any, b: any) => a.order_index - b.order_index).map((img: any) => img.image_url).filter(Boolean) || [],
-      priceTiers: data.product_price_tiers?.sort((a: any, b: any) => a.min_quantity - b.min_quantity).map((t: any) => ({
-        minQuantity: t.min_quantity,
-        maxQuantity: t.max_quantity || null,
-        isPromo: t.is_promo || false,
-        price: t.price_amount,
-        label: t.label,
-      })) || [],
+      priceTiers: mapPriceTiers(data.product_price_tiers),
       features: data.product_features?.sort((a: any, b: any) => a.order_index - b.order_index).map((f: any) => f.feature_text) || [],
       specifications: data.product_specifications?.sort((a: any, b: any) => a.order_index - b.order_index).map((s: any) => ({
         key: s.spec_key,
@@ -149,26 +157,27 @@ export async function getProductsByCategory(categorySlug: string) {
 
   if (!supabase) return [];
 
-  try {
-    // We need to join with categories to filter by category slug
-    const { data, error } = await supabase
-      .from('products')
-      .select('*, categories!inner(slug, name), product_images(image_url, order_index)')
-      .eq('is_active', true)
-      .eq('categories.slug', categorySlug)
-      .order('created_at', { ascending: false });
-
-    if (error) return [];
-
-    return data.map(product => ({
-      ...product,
-      category: product.categories?.name,
-      categorySlug: product.categories?.slug,
-      images: product.product_images?.sort((a: any, b: any) => a.order_index - b.order_index).map((img: any) => img.image_url).filter(Boolean) || [],
-      pricePerM2: product.price_amount,
-      shortDescription: product.short_description,
-    })) as any[];
-  } catch (err) {
+    try {
+      // We need to join with categories to filter by category slug
+      const { data, error } = await supabase
+        .from('products')
+        .select('*, categories!inner(slug, name), product_images(image_url, order_index), product_price_tiers(*)')
+        .eq('is_active', true)
+        .eq('categories.slug', categorySlug)
+        .order('created_at', { ascending: false });
+  
+      if (error) return [];
+  
+      return data.map(product => ({
+        ...product,
+        category: product.categories?.name,
+        categorySlug: product.categories?.slug,
+        images: product.product_images?.sort((a: any, b: any) => a.order_index - b.order_index).map((img: any) => img.image_url).filter(Boolean) || [],
+        priceTiers: mapPriceTiers(product.product_price_tiers),
+        pricePerM2: product.price_amount,
+        shortDescription: product.short_description,
+      })) as any[];
+    } catch (err) {
     console.error('Error fetching products by category:', err);
     return [];
   }
@@ -188,7 +197,7 @@ export async function getRelatedProducts(slug: string, categorySlug: string, lim
   try {
     const { data, error } = await supabase
       .from('products')
-      .select('*, categories!inner(slug, name), product_images(image_url, order_index)')
+      .select('*, categories!inner(slug, name), product_images(image_url, order_index), product_price_tiers(*)')
       .eq('is_active', true)
       .eq('categories.slug', categorySlug)
       .neq('slug', slug)
@@ -202,6 +211,7 @@ export async function getRelatedProducts(slug: string, categorySlug: string, lim
       category: product.categories?.name,
       categorySlug: product.categories?.slug,
       images: product.product_images?.sort((a: any, b: any) => a.order_index - b.order_index).map((img: any) => img.image_url).filter(Boolean) || [],
+      priceTiers: mapPriceTiers(product.product_price_tiers),
       pricePerM2: product.price_amount,
       shortDescription: product.short_description,
     })) as any[];
