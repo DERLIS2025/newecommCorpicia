@@ -58,10 +58,15 @@ export function getPriceForQuantity(
 
   const activeTier =
     product.priceTiers.find((tier) => {
-      // Support both productsData static format and DB format
-      const min = tier.min ?? tier.minQuantity;
-      const max = tier.max ?? tier.maxQuantity;
-      
+      // Support both static and database formats
+      const normalizedTier = tier as typeof tier & {
+        minQuantity?: number;
+        maxQuantity?: number | null;
+      };
+
+      const min = normalizedTier.min ?? normalizedTier.minQuantity ?? 0;
+      const max = normalizedTier.max ?? normalizedTier.maxQuantity;
+
       if (max === null || max === undefined) return safeQuantity >= min;
       return safeQuantity >= min && safeQuantity <= max;
     }) || null;
