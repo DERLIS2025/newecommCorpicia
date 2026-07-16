@@ -123,10 +123,12 @@ export async function getProduct(slug: string) {
       images: data.product_images?.sort((a: any, b: any) => a.order_index - b.order_index).map((img: any) => img.image_url).filter(Boolean) || [],
       priceTiers: mapPriceTiers(data.product_price_tiers),
       features: data.product_features?.sort((a: any, b: any) => a.order_index - b.order_index).map((f: any) => f.feature_text) || [],
-      specifications: data.product_specifications?.sort((a: any, b: any) => a.order_index - b.order_index).map((s: any) => ({
-        key: s.spec_key,
-        value: s.spec_value,
-      })) || [],
+      specifications: data.product_specifications?.sort((a: any, b: any) => a.order_index - b.order_index).reduce((acc: Record<string, string>, s: any) => {
+        if (s.spec_key) {
+          acc[s.spec_key] = s.spec_value ?? '';
+        }
+        return acc;
+      }, {} as Record<string, string>) || {},
       recommendations: data.product_recommendations?.sort((a: any, b: any) => a.order_index - b.order_index).map((r: any) => r.recommendation_text) || [],
     } as any;
   } catch (err) {
