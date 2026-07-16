@@ -84,8 +84,8 @@ export function BudgetDrawer() {
                   <div className="flex-1 min-w-0">
                     <h4 className="font-medium text-sm line-clamp-2">{item.product.name}</h4>
 
-                    <p className="text-sm text-gray-500">
-                      {formatPrice(item.product.pricePerM2)} / {formatUnit(item.product.unit)}
+                    <p className="text-sm text-gray-500 font-medium">
+                      {formatPrice(item.unitPrice)} / {formatUnit(item.product.unit)}
                     </p>
 
                     <div className="flex justify-between items-center mt-2">
@@ -136,20 +136,19 @@ export function BudgetDrawer() {
               {/* ✅ BOTONES CORREGIDOS: Flex row en mobile, no superpuestos */}
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button 
-                  onClick={handleWhatsAppClick}
-                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  variant="outline" 
+                  className="flex-1 min-h-[44px]"
+                  onClick={() => setIsOpen(false)}
                 >
-                  <MessageCircle className="w-4 h-4 mr-2" /> 
-                  Enviar por WhatsApp
+                  Seguir comprando
                 </Button>
 
                 <Link href="/presupuesto" className="flex-1">
                   <Button 
-                    variant="outline" 
-                    className="w-full"
+                    className="w-full min-h-[44px] bg-green-600 hover:bg-green-700 text-white"
                     onClick={() => setIsOpen(false)}
                   >
-                    Ver detalle
+                    Ver presupuesto
                   </Button>
                 </Link>
               </div>

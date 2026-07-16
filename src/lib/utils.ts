@@ -100,19 +100,22 @@ export function generateSlug(text: string): string {
 }
 
 export function generateWhatsAppMessage(
-  items: { name: string; quantity: number; total: number; unit: Product['unit'] }[],
+  items: { name: string; quantity: number; total: number; unit: Product['unit']; unitPrice?: number }[],
   total: number
 ): string {
   let message = 'Hola, quiero solicitar un presupuesto:\n\n';
 
   items.forEach((item, index) => {
     message += `${index + 1}. ${item.name}\n`;
-    message += `   Cantidad: ${item.quantity} ${formatUnit(item.unit)}\n`;
-    message += `   Precio estimado: ${formatPrice(item.total)}\n\n`;
+    message += `Cantidad: ${item.quantity} ${formatUnit(item.unit)}\n`;
+    if (item.unitPrice !== undefined) {
+      message += `Precio aplicado: ${formatPrice(item.unitPrice)}/${formatUnit(item.unit)}\n`;
+    }
+    message += `Subtotal: ${formatPrice(item.total)}\n\n`;
   });
 
   message += `Total estimado: ${formatPrice(total)}\n\n`;
-  message += '¡Gracias!';
+  message += 'Nombre:\nZona:\nComentario:';
 
   // ✅ CORREGIDO: Usar api.whatsapp.com en vez de wa.me (evita bloqueo FortiGate)
   const phone = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '595992588770';
