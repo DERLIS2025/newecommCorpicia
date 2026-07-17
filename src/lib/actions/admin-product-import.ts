@@ -171,7 +171,7 @@ export async function importProducts(
         unit: row.unit,
         min_order_quantity: Math.round(row.min_order_quantity ?? 1),
         category_id: categoryId,
-        is_active: row.is_active ?? true,
+        is_active: false,
         is_featured: row.is_featured ?? false,
       };
 
