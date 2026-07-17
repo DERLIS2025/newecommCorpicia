@@ -199,9 +199,6 @@ export async function updatePopupSettings(prevState: any, formData: FormData): P
   if (!ADMIN_WRITES_ENABLED) return { success: false, message: 'Escritura deshabilitada.' };
   if (!supabaseAdmin) return { success: false, message: 'Servicio no configurado.' };
 
-  const authError = await checkAdminAuth();
-  if (authError) return authError;
-
   try {
     assertAdminWritesEnabled();
 
