@@ -11,10 +11,7 @@ import { getTopBarItems, upsertTopBarItem, deleteTopBarItem, reorderTopBarItems 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { DragHandle, GripHorizontal } from 'lucide-react';
-import { DndContext, closestCenter } from '@dnd-kit/core';
-import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { SortableItem } from '@/components/ui/sortable-item';
+import { ChevronUp, ChevronDown } from 'lucide-react';
 
 const topBarSchema = z.array(
   z.object({
@@ -67,22 +64,15 @@ export default function TopBarForm() {
     setLoading(false);
   };
 
-  const handleDragEnd = ({ active, over }: any) => {
-    if (active.id !== over?.id) {
-      const oldIndex = fields.findIndex((f) => f.id === active.id);
-      const newIndex = fields.findIndex((f) => f.id === over.id);
-      move(oldIndex, newIndex);
-    }
+  const moveItem = (from: number, to: number) => {
+    move(from, to);
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={fields.map((f) => f.id)} strategy={verticalListSortingStrategy}>
-          {fields.map((field, index) => (
-            <SortableItem key={field.id} id={field.id}>
+      {fields.map((field, index) => (
+            <div key={field.id} className="flex items-center space-x-2 p-2 bg-gray-50 rounded-md">
               <div className="flex items-center space-x-4 p-2 bg-gray-50 rounded-md">
-                <DragHandle className="cursor-move" />
                 <Controller
                   name={`${index}.text` as const}
                   control={control}
@@ -108,14 +98,19 @@ export default function TopBarForm() {
                   control={control}
                   render={({ field }) => <Switch checked={field.value} onCheckedChange={field.onChange} />}
                 />
-                <Button variant="destructive" type="button" onClick={() => remove(index)}>
-                  Eliminar
-                </Button>
+                <div className="flex space-x-1">
+                  <Button type="button" onClick={() => moveItem(index, index - 1)} disabled={index === 0}>
+                    <ChevronUp size={16} />
+                  </Button>
+                  <Button type="button" onClick={() => moveItem(index, index + 1)} disabled={index === fields.length - 1}>
+                    <ChevronDown size={16} />
+                  </Button>
+                  <Button variant="destructive" type="button" onClick={() => remove(index)}>
+                    Eliminar
+                  </Button>
+                </div>
               </div>
-            </SortableItem>
-          ))}
-        </SortableContext>
-      </DndContext>
+            ))}
       <Button type="button" onClick={() => append({ text: '', order: fields.length, enabled: true })}>
         Añadir elemento
       </Button>

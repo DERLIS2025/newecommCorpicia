@@ -3,6 +3,8 @@ import Script from 'next/script';
 import { Suspense } from 'react';
 import './globals.css';
 import { Navbar } from '@/components/Navbar';
+import { TopBarAnnouncement } from '@/components/TopBarAnnouncement';
+import PromotionalPopup from '@/components/PromotionalPopup';
 import { Footer } from '@/components/Footer';
 import { WhatsAppFloatingButton } from '@/components/WhatsAppButton';
 import { BudgetDrawer } from '@/components/BudgetDrawer';
@@ -369,7 +371,9 @@ export default function RootLayout({
           <InternalPageTracker />
           <PageEngagementTracker />
         </Suspense>
+        <TopBarAnnouncement />
         <Navbar />
+        <PromotionalPopup />
         <main className="min-h-screen">{children}</main>
         <Footer />
         <WhatsAppFloatingButton />
