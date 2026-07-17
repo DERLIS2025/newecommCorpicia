@@ -223,7 +223,7 @@ export default function ProductBulkImport() {
           </h1>
 
           <p className="text-gray-500">
-            Cargá productos desde Excel, CSV o Google Sheets. Todos se importarán inactivos para revisión manual.
+            Cargá productos desde Excel, CSV o Google Sheets. Los productos nuevos se crearán inactivos y las categorías faltantes se generarán automáticamente.
           </p>
         </div>
 

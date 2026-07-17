@@ -32,6 +32,17 @@ export type ImportResult = {
   }>;
 };
 
+function createSlug(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, ' y ')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 function normalizeBoolean(value: unknown, fallback = false): boolean {
   if (typeof value === 'boolean') return value;
 
@@ -154,10 +165,66 @@ export async function importProducts(
       let categoryId: string | null = null;
 
       if (row.category) {
-        categoryId = categoryMap.get(row.category.toLowerCase()) ?? null;
+        const categoryName = row.category.trim();
+        const categoryKey = categoryName.toLowerCase();
+
+        categoryId = categoryMap.get(categoryKey) ?? null;
 
         if (!categoryId) {
-          throw new Error(`No existe la categoría "${row.category}".`);
+          const categorySlug = createSlug(categoryName);
+
+          if (!categorySlug) {
+            throw new Error(
+              `No se pudo generar la categoría "${categoryName}".`
+            );
+          }
+
+          const { data: existingCategory, error: categoryLookupError } =
+            await supabaseAdmin
+              .from('categories')
+              .select('id, name, slug')
+              .eq('slug', categorySlug)
+              .maybeSingle();
+
+          if (categoryLookupError) {
+            throw categoryLookupError;
+          }
+
+          if (existingCategory) {
+            categoryId = existingCategory.id;
+          } else {
+            const { data: createdCategory, error: categoryCreateError } =
+              await supabaseAdmin
+                .from('categories')
+                .insert({
+                  name: categoryName,
+                  slug: categorySlug,
+                  description: null,
+                  image_url: null,
+                  order_index: 0,
+                  is_active: true,
+                })
+                .select('id, name, slug')
+                .single();
+
+            if (categoryCreateError || !createdCategory) {
+              throw (
+                categoryCreateError ??
+                new Error(`No se pudo crear la categoría "${categoryName}".`)
+              );
+            }
+
+            categoryId = createdCategory.id;
+          }
+
+          if (!categoryId) {
+            throw new Error(
+              `No se pudo resolver la categoría "${categoryName}".`
+            );
+          }
+
+          categoryMap.set(categoryKey, categoryId);
+          categoryMap.set(categorySlug, categoryId);
         }
       }
 
@@ -171,13 +238,12 @@ export async function importProducts(
         unit: row.unit,
         min_order_quantity: Math.round(row.min_order_quantity ?? 1),
         category_id: categoryId,
-        is_active: false,
         is_featured: row.is_featured ?? false,
       };
 
       const { data: existing, error: existingError } = await supabaseAdmin
         .from('products')
-        .select('id')
+        .select('id, is_active')
         .eq('slug', row.slug)
         .maybeSingle();
 
@@ -199,12 +265,15 @@ export async function importProducts(
           row: rowNumber,
           slug: row.slug,
           status: 'updated',
-          message: 'Producto actualizado.',
+          message: 'Producto actualizado conservando su estado.',
         });
       } else {
         const { data: product, error } = await supabaseAdmin
           .from('products')
-          .insert(productPayload)
+          .insert({
+            ...productPayload,
+            is_active: false,
+          })
           .select('id')
           .single();
 
@@ -218,7 +287,7 @@ export async function importProducts(
           row: rowNumber,
           slug: row.slug,
           status: 'created',
-          message: 'Producto creado.',
+          message: 'Producto creado como inactivo.',
         });
       }
 
