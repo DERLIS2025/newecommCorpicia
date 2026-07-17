@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Search, Edit, Trash2, ExternalLink, Copy } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, ExternalLink, Copy, FileSpreadsheet } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
 import { deleteProduct, duplicateProduct, toggleProductStatus } from '@/lib/actions/admin-products';
 
@@ -94,11 +94,21 @@ export default function ProductsTable({ products }: { products: any[] }) {
           <h1 className="text-2xl font-bold tracking-tight">Productos</h1>
           <p className="text-gray-500">Catálogo actual de {products.length} productos.</p>
         </div>
-        <Link href="/admin/productos/nuevo">
-          <Button className="w-full sm:w-auto gap-2">
-            <Plus className="w-4 h-4" /> Nuevo Producto
-          </Button>
-        </Link>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Link href="/admin/productos/importar">
+            <Button variant="outline" className="w-full sm:w-auto gap-2">
+              <FileSpreadsheet className="w-4 h-4" />
+              Importar productos
+            </Button>
+          </Link>
+
+          <Link href="/admin/productos/nuevo">
+            <Button className="w-full sm:w-auto gap-2">
+              <Plus className="w-4 h-4" />
+              Nuevo Producto
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="bg-white border rounded-xl shadow-sm overflow-hidden">
