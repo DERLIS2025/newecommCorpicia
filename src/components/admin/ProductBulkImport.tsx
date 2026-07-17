@@ -68,6 +68,7 @@ export default function ProductBulkImport() {
   const [sheetUrl, setSheetUrl] = useState('');
   const [result, setResult] = useState<ImportResult | null>(null);
   const [message, setMessage] = useState('');
+  const [importProgress, setImportProgress] = useState('');
   const [isPending, startTransition] = useTransition();
 
   const invalidRows = useMemo(
@@ -150,12 +151,58 @@ export default function ProductBulkImport() {
     }
 
     startTransition(async () => {
-      const response = await importProducts(rows);
-      setResult(response);
-      setMessage(
-        `Importación terminada: ${response.created} creado(s), ` +
-          `${response.updated} actualizado(s), ${response.failed} error(es).`
-      );
+      const chunkSize = 15;
+      const totalChunks = Math.ceil(rows.length / chunkSize);
+
+      const accumulated: ImportResult = {
+        success: true,
+        created: 0,
+        updated: 0,
+        failed: 0,
+        rows: [],
+      };
+
+      setResult(null);
+      setMessage('');
+      setImportProgress(`Preparando ${rows.length} productos...`);
+
+      try {
+        for (let index = 0; index < rows.length; index += chunkSize) {
+          const chunkNumber = Math.floor(index / chunkSize) + 1;
+          const chunk = rows.slice(index, index + chunkSize);
+
+          setImportProgress(
+            `Importando lote ${chunkNumber} de ${totalChunks}...`
+          );
+
+          const response = await importProducts(chunk);
+
+          accumulated.created += response.created;
+          accumulated.updated += response.updated;
+          accumulated.failed += response.failed;
+          accumulated.success =
+            accumulated.success && response.success;
+          accumulated.rows.push(...response.rows);
+        }
+
+        setResult(accumulated);
+        setMessage(
+          `Importación terminada: ${accumulated.created} creado(s), ` +
+            `${accumulated.updated} actualizado(s), ` +
+            `${accumulated.failed} error(es).`
+        );
+      } catch (error) {
+        accumulated.success = false;
+
+        setResult(accumulated);
+        setMessage(
+          error instanceof Error
+            ? `La importación se interrumpió: ${error.message}`
+            : 'La importación se interrumpió por un error del servidor.'
+        );
+      } finally {
+        setImportProgress('');
+      }
     });
   };
 
@@ -266,7 +313,9 @@ export default function ProductBulkImport() {
               disabled={isPending || invalidRows > 0}
               onClick={handleImport}
             >
-              {isPending ? 'Importando...' : 'Confirmar importación'}
+              {isPending
+                ? importProgress || 'Importando...'
+                : 'Confirmar importación'}
             </Button>
           </div>
 
