@@ -37,55 +37,6 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur-md">
-      {/* TOP BAR - MARQUEE DE OFERTAS */}
-      <div className="bg-red-600 text-white overflow-hidden">
-        <div className="container mx-auto px-4 py-2">
-          <div className="flex items-center">
-            {/* Desktop y Mobile: marquee scrolleable */}
-            <div className="overflow-hidden flex-1">
-              <div className="animate-marquee whitespace-nowrap flex gap-8">
-                <span className="inline-flex items-center gap-2 text-xs sm:text-sm">
-                  🔥 <strong>CÉSPED ESMERALDA + INSTALACIÓN: Gs. 31.000/m²</strong> · APROVECHÁ AHORA
-                </span>
-                <span className="inline-flex items-center gap-2 text-xs sm:text-sm">
-                  🌱 <strong>CÉSPED SIEMPRE VERDE</strong> resistente todo el año
-                </span>
-                <span className="inline-flex items-center gap-2 text-xs sm:text-sm">
-                  🏡 <strong>INSTALACIÓN PROFESIONAL</strong> garantizada en Asunción
-                </span>
-                {/* Duplicado para loop suave */}
-                <span className="inline-flex items-center gap-2 text-xs sm:text-sm">
-                  🔥 <strong>CÉSPED ESMERALDA + INSTALACIÓN: Gs. 31.000/m²</strong> · APROVECHÁ AHORA
-                </span>
-                <span className="inline-flex items-center gap-2 text-xs sm:text-sm">
-                  🌱 <strong>CÉSPED SIEMPRE VERDE</strong> resistente todo el año
-                </span>
-              </div>
-            </div>
-
-            {/* Botón WhatsApp siempre visible */}
-            <a
-              href={getWhatsAppUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="
-                inline-flex items-center gap-1.5 
-                bg-white text-red-600 
-                font-bold 
-                px-3 py-1.5 rounded-full 
-                text-xs
-                transition-all duration-300
-                hover:scale-105 hover:shadow-lg
-                ml-2 flex-shrink-0
-              "
-            >
-              <WhatsAppIcon className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">WHATSAPP</span>
-            </a>
-          </div>
-        </div>
-      </div>
-
       {/* MAIN NAV */}
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-[88px] lg:h-[72px]">

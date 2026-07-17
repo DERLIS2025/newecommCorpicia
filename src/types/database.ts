@@ -336,6 +336,90 @@ export interface Database {
         }
         Relationships: []
       }
+      top_bar_items: {
+        Row: {
+          id: string
+          text: string
+          emoji: string | null
+          url: string | null
+          button_text: string | null
+          order_index: number
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          text: string
+          emoji?: string | null
+          url?: string | null
+          button_text?: string | null
+          order_index?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          text?: string
+          emoji?: string | null
+          url?: string | null
+          button_text?: string | null
+          order_index?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      popup_settings: {
+        Row: {
+          id: string
+          enabled: boolean
+          image_url: string | null
+          title: string | null
+          description: string | null
+          button_text: string | null
+          button_url: string | null
+          show_after_seconds: number
+          frequency_days: number
+          start_at: string | null
+          end_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          enabled?: boolean
+          image_url?: string | null
+          title?: string | null
+          description?: string | null
+          button_text?: string | null
+          button_url?: string | null
+          show_after_seconds?: number
+          frequency_days?: number
+          start_at?: string | null
+          end_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          enabled?: boolean
+          image_url?: string | null
+          title?: string | null
+          description?: string | null
+          button_text?: string | null
+          button_url?: string | null
+          show_after_seconds?: number
+          frequency_days?: number
+          start_at?: string | null
+          end_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
