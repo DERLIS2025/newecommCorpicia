@@ -95,8 +95,6 @@ async function verifyAdmin() {
 export async function importProducts(
   inputRows: BulkProductRow[]
 ): Promise<ImportResult> {
-  await verifyAdmin();
-
   const result: ImportResult = {
     success: true,
     created: 0,
@@ -104,6 +102,19 @@ export async function importProducts(
     failed: 0,
     rows: [],
   };
+
+  try {
+    await verifyAdmin();
+
+    const workingResult: ImportResult = {
+      success: true,
+      created: 0,
+      updated: 0,
+      failed: 0,
+      rows: [],
+    };
+
+    const result = workingResult;
 
   const { data: categories, error: categoryError } = await supabaseAdmin
     .from('categories')
@@ -248,7 +259,29 @@ export async function importProducts(
   revalidatePath('/productos');
   revalidatePath('/');
 
-  return result;
+    return result;
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : 'Error desconocido antes de iniciar la importación.';
+
+    console.error('Error fatal en importProducts:', error);
+
+    return {
+      success: false,
+      created: 0,
+      updated: 0,
+      failed: inputRows.length,
+      rows: [
+        {
+          row: 0,
+          status: 'error',
+          message,
+        },
+      ],
+    };
+  }
 }
 
 export async function readGoogleSheet(
