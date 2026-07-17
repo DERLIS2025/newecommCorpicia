@@ -14,7 +14,7 @@ export default function PromotionalPopup() {
   useEffect(() => {
     const supabase = createClient();
     supabase
-      .from<PopupSettings>('popup_settings')
+      .from('popup_settings')
       .select('*')
       .limit(1)
       .single()
@@ -30,7 +30,7 @@ export default function PromotionalPopup() {
         if (data.start_at && now < new Date(data.start_at)) return;
         if (data.end_at && now > new Date(data.end_at)) return;
 
-        setSettings(data);
+        setSettings(data as PopupSettings);
 
         const delay = data.show_after_seconds ?? 0;
         if (delay > 0) {

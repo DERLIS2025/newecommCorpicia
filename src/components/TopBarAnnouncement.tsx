@@ -16,14 +16,23 @@ export function TopBarAnnouncement() {
   useEffect(() => {
     const supabase = createClient();
     supabase
-      .from<TopBarItem>('top_bar_items')
+      .from('top_bar_items')
       .select('*')
       .then(({ data, error }) => {
         if (error) {
           console.error('Error fetching top‑bar items', error);
           setError(true);
         } else {
-          const enabled = (data || []).filter((i) => i.enabled).sort((a, b) => a.order - b.order);
+          const mapped = (data || []).map((row) => ({
+            id: row.id,
+            text: row.text,
+            emoji: row.emoji ?? undefined,
+            url: row.url ?? undefined,
+            buttonText: row.button_text ?? undefined,
+            order: row.order_index,
+            enabled: row.is_active,
+          } as TopBarItem));
+          const enabled = mapped.filter((i) => i.enabled).sort((a, b) => a.order - b.order);
           setItems(enabled);
         }
         setLoading(false);

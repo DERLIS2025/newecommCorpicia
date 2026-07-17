@@ -16,13 +16,13 @@ async function checkAdminAuth(): Promise<ActionState | null> {
     return { success: false, message: 'No estás autenticado.' };
   }
   
-  const { data: profile } = await supabase
+  const { data: profile, error } = await supabase
     .from('admin_profiles')
-    .select('is_active')
+    .select('user_id, is_active, role')
     .eq('user_id', user.id)
-    .single();
+    .maybeSingle();
     
-  if (!profile || !profile.is_active) {
+  if (error || !profile || profile.is_active !== true) {
     return { success: false, message: 'No tenés permisos de administrador activo.' };
   }
   
@@ -65,7 +65,17 @@ export async function createTopBarItem(prevState: any, formData: FormData): Prom
       return { success: false, message: parsed.error.errors[0].message };
     }
 
-    const { error } = await supabaseAdmin.from('top_bar_items').insert(parsed.data);
+    const data = parsed.data;
+    const dbPayload = {
+      text: data.text,
+      emoji: data.emoji,
+      url: data.url,
+      button_text: data.buttonText,
+      order_index: data.order,
+      is_active: data.enabled,
+    };
+
+    const { error } = await supabaseAdmin.from('top_bar_items').insert(dbPayload);
 
     if (error) {
       console.error('Error creating top bar item:', error);
@@ -106,7 +116,17 @@ export async function updateTopBarItem(prevState: any, formData: FormData): Prom
       return { success: false, message: parsed.error.errors[0].message };
     }
 
-    const { error } = await supabaseAdmin.from('top_bar_items').update(parsed.data).eq('id', id);
+    const data = parsed.data;
+    const dbPayload = {
+      text: data.text,
+      emoji: data.emoji,
+      url: data.url,
+      button_text: data.buttonText,
+      order_index: data.order,
+      is_active: data.enabled,
+    };
+
+    const { error } = await supabaseAdmin.from('top_bar_items').update(dbPayload).eq('id', id);
 
     if (error) {
       console.error('Error updating top bar item:', error);
@@ -156,7 +176,7 @@ export async function reorderTopBarItems(items: Pick<TopBarItem, 'id' | 'order'>
   try {
     assertAdminWritesEnabled();
     const updates = items.map((it) =>
-      supabaseAdmin.from('top_bar_items').update({ order: it.order }).eq('id', it.id)
+      supabaseAdmin.from('top_bar_items').update({ order_index: it.order }).eq('id', it.id)
     );
     const results = await Promise.all(updates);
     for (const res of results) {
