@@ -1,5 +1,5 @@
 import 'server-only';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/database';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -10,7 +10,7 @@ if (!supabaseUrl || !supabaseServiceKey) {
   console.error('[Supabase Admin] Configuración incompleta. Faltan variables de entorno.');
 }
 
-export const supabaseAdmin = createClient<Database>(
+export const supabaseAdmin: SupabaseClient<Database> = createClient<Database>(
   supabaseUrl || '',
   supabaseServiceKey || '',
   {
