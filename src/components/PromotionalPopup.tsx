@@ -3,11 +3,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { PopupSettings } from '@/types/announcement';
 import Link from 'next/link';
 
 export default function PromotionalPopup() {
+  const pathname = usePathname();
   const [settings, setSettings] = useState<PopupSettings | null>(null);
   const [visible, setVisible] = useState(false);
 
@@ -84,6 +86,7 @@ export default function PromotionalPopup() {
     setVisible(false);
   };
 
+  if (pathname?.startsWith('/admin')) return null;
   if (!visible || !settings) return null;
 
   return (

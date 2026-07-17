@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { getWhatsAppUrl } from '@/lib/utils';
 import type { TopBarItem } from '@/types/announcement';
@@ -38,6 +39,7 @@ const fallbackItems: TopBarItem[] = [
 ];
 
 export function TopBarAnnouncement() {
+  const pathname = usePathname();
   const [items, setItems] = useState<TopBarItem[]>(fallbackItems);
 
   useEffect(() => {
@@ -70,6 +72,8 @@ export function TopBarAnnouncement() {
         );
       });
   }, []);
+
+  if (pathname?.startsWith('/admin')) return null;
 
   const duplicatedItems = [...items, ...items];
 
