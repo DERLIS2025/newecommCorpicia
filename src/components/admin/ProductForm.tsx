@@ -4,8 +4,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Trash2, ArrowLeft } from 'lucide-react';
+import { Plus, Trash2, ArrowLeft, Sparkles } from 'lucide-react';
 import { createProduct, updateProduct } from '@/lib/actions/admin-products';
+import { generateProductContentWithAI } from '@/lib/actions/admin-product-ai';
 import Link from 'next/link';
 
 export default function ProductForm({ product = null, categories = [] }: { product?: any, categories: any[] }) {
@@ -13,6 +14,16 @@ export default function ProductForm({ product = null, categories = [] }: { produ
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [selectedUnit, setSelectedUnit] = useState(product?.unit || 'm2');
+  const [name, setName] = useState(product?.name || '');
+  const [shortDescription, setShortDescription] = useState(
+    product?.short_description || ''
+  );
+  const [description, setDescription] = useState(product?.description || '');
+  const [selectedCategoryId, setSelectedCategoryId] = useState(
+    product?.category_id || ''
+  );
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiMessage, setAiMessage] = useState('');
 
   const normalizeTiers = (prod: any) => {
     const rawTiers = prod?.product_price_tiers || prod?.priceTiers || prod?.tiers || [];
@@ -40,6 +51,53 @@ export default function ProductForm({ product = null, categories = [] }: { produ
   const [recs, setRecs] = useState<any[]>(
     product?.product_recommendations || []
   );
+
+  const handleGenerateWithAI = async () => {
+    setAiMessage('');
+
+    if (!name.trim()) {
+      setAiMessage('Ingresá primero el nombre del producto.');
+      return;
+    }
+
+    const selectedCategory = categories.find(
+      (category: any) => category.id === selectedCategoryId
+    );
+
+    setAiLoading(true);
+
+    try {
+      const result = await generateProductContentWithAI({
+        name: name.trim(),
+        category: selectedCategory?.name || '',
+        currentDescription: description,
+        currentShortDescription: shortDescription,
+      });
+
+      if (!result.success) {
+        setAiMessage(result.message);
+        return;
+      }
+
+      setShortDescription(result.content.short_description);
+      setDescription(result.content.description);
+      setFeatures(result.content.features);
+      setSpecs(result.content.specifications);
+      setRecs(result.content.recommendations);
+
+      setAiMessage(
+        'Contenido generado. Revisá los textos antes de guardar el producto.'
+      );
+    } catch (error) {
+      setAiMessage(
+        error instanceof Error
+          ? error.message
+          : 'No se pudo generar el contenido con IA.'
+      );
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -135,6 +193,45 @@ export default function ProductForm({ product = null, categories = [] }: { produ
         </div>
       )}
 
+      <div className="rounded-xl border border-green-200 bg-green-50 p-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="flex items-center gap-2 font-semibold text-green-900">
+              <Sparkles className="h-5 w-5" />
+              Asistente IA de productos
+            </div>
+
+            <p className="mt-1 text-sm text-green-800">
+              Gemini puede generar descripciones, características,
+              especificaciones y recomendaciones. Los cambios no se guardan
+              hasta que presiones el botón de guardar.
+            </p>
+          </div>
+
+          <Button
+            type="button"
+            onClick={handleGenerateWithAI}
+            disabled={aiLoading || !name.trim()}
+            className="shrink-0 gap-2"
+          >
+            <Sparkles className="h-4 w-4" />
+            {aiLoading ? 'Generando...' : 'Generar contenido con IA'}
+          </Button>
+        </div>
+
+        {aiMessage && (
+          <div
+            className={`mt-4 rounded-md border px-3 py-2 text-sm ${
+              aiMessage.startsWith('Contenido generado')
+                ? 'border-green-200 bg-white text-green-800'
+                : 'border-amber-200 bg-amber-50 text-amber-800'
+            }`}
+          >
+            {aiMessage}
+          </div>
+        )}
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         
         {/* COLUMNA PRINCIPAL */}
@@ -145,7 +242,12 @@ export default function ProductForm({ product = null, categories = [] }: { produ
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Nombre *</label>
-                <Input name="name" defaultValue={product?.name || ''} required />
+                <Input
+                  name="name"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  required
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Slug *</label>
@@ -156,8 +258,9 @@ export default function ProductForm({ product = null, categories = [] }: { produ
             <div>
               <label className="block text-sm font-medium mb-1">Descripción Corta</label>
               <textarea 
-                name="short_description" 
-                defaultValue={product?.short_description || ''} 
+                name="short_description"
+                value={shortDescription}
+                onChange={(event) => setShortDescription(event.target.value)} 
                 className="w-full flex min-h-[60px] rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               />
             </div>
@@ -165,8 +268,9 @@ export default function ProductForm({ product = null, categories = [] }: { produ
             <div>
               <label className="block text-sm font-medium mb-1">Descripción Completa</label>
               <textarea 
-                name="description" 
-                defaultValue={product?.description || ''} 
+                name="description"
+                value={description}
+                onChange={(event) => setDescription(event.target.value)} 
                 className="w-full flex min-h-[120px] rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               />
             </div>
@@ -294,7 +398,13 @@ export default function ProductForm({ product = null, categories = [] }: { produ
             
             <div>
               <label className="block text-sm font-medium mb-1">Categoría *</label>
-              <select name="category_id" defaultValue={product?.category_id || ''} className="w-full flex h-10 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" required>
+              <select
+                name="category_id"
+                value={selectedCategoryId}
+                onChange={(event) => setSelectedCategoryId(event.target.value)}
+                className="w-full flex h-10 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                required
+              >
                 <option value="" disabled>Seleccione una categoría</option>
                 {categories.map(c => (
                   <option key={c.id} value={c.id}>{c.name}</option>
