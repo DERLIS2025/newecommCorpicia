@@ -75,26 +75,48 @@ function auditProduct(product: AuditProduct) {
   const seoKeywords = product.seo_keywords || [];
 
   if (!product.name?.trim()) {
-    issues.push({ label: 'Sin nombre', critical: true });
+    issues.push({
+      label: 'Sin nombre',
+      critical: Boolean(product.is_active),
+    });
   }
 
   if (!product.slug?.trim()) {
-    issues.push({ label: 'Sin slug', critical: true });
+    issues.push({
+      label: 'Sin slug',
+      critical: Boolean(product.is_active),
+    });
   }
 
   if (!category?.name) {
-    issues.push({ label: 'Sin categoría', critical: true });
+    issues.push({
+      label: 'Sin categoría',
+      critical: Boolean(product.is_active),
+    });
   }
 
-  if (!Number.isFinite(Number(product.price_amount)) || Number(product.price_amount) <= 0) {
-    issues.push({ label: 'Precio vacío o en cero', critical: true });
+  if (!Number.isFinite(Number(product.price_amount))) {
+    issues.push({
+      label: 'Precio inválido',
+      critical: Boolean(product.is_active),
+    });
+  } else if (Number(product.price_amount) === 0) {
+    issues.push({ label: 'Precio pendiente' });
+  } else if (Number(product.price_amount) < 0) {
+    issues.push({
+      label: 'Precio negativo',
+      critical: true,
+    });
   }
 
   if (
     images.length === 0 ||
     !images.some((image) => image.image_url?.trim())
   ) {
-    issues.push({ label: 'Sin imagen', critical: true });
+    issues.push({
+      label: 'Sin imagen',
+      critical: Boolean(product.is_active),
+    });
   }
 
   if (!product.short_description?.trim()) {
