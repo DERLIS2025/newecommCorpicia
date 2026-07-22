@@ -50,3 +50,42 @@ export async function getAdminProduct(id: string) {
   }
   return data;
 }
+
+/**
+ * Obtiene el catálogo completo con las relaciones necesarias
+ * para realizar la auditoría administrativa.
+ */
+export async function getProductAuditData() {
+  const { data, error } = await supabaseAdmin
+    .from('products')
+    .select(`
+      id,
+      name,
+      slug,
+      description,
+      short_description,
+      price_amount,
+      unit,
+      category_id,
+      is_active,
+      is_featured,
+      seo_title,
+      seo_description,
+      seo_keywords,
+      created_at,
+      updated_at,
+      categories(name, slug),
+      product_images(id, image_url, alt_text, order_index),
+      product_features(id, feature_text),
+      product_specifications(id, spec_key, spec_value),
+      product_recommendations(id, recommendation_text)
+    `)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching product audit data:', error.message);
+    return [];
+  }
+
+  return data || [];
+}
