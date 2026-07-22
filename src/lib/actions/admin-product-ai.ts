@@ -46,13 +46,51 @@ function extractJson(text: string): string {
     .replace(/\s*```$/i, '');
 
   const start = cleaned.indexOf('{');
-  const end = cleaned.lastIndexOf('}');
 
-  if (start === -1 || end === -1 || end <= start) {
-    throw new Error('La IA no devolvió un formato válido.');
+  if (start === -1) {
+    throw new Error('La IA no devolvió un formato JSON válido.');
   }
 
-  return cleaned.slice(start, end + 1);
+  let depth = 0;
+  let insideString = false;
+  let escaped = false;
+
+  for (let index = start; index < cleaned.length; index += 1) {
+    const character = cleaned[index];
+
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+
+    if (character === '\\' && insideString) {
+      escaped = true;
+      continue;
+    }
+
+    if (character === '"') {
+      insideString = !insideString;
+      continue;
+    }
+
+    if (insideString) {
+      continue;
+    }
+
+    if (character === '{') {
+      depth += 1;
+    }
+
+    if (character === '}') {
+      depth -= 1;
+
+      if (depth === 0) {
+        return cleaned.slice(start, index + 1);
+      }
+    }
+  }
+
+  throw new Error('La respuesta de Gemini quedó incompleta.');
 }
 
 function normalizeContent(value: unknown): ProductAIContent {
@@ -236,6 +274,8 @@ Reglas obligatorias:
 - No repetir palabras de manera artificial.
 - No inventar características técnicas.
 - No usar Markdown.
+- Devolver un único objeto JSON válido.
+- No agregar explicaciones, comentarios ni texto antes o después del JSON.
 - Devolver exclusivamente JSON válido, sin bloques de código.
 
 Formato exacto:
