@@ -93,7 +93,90 @@ function extractJson(text: string): string {
   throw new Error('La respuesta de Gemini quedó incompleta.');
 }
 
-function normalizeContent(value: unknown): ProductAIContent {
+function buildFallbackSpecifications(
+  name: string,
+  category?: string
+): ProductAIContent['specifications'] {
+  const normalizedName = name.toLowerCase();
+  const normalizedCategory = (category || '').toLowerCase();
+
+  if (
+    normalizedName.includes('césped') ||
+    normalizedName.includes('cesped') ||
+    normalizedCategory.includes('césped') ||
+    normalizedCategory.includes('cesped')
+  ) {
+    return [
+      {
+        spec_key: 'Tipo de producto',
+        spec_value: 'Césped natural',
+      },
+      {
+        spec_key: 'Uso recomendado',
+        spec_value: 'Jardines, patios y áreas verdes',
+      },
+      {
+        spec_key: 'Presentación',
+        spec_value:
+          normalizedName.includes('m²') ||
+          normalizedName.includes('m2')
+            ? 'Venta por metro cuadrado'
+            : 'Según presentación disponible',
+      },
+      {
+        spec_key: 'Instalación',
+        spec_value: 'Sobre terreno previamente preparado',
+      },
+      {
+        spec_key: 'Mantenimiento',
+        spec_value: 'Requiere riego, corte y cuidado periódico',
+      },
+    ];
+  }
+
+  if (
+    normalizedCategory.includes('riego') ||
+    normalizedName.includes('aspersor') ||
+    normalizedName.includes('válvula') ||
+    normalizedName.includes('valvula') ||
+    normalizedName.includes('difusor')
+  ) {
+    return [
+      {
+        spec_key: 'Tipo de producto',
+        spec_value: category || 'Accesorio para sistema de riego',
+      },
+      {
+        spec_key: 'Uso recomendado',
+        spec_value: 'Instalaciones de riego para jardines y áreas verdes',
+      },
+      {
+        spec_key: 'Aplicación',
+        spec_value: 'Uso en sistemas de riego compatibles',
+      },
+    ];
+  }
+
+  return [
+    {
+      spec_key: 'Categoría',
+      spec_value: category || 'Producto de jardinería',
+    },
+    {
+      spec_key: 'Uso recomendado',
+      spec_value: 'Jardinería, paisajismo y mantenimiento de áreas verdes',
+    },
+    {
+      spec_key: 'Presentación',
+      spec_value: 'Según disponibilidad del producto',
+    },
+  ];
+}
+
+function normalizeContent(
+  value: unknown,
+  input: ProductAIInput
+): ProductAIContent {
   if (!value || typeof value !== 'object') {
     throw new Error('La respuesta de IA está vacía.');
   }
@@ -123,7 +206,7 @@ function normalizeContent(value: unknown): ProductAIContent {
         .filter((item) => item.feature_text)
     : [];
 
-  const specifications = Array.isArray(data.specifications)
+  const generatedSpecifications = Array.isArray(data.specifications)
     ? data.specifications
         .map((item) => {
           if (!item || typeof item !== 'object') {
@@ -139,6 +222,11 @@ function normalizeContent(value: unknown): ProductAIContent {
         })
         .filter((item) => item.spec_key && item.spec_value)
     : [];
+
+  const specifications =
+    generatedSpecifications.length > 0
+      ? generatedSpecifications
+      : buildFallbackSpecifications(input.name, input.category);
 
   const recommendations = Array.isArray(data.recommendations)
     ? data.recommendations
@@ -264,8 +352,11 @@ Reglas obligatorias:
 - La descripción corta debe tener entre 120 y 180 caracteres.
 - La descripción completa debe tener entre 2 y 4 párrafos breves.
 - Generar entre 3 y 6 características.
-- Las especificaciones deben incluir únicamente datos deducibles con seguridad.
-- Si no existen especificaciones confiables, devolver un arreglo vacío.
+- Generar entre 3 y 6 especificaciones comerciales útiles.
+- Las especificaciones deben incluir únicamente información deducible con seguridad.
+- Se pueden usar campos generales como tipo de producto, presentación, uso recomendado, aplicación, instalación y mantenimiento.
+- No devolver el arreglo de especificaciones vacío.
+- No inventar especie botánica, medidas exactas, caudal, presión, potencia, composición, garantía ni compatibilidad no confirmada.
 - Generar entre 1 y 3 recomendaciones de uso.
 - Crear un título SEO natural de máximo 60 caracteres.
 - Crear una meta descripción de entre 140 y 160 caracteres.
@@ -322,7 +413,7 @@ Formato exacto:
     }
 
     const parsed = JSON.parse(extractJson(responseText));
-    const content = normalizeContent(parsed);
+    const content = normalizeContent(parsed, input);
 
     return {
       success: true,

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Trash2, ArrowLeft, Sparkles } from 'lucide-react';
@@ -11,6 +11,11 @@ import Link from 'next/link';
 
 export default function ProductForm({ product = null, categories = [] }: { product?: any, categories: any[] }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const autoAiExecuted = useRef(false);
+  const returnToAudit = searchParams.get('returnTo') === 'audit';
+  const shouldAutoGenerate = searchParams.get('autoAI') === '1';
+
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [selectedUnit, setSelectedUnit] = useState(product?.unit || 'm2');
@@ -111,6 +116,20 @@ export default function ProductForm({ product = null, categories = [] }: { produ
     }
   };
 
+  useEffect(() => {
+    if (
+      !shouldAutoGenerate ||
+      autoAiExecuted.current ||
+      aiLoading ||
+      !name.trim()
+    ) {
+      return;
+    }
+
+    autoAiExecuted.current = true;
+    void handleGenerateWithAI();
+  }, [shouldAutoGenerate, name]);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -176,7 +195,12 @@ export default function ProductForm({ product = null, categories = [] }: { produ
       if (!res.success) {
         setErrorMsg(res.message);
       } else {
-        router.push('/admin/productos');
+        router.push(
+          returnToAudit
+            ? '/admin/productos/auditoria'
+            : '/admin/productos'
+        );
+        router.refresh();
       }
     } catch (err: any) {
       setErrorMsg(err.message || 'Error desconocido');
