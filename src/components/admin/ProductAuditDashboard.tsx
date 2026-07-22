@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { hasProductFallbackImage } from '@/lib/product-image-fallbacks';
 
 type AuditStatus = 'correct' | 'review' | 'critical';
 
@@ -109,10 +110,13 @@ function auditProduct(product: AuditProduct) {
     });
   }
 
-  if (
-    images.length === 0 ||
-    !images.some((image) => image.image_url?.trim())
-  ) {
+  const hasDatabaseImage = images.some(
+    (image) => image.image_url?.trim()
+  );
+
+  const hasFallbackImage = hasProductFallbackImage(product.slug);
+
+  if (!hasDatabaseImage && !hasFallbackImage) {
     issues.push({
       label: 'Sin imagen',
       critical: Boolean(product.is_active),
@@ -209,7 +213,9 @@ export default function ProductAuditDashboard({
   products: AuditProduct[];
 }) {
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | AuditStatus>('all');
+  const [statusFilter, setStatusFilter] = useState<
+    'pending' | 'all' | AuditStatus
+  >('pending');
   const [categoryFilter, setCategoryFilter] = useState('all');
 
   const auditedProducts = useMemo(
@@ -253,7 +259,9 @@ export default function ProductAuditDashboard({
         product.category?.name?.toLowerCase().includes(normalizedSearch);
 
       const matchesStatus =
-        statusFilter === 'all' || product.status === statusFilter;
+        statusFilter === 'all' ||
+        (statusFilter === 'pending' && product.status !== 'correct') ||
+        product.status === statusFilter;
 
       const matchesCategory =
         categoryFilter === 'all' ||
@@ -333,12 +341,16 @@ export default function ProductAuditDashboard({
             value={statusFilter}
             onChange={(event) =>
               setStatusFilter(
-                event.target.value as 'all' | AuditStatus
+                event.target.value as
+                  | 'pending'
+                  | 'all'
+                  | AuditStatus
               )
             }
             className="h-10 rounded-md border border-input bg-white px-3 text-sm"
           >
-            <option value="all">Todos los estados</option>
+            <option value="pending">Solo pendientes</option>
+            <option value="all">Todos los productos</option>
             <option value="critical">Críticos</option>
             <option value="review">Necesitan revisión</option>
             <option value="correct">Correctos</option>
