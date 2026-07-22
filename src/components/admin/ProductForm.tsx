@@ -24,6 +24,15 @@ export default function ProductForm({ product = null, categories = [] }: { produ
   );
   const [aiLoading, setAiLoading] = useState(false);
   const [aiMessage, setAiMessage] = useState('');
+  const [seoTitle, setSeoTitle] = useState(product?.seo_title || '');
+  const [seoDescription, setSeoDescription] = useState(
+    product?.seo_description || ''
+  );
+  const [seoKeywords, setSeoKeywords] = useState(
+    Array.isArray(product?.seo_keywords)
+      ? product.seo_keywords.join(', ')
+      : ''
+  );
 
   const normalizeTiers = (prod: any) => {
     const rawTiers = prod?.product_price_tiers || prod?.priceTiers || prod?.tiers || [];
@@ -84,6 +93,9 @@ export default function ProductForm({ product = null, categories = [] }: { produ
       setFeatures(result.content.features);
       setSpecs(result.content.specifications);
       setRecs(result.content.recommendations);
+      setSeoTitle(result.content.seo_title);
+      setSeoDescription(result.content.seo_description);
+      setSeoKeywords(result.content.seo_keywords.join(', '));
 
       setAiMessage(
         'Contenido generado. Revisá los textos antes de guardar el producto.'
@@ -387,6 +399,126 @@ export default function ProductForm({ product = null, categories = [] }: { produ
             <Button type="button" variant="outline" size="sm" onClick={() => setRecs([...recs, { recommendation_text: '' }])}>
               <Plus className="w-4 h-4 mr-2" /> Agregar Recomendación
             </Button>
+          </div>
+
+          <div className="bg-white p-6 rounded-xl border shadow-sm space-y-5">
+            <div className="border-b pb-3">
+              <h2 className="font-semibold text-lg">
+                SEO del producto
+              </h2>
+              <p className="mt-1 text-sm text-gray-500">
+                Configurá cómo aparecerá este producto en Google.
+              </p>
+            </div>
+
+            <div>
+              <div className="mb-1 flex items-center justify-between gap-3">
+                <label className="block text-sm font-medium">
+                  Título SEO
+                </label>
+
+                <span
+                  className={`text-xs ${
+                    seoTitle.length > 60
+                      ? 'text-red-600'
+                      : 'text-gray-500'
+                  }`}
+                >
+                  {seoTitle.length}/60
+                </span>
+              </div>
+
+              <Input
+                name="seo_title"
+                value={seoTitle}
+                onChange={(event) => setSeoTitle(event.target.value)}
+                placeholder="Ej.: Guembe para paisajismo | Corpicia"
+                maxLength={70}
+              />
+
+              <p className="mt-1 text-xs text-gray-500">
+                Recomendado: entre 45 y 60 caracteres.
+              </p>
+            </div>
+
+            <div>
+              <div className="mb-1 flex items-center justify-between gap-3">
+                <label className="block text-sm font-medium">
+                  Meta descripción
+                </label>
+
+                <span
+                  className={`text-xs ${
+                    seoDescription.length > 160
+                      ? 'text-red-600'
+                      : 'text-gray-500'
+                  }`}
+                >
+                  {seoDescription.length}/160
+                </span>
+              </div>
+
+              <textarea
+                name="seo_description"
+                value={seoDescription}
+                onChange={(event) =>
+                  setSeoDescription(event.target.value)
+                }
+                placeholder="Descripción breve para los resultados de Google."
+                maxLength={180}
+                className="w-full min-h-[100px] rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              />
+
+              <p className="mt-1 text-xs text-gray-500">
+                Recomendado: entre 140 y 160 caracteres.
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Palabras clave
+              </label>
+
+              <textarea
+                name="seo_keywords"
+                value={seoKeywords}
+                onChange={(event) => setSeoKeywords(event.target.value)}
+                placeholder="guembe, paisajismo, plantas ornamentales, Paraguay"
+                className="w-full min-h-[80px] rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              />
+
+              <p className="mt-1 text-xs text-gray-500">
+                Separá cada palabra o frase con una coma.
+              </p>
+            </div>
+
+            <div className="rounded-lg border bg-gray-50 p-4">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                Vista previa en Google
+              </p>
+
+              <p className="text-sm text-green-700 truncate">
+                https://www.corpicia.com/productos/
+                {name
+                  .toLowerCase()
+                  .trim()
+                  .replace(/[^a-z0-9áéíóúñ]+/gi, '-')
+                  .replace(/^-+|-+$/g, '') || 'producto'}
+              </p>
+
+              <p className="mt-1 text-xl text-blue-700 leading-snug">
+                {seoTitle ||
+                  (name
+                    ? `${name} | Corpicia Paraguay`
+                    : 'Título del producto | Corpicia')}
+              </p>
+
+              <p className="mt-1 text-sm leading-relaxed text-gray-600">
+                {seoDescription ||
+                  shortDescription ||
+                  'La meta descripción del producto aparecerá aquí.'}
+              </p>
+            </div>
           </div>
 
         </div>

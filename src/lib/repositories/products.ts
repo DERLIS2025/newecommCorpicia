@@ -115,6 +115,11 @@ export async function getProduct(slug: string) {
       slug: data.slug,
       description: data.description,
       shortDescription: data.short_description,
+      seoTitle: data.seo_title,
+      seoDescription: data.seo_description,
+      seoKeywords: Array.isArray(data.seo_keywords)
+        ? data.seo_keywords
+        : [],
       categoryId: data.category_id,
       category: data.categories?.name,
       pricePerM2: data.price_amount,

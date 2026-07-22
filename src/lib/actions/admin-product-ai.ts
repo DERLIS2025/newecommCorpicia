@@ -23,6 +23,9 @@ export type ProductAIContent = {
   recommendations: Array<{
     recommendation_text: string;
   }>;
+  seo_title: string;
+  seo_description: string;
+  seo_keywords: string[];
 };
 
 export type ProductAIResult =
@@ -123,12 +126,29 @@ function normalizeContent(value: unknown): ProductAIContent {
     throw new Error('La IA no generó las descripciones necesarias.');
   }
 
+  const seoTitle = String(data.seo_title ?? '').trim();
+  const seoDescription = String(data.seo_description ?? '').trim();
+
+  const seoKeywords = Array.isArray(data.seo_keywords)
+    ? data.seo_keywords
+        .map((keyword) => String(keyword ?? '').trim())
+        .filter(Boolean)
+        .slice(0, 12)
+    : [];
+
+  if (!seoTitle || !seoDescription) {
+    throw new Error('La IA no generó los campos SEO necesarios.');
+  }
+
   return {
     short_description: shortDescription,
     description,
     features,
     specifications,
     recommendations,
+    seo_title: seoTitle,
+    seo_description: seoDescription,
+    seo_keywords: seoKeywords,
   };
 }
 
@@ -209,6 +229,12 @@ Reglas obligatorias:
 - Las especificaciones deben incluir únicamente datos deducibles con seguridad.
 - Si no existen especificaciones confiables, devolver un arreglo vacío.
 - Generar entre 1 y 3 recomendaciones de uso.
+- Crear un título SEO natural de máximo 60 caracteres.
+- Crear una meta descripción de entre 140 y 160 caracteres.
+- Incluir entre 5 y 10 palabras clave relevantes.
+- Incluir Paraguay solamente cuando tenga sentido comercial.
+- No repetir palabras de manera artificial.
+- No inventar características técnicas.
 - No usar Markdown.
 - Devolver exclusivamente JSON válido, sin bloques de código.
 
@@ -227,6 +253,12 @@ Formato exacto:
   ],
   "recommendations": [
     { "recommendation_text": "texto" }
+  ],
+  "seo_title": "Título SEO",
+  "seo_description": "Meta descripción SEO",
+  "seo_keywords": [
+    "palabra clave 1",
+    "palabra clave 2"
   ]
 }
 `;
