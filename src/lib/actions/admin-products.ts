@@ -165,6 +165,16 @@ export async function createProduct(
     const slug = formData.get('slug') as string;
     const description = (formData.get('description') as string) || null;
     const short_description = (formData.get('short_description') as string) || null;
+    const seo_title = (formData.get('seo_title') as string)?.trim() || null;
+    const seo_description =
+      (formData.get('seo_description') as string)?.trim() || null;
+    const seo_keywords_raw =
+      (formData.get('seo_keywords') as string)?.trim() || '';
+    const seo_keywords = seo_keywords_raw
+      .split(',')
+      .map((keyword) => keyword.trim())
+      .filter(Boolean)
+      .slice(0, 12);
     const category_id = formData.get('category_id') as string;
     
     const priceAmountRaw = formData.get('price_amount');
@@ -184,6 +194,9 @@ export async function createProduct(
       slug,
       description,
       short_description,
+      seo_title,
+      seo_description,
+      seo_keywords,
       category_id: category_id || null,
       price_amount,
       currency: 'PYG',
@@ -234,6 +247,16 @@ export async function updateProduct(
     const slug = formData.get('slug') as string;
     const description = (formData.get('description') as string) || null;
     const short_description = (formData.get('short_description') as string) || null;
+    const seo_title = (formData.get('seo_title') as string)?.trim() || null;
+    const seo_description =
+      (formData.get('seo_description') as string)?.trim() || null;
+    const seo_keywords_raw =
+      (formData.get('seo_keywords') as string)?.trim() || '';
+    const seo_keywords = seo_keywords_raw
+      .split(',')
+      .map((keyword) => keyword.trim())
+      .filter(Boolean)
+      .slice(0, 12);
     const category_id = formData.get('category_id') as string;
     
     const priceAmountRaw = formData.get('price_amount');
@@ -253,6 +276,9 @@ export async function updateProduct(
       slug,
       description,
       short_description,
+      seo_title,
+      seo_description,
+      seo_keywords,
       category_id: category_id || null,
       price_amount,
       unit,

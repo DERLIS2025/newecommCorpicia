@@ -40,20 +40,27 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     : `${siteUrl}/og-image.jpg`;
 
   return {
-    title: `${product.name} - ${product.category} | Corpicia Paraguay`,
-    description: product.shortDescription 
-      ? `${product.shortDescription}. Precio: Gs. ${product.pricePerM2?.toLocaleString('es-PY')} por ${product.unit}. Envíos a todo Paraguay.`
-      : `${product.description?.substring(0, 120)}... Precio: Gs. ${product.pricePerM2?.toLocaleString('es-PY')} por ${product.unit}.`,
-    keywords: [
-      product.name,
-      product.category,
-      'césped natural Paraguay',
-      'jardinería Asunción',
-      'riego automático',
-      'paisajismo',
-      'comprar césped',
-      product.slug.replace(/-/g, ' '),
-    ],
+    title:
+      product.seoTitle ||
+      `${product.name} - ${product.category} | Corpicia Paraguay`,
+    description:
+      product.seoDescription ||
+      (product.shortDescription
+        ? `${product.shortDescription}. Precio: Gs. ${product.pricePerM2?.toLocaleString('es-PY')} por ${product.unit}. Envíos a todo Paraguay.`
+        : `${product.description?.substring(0, 120)}... Precio: Gs. ${product.pricePerM2?.toLocaleString('es-PY')} por ${product.unit}.`),
+    keywords:
+      Array.isArray(product.seoKeywords) && product.seoKeywords.length > 0
+        ? product.seoKeywords
+        : [
+            product.name,
+            product.category,
+            'césped natural Paraguay',
+            'jardinería Asunción',
+            'riego automático',
+            'paisajismo',
+            'comprar césped',
+            product.slug.replace(/-/g, ' '),
+          ],
     alternates: {
       canonical: `/productos/${product.slug}/`,
     },
@@ -68,8 +75,11 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
       },
     },
     openGraph: {
-      title: `${product.name} | Corpicia`,
-      description: product.shortDescription || product.description,
+      title: product.seoTitle || `${product.name} | Corpicia`,
+      description:
+        product.seoDescription ||
+        product.shortDescription ||
+        product.description,
       type: 'website',
       locale: 'es_PY',
       url: productUrl,
@@ -85,8 +95,11 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${product.name} | Corpicia`,
-      description: product.shortDescription || product.description,
+      title: product.seoTitle || `${product.name} | Corpicia`,
+      description:
+        product.seoDescription ||
+        product.shortDescription ||
+        product.description,
       images: [productImage],
     },
     category: product.category,
