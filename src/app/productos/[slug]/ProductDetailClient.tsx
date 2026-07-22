@@ -260,14 +260,36 @@ export default function ProductDetailClient({ product, relatedProducts }: Props)
           </div>
         </div>
 
-        <div className="mt-14">
-          <h2 className="text-xl font-bold mb-4">También te puede interesar</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {related.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </div>
-        </div>
+        {related.length > 0 && (
+          <section className="mt-14">
+            <div className="mb-5 flex items-end justify-between gap-4">
+              <div>
+                <p className="text-sm font-medium text-green-700">
+                  Completá tu proyecto
+                </p>
+                <h2 className="text-xl font-bold">
+                  También te puede interesar
+                </h2>
+              </div>
+
+              <Link
+                href="/productos"
+                className="text-sm font-medium text-green-700 hover:underline"
+              >
+                Ver todos los productos
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+              {related.map((relatedProduct) => (
+                <ProductCard
+                  key={relatedProduct.id}
+                  product={relatedProduct}
+                />
+              ))}
+            </div>
+          </section>
+        )}
 
       </div>
     </div>

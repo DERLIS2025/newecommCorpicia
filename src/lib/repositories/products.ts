@@ -190,40 +190,119 @@ export async function getProductsByCategory(categorySlug: string) {
   }
 }
 
-export async function getRelatedProducts(slug: string, categorySlug: string, limit = 4) {
+export async function getRelatedProducts(
+  slug: string,
+  categorySlug: string,
+  limit = 4
+) {
   if (DATA_SOURCE === 'static') {
     const visibilityMap = await getSupabaseProductVisibilityMap();
-    return filterStaticProductsByVisibility(
-      productsCatalog.filter((p) => toSlug(p.category || '') === categorySlug && p.slug !== slug),
+
+    const visibleProducts = filterStaticProductsByVisibility(
+      productsCatalog.filter((product) => product.slug !== slug),
       visibilityMap
-    ).slice(0, limit);
+    );
+
+    const sameCategory = visibleProducts.filter(
+      (product) => toSlug(product.category || '') === categorySlug
+    );
+
+    const fallbackProducts = visibleProducts.filter(
+      (product) => toSlug(product.category || '') !== categorySlug
+    );
+
+    return [...sameCategory, ...fallbackProducts].slice(0, limit);
   }
 
   if (!supabase) return [];
 
   try {
-    const { data, error } = await supabase
-      .from('products')
-      .select('*, categories!inner(slug, name), product_images(image_url, order_index), product_price_tiers(*)')
-      .eq('is_active', true)
-      .eq('categories.slug', categorySlug)
-      .neq('slug', slug)
-      .order('created_at', { ascending: false })
-      .limit(limit);
+    const productSelect =
+      '*, categories!inner(slug, name), product_images(image_url, order_index), product_price_tiers(*)';
 
-    if (error) return [];
+    const { data: sameCategoryData, error: sameCategoryError } =
+      await supabase
+        .from('products')
+        .select(productSelect)
+        .eq('is_active', true)
+        .eq('categories.slug', categorySlug)
+        .neq('slug', slug)
+        .order('is_featured', { ascending: false })
+        .order('created_at', { ascending: false })
+        .limit(limit);
 
-    return data.map(product => ({
-      ...product,
-      category: product.categories?.name,
-      categorySlug: product.categories?.slug,
-      images: product.product_images?.sort((a: any, b: any) => a.order_index - b.order_index).map((img: any) => img.image_url).filter(Boolean) || [],
-      priceTiers: mapPriceTiers(product.product_price_tiers),
-      pricePerM2: product.price_amount,
-      shortDescription: product.short_description,
-    })) as any[];
-  } catch (err) {
-    console.error('Error fetching related products:', err);
+    if (sameCategoryError) {
+      console.error(
+        'Error fetching related products from same category:',
+        sameCategoryError.message
+      );
+    }
+
+    const sameCategoryProducts = sameCategoryData || [];
+    const missing = Math.max(0, limit - sameCategoryProducts.length);
+
+    let fallbackProducts: any[] = [];
+
+    if (missing > 0) {
+      const excludedSlugs = [
+        slug,
+        ...sameCategoryProducts.map((product: any) => product.slug),
+      ];
+
+      let fallbackQuery = supabase
+        .from('products')
+        .select(productSelect)
+        .eq('is_active', true)
+        .order('is_featured', { ascending: false })
+        .order('created_at', { ascending: false })
+        .limit(missing);
+
+      if (excludedSlugs.length > 0) {
+        fallbackQuery = fallbackQuery.not(
+          'slug',
+          'in',
+          `(${excludedSlugs
+            .map((value) => `"${value.replace(/"/g, '')}"`)
+            .join(',')})`
+        );
+      }
+
+      const { data: fallbackData, error: fallbackError } =
+        await fallbackQuery;
+
+      if (fallbackError) {
+        console.error(
+          'Error fetching fallback related products:',
+          fallbackError.message
+        );
+      } else {
+        fallbackProducts = fallbackData || [];
+      }
+    }
+
+    return [...sameCategoryProducts, ...fallbackProducts]
+      .slice(0, limit)
+      .map((product: any) => ({
+        ...product,
+        category: product.categories?.name,
+        categorySlug: product.categories?.slug,
+        images:
+          product.product_images
+            ?.sort(
+              (a: any, b: any) =>
+                a.order_index - b.order_index
+            )
+            .map((image: any) => image.image_url)
+            .filter(Boolean) || [],
+        priceTiers: mapPriceTiers(
+          product.product_price_tiers
+        ),
+        pricePerM2: product.price_amount,
+        shortDescription: product.short_description,
+      })) as any[];
+  } catch (error) {
+    console.error('Error fetching related products:', error);
     return [];
   }
 }
+
