@@ -13,7 +13,13 @@ export interface Product {
   description: string;
   shortDescription?: string;
   pricePerM2: number;
-  unit: 'm2' | 'docena' | 'unidad' | 'visita' | 'servicio';
+  unit:
+    | 'm2'
+    | 'metro_lineal'
+    | 'docena'
+    | 'unidad'
+    | 'visita'
+    | 'servicio';
   priceTiers?: PriceTier[];
   minQuantity: number;
   images: string[];

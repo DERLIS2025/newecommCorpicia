@@ -39,6 +39,25 @@ export default function ProductForm({ product = null, categories = [] }: { produ
       : ''
   );
 
+  const getUnitLabel = (unit: string) => {
+    switch (unit) {
+      case 'm2':
+        return 'm²';
+      case 'metro_lineal':
+        return 'metro lineal';
+      case 'unidad':
+        return 'unidad';
+      case 'docena':
+        return 'docena';
+      case 'visita':
+        return 'visita';
+      case 'servicio':
+        return 'servicio';
+      default:
+        return unit;
+    }
+  };
+
   const normalizeTiers = (prod: any) => {
     const rawTiers = prod?.product_price_tiers || prod?.priceTiers || prod?.tiers || [];
     return rawTiers.map((t: any) => ({
@@ -586,7 +605,7 @@ export default function ProductForm({ product = null, categories = [] }: { produ
             
             <div>
               <label className="block text-sm font-medium mb-1">
-                Precio base por {selectedUnit === 'm2' ? 'm²' : selectedUnit} (PYG) *
+                Precio base por {getUnitLabel(selectedUnit)} (PYG) *
               </label>
               <Input name="price_amount" type="number" defaultValue={product?.price_amount || ''} required min="0" />
             </div>
@@ -595,6 +614,7 @@ export default function ProductForm({ product = null, categories = [] }: { produ
               <label className="block text-sm font-medium mb-1">Unidad *</label>
               <select name="unit" defaultValue={product?.unit || 'm2'} onChange={e => setSelectedUnit(e.target.value)} className="w-full flex h-10 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" required>
                 <option value="m2">m²</option>
+                <option value="metro_lineal">Metro lineal</option>
                 <option value="unidad">Unidad</option>
                 <option value="docena">Docena</option>
                 <option value="visita">Visita</option>
@@ -616,7 +636,7 @@ export default function ProductForm({ product = null, categories = [] }: { produ
                 <div className="hidden sm:flex gap-4 px-4 mb-2 text-sm font-semibold text-gray-700">
                   <div className="flex-1 min-w-[70px]">Desde</div>
                   <div className="flex-1 min-w-[70px]">Hasta</div>
-                  <div className="flex-[2] min-w-[140px]">Precio por {selectedUnit === 'm2' ? 'm²' : selectedUnit}</div>
+                  <div className="flex-[2] min-w-[140px]">Precio por {getUnitLabel(selectedUnit)}</div>
                   <div className="text-center w-20">Promoción</div>
                   <div className="w-8"></div>
                 </div>

@@ -8,6 +8,7 @@ import PromotionalPopup from '@/components/PromotionalPopup';
 import { Footer } from '@/components/Footer';
 import { WhatsAppFloatingButton } from '@/components/WhatsAppButton';
 import { BudgetDrawer } from '@/components/BudgetDrawer';
+import { CommercialAssistant } from '@/components/commercial-assistant/CommercialAssistant';
 import { InternalPageTracker } from '@/components/analytics/InternalPageTracker';
 import { PageEngagementTracker } from '@/components/analytics/PageEngagementTracker';
 
@@ -378,6 +379,7 @@ export default function RootLayout({
         <Footer />
         <WhatsAppFloatingButton />
         <BudgetDrawer />
+        <CommercialAssistant />
         <Script id="microsoft-clarity" strategy="afterInteractive">
           {`
             (function(c,l,a,r,i,t,y){
