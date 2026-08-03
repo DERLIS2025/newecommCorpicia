@@ -209,27 +209,23 @@ export function CommercialAssistant() {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-5 left-4 z-[60] flex items-center gap-3 rounded-full bg-green-700 py-2 pl-2 pr-4 text-left text-white shadow-xl ring-2 ring-white transition hover:scale-[1.03] hover:bg-green-800"
+        className="group fixed bottom-4 left-3 z-[60] flex h-[92px] w-[92px] items-center justify-center border-0 bg-transparent p-0 transition-transform duration-300 hover:scale-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-green-500/40 sm:bottom-5 sm:left-5 sm:h-[108px] sm:w-[108px]"
         aria-label="Hablar con Oscar, el jardinero"
       >
-        <span className="relative h-14 w-14 flex-none overflow-hidden rounded-full border-2 border-white bg-white">
+        <span className="absolute inset-2 rounded-full bg-green-500/25 motion-safe:animate-ping" />
+
+        <span className="oscar-avatar-float relative block h-full w-full drop-shadow-[0_8px_10px_rgba(0,0,0,0.28)]">
           <Image
             src="/avatars/oscar.png"
-            alt="Oscar, el jardinero"
+            alt="Oscar, el jardinero de Corpicia"
             fill
-            sizes="56px"
-            className="object-cover object-top"
+            priority
+            sizes="(max-width: 640px) 92px, 108px"
+            className="object-contain"
           />
         </span>
 
-        <span className="hidden leading-tight sm:block">
-          <span className="block text-sm font-semibold">
-            Hablá con Oscar
-          </span>
-          <span className="block text-xs font-normal text-green-100">
-            Tu asesor de jardinería
-          </span>
-        </span>
+        <span className="absolute right-1 top-1 h-4 w-4 rounded-full border-2 border-white bg-green-400 shadow-sm" />
       </button>
 
       {isOpen && (

@@ -73,3 +73,28 @@ html {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+@keyframes oscar-avatar-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  45% {
+    transform: translateY(-6px) rotate(-1deg);
+  }
+
+  55% {
+    transform: translateY(-6px) rotate(1deg);
+  }
+}
+
+.oscar-avatar-float {
+  animation: oscar-avatar-float 3.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oscar-avatar-float {
+    animation: none;
+  }
+}
