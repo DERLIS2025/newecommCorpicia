@@ -222,10 +222,25 @@ export default function ProductDetailClient({
             )}
 
             {/* Información inferior desktop */}
-            <div className="mt-7 hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm lg:block">
-              <h2 className="text-xl font-semibold text-gray-950">
-                Detalles del producto
-              </h2>
+            <div className="mt-7 hidden space-y-5 lg:block">
+              {product.description && (
+                <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-corpicia-green">
+                    Conocé el producto
+                  </p>
+                  <h2 className="mt-2 text-xl font-bold text-gray-950">
+                    Descripción del producto
+                  </h2>
+                  <p className="mt-3 max-w-3xl text-sm leading-7 text-gray-600">
+                    {product.description}
+                  </p>
+                </section>
+              )}
+
+              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                <h2 className="text-xl font-semibold text-gray-950">
+                  Detalles del producto
+                </h2>
 
               <div className="mt-5 grid gap-6 md:grid-cols-2">
                 {features.length > 0 && (
@@ -293,6 +308,7 @@ export default function ProductDetailClient({
                   </ul>
                 </div>
               )}
+              </div>
             </div>
           </div>
 
@@ -309,15 +325,11 @@ export default function ProductDetailClient({
                 </h1>
 
                 {product.shortDescription && (
-                  <p className="mt-3 text-base font-medium text-gray-700">
-                    {product.shortDescription}
-                  </p>
-                )}
-
-                {product.description && (
-                  <p className="mt-3 leading-relaxed text-gray-600">
-                    {product.description}
-                  </p>
+                  <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                    <p className="text-sm font-bold leading-snug text-red-700 md:text-base">
+                      {product.shortDescription}
+                    </p>
+                  </div>
                 )}
               </header>
 
@@ -552,10 +564,25 @@ export default function ProductDetailClient({
               </div>
 
               {/* Información mobile */}
-              <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm lg:hidden">
-                <h2 className="text-lg font-semibold text-gray-950">
-                  Características y especificaciones
-                </h2>
+              <div className="space-y-4 lg:hidden">
+                {product.description && (
+                  <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-corpicia-green">
+                      Conocé el producto
+                    </p>
+                    <h2 className="mt-2 text-lg font-bold text-gray-950">
+                      Descripción del producto
+                    </h2>
+                    <p className="mt-3 text-sm leading-6 text-gray-600">
+                      {product.description}
+                    </p>
+                  </section>
+                )}
+
+                <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                  <h2 className="text-lg font-semibold text-gray-950">
+                    Características y especificaciones
+                  </h2>
 
                 {features.length > 0 && (
                   <div className="mt-4 space-y-3">
@@ -611,6 +638,7 @@ export default function ProductDetailClient({
                     </ul>
                   </div>
                 )}
+                </div>
               </div>
             </div>
           </div>
