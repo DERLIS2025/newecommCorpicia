@@ -40,6 +40,7 @@ export type CommercialAssistantResult =
       answer: string;
       followUpQuestion?: string;
       products: CommercialAssistantProduct[];
+      handoffToWhatsApp?: boolean;
     }
   | {
       success: false;
@@ -55,6 +56,7 @@ type AIResponse = {
   answer?: string;
   follow_up_question?: string;
   product_slugs?: string[];
+  handoff_to_whatsapp?: boolean;
 };
 
 function extractJson(text: string): string {
@@ -181,10 +183,10 @@ export async function askCommercialAssistant(
   try {
     const question = normalizeText(message, 600);
 
-    if (question.length < 3) {
+    if (question.length < 1) {
       return {
         success: false,
-        message: 'Contame un poco más sobre lo que necesitás.',
+        message: 'Escribime tu consulta para poder ayudarte.',
       };
     }
 
@@ -277,7 +279,8 @@ Devolvé exactamente este formato:
   "follow_up_question": "pregunta breve opcional o cadena vacía",
   "product_slugs": [
     "slug-real-del-catalogo"
-  ]
+  ],
+  "handoff_to_whatsapp": false
 }
 `;
 
@@ -336,6 +339,8 @@ Devolvé exactamente este formato:
         300
       ),
       products: validatedProducts,
+      handoffToWhatsApp:
+        parsed.handoff_to_whatsapp === true,
     };
   } catch (error) {
     console.error(

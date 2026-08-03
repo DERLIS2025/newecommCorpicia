@@ -29,6 +29,7 @@ type ChatMessage = {
   content: string;
   followUpQuestion?: string;
   products?: CommercialAssistantProduct[];
+  handoffToWhatsApp?: boolean;
 };
 
 const quickQuestions = [
@@ -54,6 +55,33 @@ function wait(milliseconds: number) {
   return new Promise((resolve) =>
     window.setTimeout(resolve, milliseconds)
   );
+}
+
+function buildWhatsAppUrl(
+  messages: ChatMessage[]
+) {
+  const conversation = messages
+    .filter(
+      (item) => item.id !== 'oscar-welcome'
+    )
+    .slice(-8)
+    .map((item) => {
+      const speaker =
+        item.role === 'user' ? 'Cliente' : 'Oscar';
+
+      return `${speaker}: ${item.content}`;
+    })
+    .join('\n');
+
+  const message = [
+    'Hola, estuve conversando con Oscar desde la web de Corpicia.',
+    '',
+    conversation,
+    '',
+    'Quiero continuar con un asesor comercial y solicitar un presupuesto.',
+  ].join('\n');
+
+  return `https://wa.me/595992588770?text=${encodeURIComponent(message)}`;
 }
 
 export function CommercialAssistant() {
@@ -120,6 +148,8 @@ export function CommercialAssistant() {
         content: result.answer,
         followUpQuestion: result.followUpQuestion,
         products: result.products,
+        handoffToWhatsApp:
+          result.handoffToWhatsApp,
       };
 
       const naturalDelay = Math.min(
@@ -289,6 +319,17 @@ export function CommercialAssistant() {
                                 )}
                               </div>
                             )}
+
+                          {chatMessage.handoffToWhatsApp && (
+                            <a
+                              href={buildWhatsAppUrl(messages)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex min-h-11 w-full items-center justify-center rounded-xl bg-[#25D366] px-4 py-3 text-center text-sm font-medium text-white shadow-sm transition hover:bg-[#20bd5a]"
+                            >
+                              Continuar con un asesor por WhatsApp
+                            </a>
+                          )}
                         </>
                       )}
                     </div>
