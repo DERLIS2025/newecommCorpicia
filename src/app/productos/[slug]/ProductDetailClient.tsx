@@ -170,7 +170,7 @@ export default function ProductDetailClient({
         <section className="grid gap-7 lg:grid-cols-[minmax(0,1.15fr)_minmax(380px,0.85fr)] lg:gap-10">
           {/* Galería */}
           <div className="min-w-0">
-            <div className="relative aspect-square overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm md:aspect-square">
               <Image
                 src={selectedImage}
                 alt={product.name}
@@ -228,7 +228,7 @@ export default function ProductDetailClient({
                   <p className="text-xs font-bold uppercase tracking-[0.16em] text-corpicia-green">
                     Conocé el producto
                   </p>
-                  <h2 className="mt-2 text-xl font-bold text-gray-950">
+                  <h2 className="mt-2 text-xl font-semibold text-gray-950">
                     Descripción del producto
                   </h2>
                   <p className="mt-3 max-w-3xl text-sm leading-7 text-gray-600">
@@ -238,7 +238,7 @@ export default function ProductDetailClient({
               )}
 
               <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                <h2 className="text-xl font-semibold text-gray-950">
+                <h2 className="text-xl font-medium text-gray-950">
                   Detalles del producto
                 </h2>
 
@@ -320,13 +320,13 @@ export default function ProductDetailClient({
                   Producto Corpicia
                 </p>
 
-                <h1 className="text-3xl font-bold leading-tight text-gray-950 md:text-4xl">
+                <h1 className="text-3xl font-semibold leading-tight tracking-tight text-gray-950 md:text-4xl">
                   {product.name}
                 </h1>
 
                 {product.shortDescription && (
                   <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
-                    <p className="text-sm font-bold leading-snug text-red-700 md:text-base">
+                    <p className="text-sm font-semibold leading-relaxed text-red-700 md:text-base">
                       {product.shortDescription}
                     </p>
                   </div>
@@ -566,23 +566,37 @@ export default function ProductDetailClient({
               {/* Información mobile */}
               <div className="space-y-4 lg:hidden">
                 {product.description && (
-                  <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-corpicia-green">
-                      Conocé el producto
-                    </p>
-                    <h2 className="mt-2 text-lg font-bold text-gray-950">
-                      Descripción del producto
-                    </h2>
-                    <p className="mt-3 text-sm leading-6 text-gray-600">
-                      {product.description}
-                    </p>
-                  </section>
+                  <details className="group rounded-xl border border-gray-200 bg-white shadow-sm">
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-4">
+                      <span className="text-base font-medium text-gray-950">
+                        Descripción del producto
+                      </span>
+
+                      <span className="text-xl font-light text-corpicia-green transition-transform group-open:rotate-45">
+                        +
+                      </span>
+                    </summary>
+
+                    <div className="border-t border-gray-100 px-4 pb-4 pt-3">
+                      <p className="text-sm font-normal leading-6 text-gray-600">
+                        {product.description}
+                      </p>
+                    </div>
+                  </details>
                 )}
 
-                <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                  <h2 className="text-lg font-semibold text-gray-950">
-                    Características y especificaciones
-                  </h2>
+                <details className="group rounded-xl border border-gray-200 bg-white shadow-sm">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-4">
+                    <span className="text-base font-medium text-gray-950">
+                      Características y especificaciones
+                    </span>
+
+                    <span className="text-xl font-light text-corpicia-green transition-transform group-open:rotate-45">
+                      +
+                    </span>
+                  </summary>
+
+                  <div className="border-t border-gray-100 px-4 pb-4 pt-1">
 
                 {features.length > 0 && (
                   <div className="mt-4 space-y-3">
@@ -638,7 +652,8 @@ export default function ProductDetailClient({
                     </ul>
                   </div>
                 )}
-                </div>
+                  </div>
+                </details>
               </div>
             </div>
           </div>
@@ -652,7 +667,7 @@ export default function ProductDetailClient({
                   Completá tu proyecto
                 </p>
 
-                <h2 className="mt-1 text-2xl font-bold text-gray-950">
+                <h2 className="mt-1 text-2xl font-semibold text-gray-950">
                   También te puede interesar
                 </h2>
               </div>
@@ -665,12 +680,14 @@ export default function ProductDetailClient({
               </Link>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">
+            <div className="flex snap-x gap-3 overflow-x-auto pb-3 md:grid md:grid-cols-4 md:gap-5 md:overflow-visible md:pb-0">
               {related.map((relatedProduct) => (
-                <ProductCard
+                <div
                   key={relatedProduct.id}
-                  product={relatedProduct}
-                />
+                  className="min-w-[72%] snap-start sm:min-w-[46%] md:min-w-0"
+                >
+                  <ProductCard product={relatedProduct} />
+                </div>
               ))}
             </div>
           </section>
