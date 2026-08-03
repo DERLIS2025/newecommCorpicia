@@ -2,6 +2,7 @@
 
 import { GoogleGenAI } from '@google/genai';
 import { getProducts } from '@/lib/repositories/products';
+import { COMMERCIAL_ASSISTANT_PROMPT } from '@/lib/prompts/commercial-assistant';
 
 export type CommercialAssistantProduct = {
   id: string;
@@ -39,6 +40,7 @@ export type CommercialAssistantResult =
       answer: string;
       followUpQuestion?: string;
       products: CommercialAssistantProduct[];
+      handoffToWhatsApp?: boolean;
     }
   | {
       success: false;
@@ -54,6 +56,7 @@ type AIResponse = {
   answer?: string;
   follow_up_question?: string;
   product_slugs?: string[];
+  handoff_to_whatsapp?: boolean;
 };
 
 function extractJson(text: string): string {
@@ -180,10 +183,10 @@ export async function askCommercialAssistant(
   try {
     const question = normalizeText(message, 600);
 
-    if (question.length < 3) {
+    if (question.length < 1) {
       return {
         success: false,
-        message: 'Contame un poco más sobre lo que necesitás.',
+        message: 'Escribime tu consulta para poder ayudarte.',
       };
     }
 
@@ -245,8 +248,7 @@ export async function askCommercialAssistant(
       .filter((item) => item.content);
 
     const prompt = `
-Actuá como asesor comercial de Corpicia Paraguay, empresa especializada en
-césped natural, jardinería, paisajismo, riego y mantenimiento de áreas verdes.
+${COMMERCIAL_ASSISTANT_PROMPT}
 
 Historial reciente de la conversación:
 ${JSON.stringify(safeHistory)}
@@ -257,27 +259,28 @@ ${question}
 Catálogo real disponible:
 ${JSON.stringify(compactCatalog)}
 
-Reglas obligatorias:
-- Respondé en español claro, breve, amable y comercial.
+Reglas técnicas obligatorias:
+
 - Recomendá únicamente productos presentes en el catálogo proporcionado.
-- Nunca inventes productos, precios, stock, medidas ni características técnicas.
+- Nunca inventes productos, precios, stock, medidas ni características.
 - No cambies los precios.
 - Elegí como máximo 4 productos.
 - Usá exactamente los slug del catálogo.
-- Explicá brevemente por qué cada recomendación ayuda al cliente.
-- Cuando falten datos importantes, agregá una pregunta de seguimiento.
+- Cuando falten datos importantes, agregá una pregunta breve de seguimiento.
 - No asegures cálculos técnicos exactos sin datos suficientes.
-- Podés orientar, pero aclarando cuando una cantidad es estimada.
+- Las cantidades deben presentarse como estimaciones cuando corresponda.
 - No uses Markdown.
 - No agregues texto fuera del JSON.
 
 Devolvé exactamente este formato:
+
 {
-  "answer": "respuesta breve para el cliente",
-  "follow_up_question": "pregunta opcional o cadena vacía",
+  "answer": "respuesta breve, natural y personalizada",
+  "follow_up_question": "pregunta breve opcional o cadena vacía",
   "product_slugs": [
     "slug-real-del-catalogo"
-  ]
+  ],
+  "handoff_to_whatsapp": false
 }
 `;
 
@@ -336,6 +339,8 @@ Devolvé exactamente este formato:
         300
       ),
       products: validatedProducts,
+      handoffToWhatsApp:
+        parsed.handoff_to_whatsapp === true,
     };
   } catch (error) {
     console.error(

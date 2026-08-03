@@ -2,7 +2,8 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShoppingCart } from 'lucide-react';
+import { useState } from 'react';
+import { Check, ShoppingCart } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { formatPrice, formatUnit } from '@/lib/utils';
@@ -18,6 +19,7 @@ export function AssistantProductCard({
   const addItem = useBudgetStore(
     (state) => state.addItem
   );
+  const [added, setAdded] = useState(false);
 
   const storeProduct = product as Product;
 
@@ -26,6 +28,12 @@ export function AssistantProductCard({
       storeProduct,
       product.minQuantity || 1
     );
+
+    setAdded(true);
+
+    window.setTimeout(() => {
+      setAdded(false);
+    }, 2500);
   };
 
   return (
@@ -66,10 +74,20 @@ export function AssistantProductCard({
             type="button"
             size="sm"
             onClick={handleAdd}
+            disabled={added}
             className="mt-2 h-8 w-full gap-1.5 text-xs"
           >
-            <ShoppingCart className="h-3.5 w-3.5" />
-            Agregar al presupuesto
+            {added ? (
+              <>
+                <Check className="h-3.5 w-3.5" />
+                Agregado al presupuesto
+              </>
+            ) : (
+              <>
+                <ShoppingCart className="h-3.5 w-3.5" />
+                Agregar al presupuesto
+              </>
+            )}
           </Button>
         </div>
       </div>
