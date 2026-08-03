@@ -7,10 +7,9 @@ import {
   useState,
 } from 'react';
 import { usePathname } from 'next/navigation';
+import Image from 'next/image';
 import {
-  Bot,
   Loader2,
-  MessageCircle,
   Send,
   Sparkles,
   X,
@@ -210,13 +209,26 @@ export function CommercialAssistant() {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 left-5 z-[60] flex items-center gap-2 rounded-full bg-green-700 px-4 py-3 text-sm font-medium text-white shadow-xl transition hover:bg-green-800"
-        aria-label="Abrir chat con Oscar"
+        className="fixed bottom-5 left-4 z-[60] flex items-center gap-3 rounded-full bg-green-700 py-2 pl-2 pr-4 text-left text-white shadow-xl ring-2 ring-white transition hover:scale-[1.03] hover:bg-green-800"
+        aria-label="Hablar con Oscar, el jardinero"
       >
-        <MessageCircle className="h-5 w-5" />
+        <span className="relative h-14 w-14 flex-none overflow-hidden rounded-full border-2 border-white bg-white">
+          <Image
+            src="/avatars/oscar.png"
+            alt="Oscar, el jardinero"
+            fill
+            sizes="56px"
+            className="object-cover object-top"
+          />
+        </span>
 
-        <span className="hidden sm:inline">
-          ¿Necesitás ayuda?
+        <span className="hidden leading-tight sm:block">
+          <span className="block text-sm font-semibold">
+            Hablá con Oscar
+          </span>
+          <span className="block text-xs font-normal text-green-100">
+            Tu asesor de jardinería
+          </span>
         </span>
       </button>
 
@@ -232,8 +244,14 @@ export function CommercialAssistant() {
           <aside className="fixed bottom-0 left-0 z-[80] flex h-[88vh] w-full flex-col overflow-hidden rounded-t-2xl bg-[#efeae2] shadow-2xl sm:bottom-5 sm:left-5 sm:h-[720px] sm:max-h-[88vh] sm:w-[420px] sm:rounded-2xl">
             <header className="flex flex-none items-center justify-between bg-green-700 px-4 py-3 text-white">
               <div className="flex items-center gap-3">
-                <div className="rounded-full bg-white/15 p-2">
-                  <Bot className="h-5 w-5" />
+                <div className="relative h-11 w-11 flex-none overflow-hidden rounded-full border-2 border-white bg-white">
+                  <Image
+                    src="/avatars/oscar.png"
+                    alt="Oscar, el jardinero"
+                    fill
+                    sizes="44px"
+                    className="object-cover object-top"
+                  />
                 </div>
 
                 <div>
