@@ -3,284 +3,641 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, Check, ShoppingCart } from 'lucide-react';
+import {
+  ArrowLeft,
+  Check,
+  CheckCircle2,
+  Package,
+  ShoppingCart,
+} from 'lucide-react';
 
 import { QuantitySelector } from '@/components/QuantitySelector';
 import { Button } from '@/components/ui/button';
 import { ProductCard } from '@/components/ProductCard';
 
-import { trackAddToBudget, trackProductView, trackWhatsAppClick } from '@/lib/tracking';
-import { formatPrice, formatUnit, getPriceForQuantity, getWhatsAppUrl } from '@/lib/utils';
+import {
+  trackAddToBudget,
+  trackProductView,
+  trackWhatsAppClick,
+} from '@/lib/tracking';
+import {
+  formatPrice,
+  formatUnit,
+  getPriceForQuantity,
+  getWhatsAppUrl,
+} from '@/lib/utils';
 import { useBudgetStore } from '@/store/budgetStore';
 import type { Product } from '@/types';
 
 type ProductDetailType = Product & {
   minOrderQuantity?: number;
-  features: string[];
-  specifications: Record<string, string>;
+  features?: string[];
+  specifications?: Record<string, string>;
   recommendations?: string[];
 };
 
-type Props = { 
+type Props = {
   product: ProductDetailType;
   relatedProducts: Product[];
 };
 
-function getCalculatedQuantity(product: ProductDetailType, quantity: number) {
-  const safe = Math.max(quantity, product.minOrderQuantity || product.minQuantity || 1);
-  if (product.unit === 'docena') return safe * 12;
+type NormalizedTier = NonNullable<Product['priceTiers']>[number] & {
+  min?: number;
+  max?: number | null;
+  minQuantity?: number;
+  maxQuantity?: number | null;
+};
+
+function getCalculatedQuantity(
+  product: ProductDetailType,
+  quantity: number
+) {
+  const minimum =
+    Number(product.minOrderQuantity ?? product.minQuantity) || 1;
+
+  const safeQuantity = Math.max(Number(quantity) || minimum, minimum);
+
+  if (product.unit === 'docena') return safeQuantity * 12;
   if (product.unit === 'visita' || product.unit === 'servicio') return 1;
-  return safe;
+
+  return safeQuantity;
 }
 
-export default function ProductDetailClient({ product, relatedProducts }: Props) {
-  const addItem = useBudgetStore((s) => s.addItem);
+function getTierMinimum(tier: NormalizedTier) {
+  return Number(tier.min ?? tier.minQuantity) || 0;
+}
 
-  const [quantity, setQuantity] = useState(product.minOrderQuantity || product.minQuantity || 1);
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+function getTierMaximum(tier: NormalizedTier) {
+  const value = tier.max ?? tier.maxQuantity;
+  return value === undefined || value === null ? null : Number(value);
+}
 
-  useEffect(() => {
-    trackProductView(product.name, product.slug);
-  }, [product]);
+export default function ProductDetailClient({
+  product,
+  relatedProducts,
+}: Props) {
+  const addItem = useBudgetStore((state) => state.addItem);
 
   const minimumQuantity =
     Number(product.minOrderQuantity ?? product.minQuantity) || 1;
 
-  const safeQuantity = Math.max(Number(quantity) || minimumQuantity, minimumQuantity);
+  const [quantity, setQuantity] = useState(minimumQuantity);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [wasAdded, setWasAdded] = useState(false);
 
-  const { unitPrice, totalPrice } = useMemo(
-    () => getPriceForQuantity(product, quantity),
-    [product, quantity]
+  useEffect(() => {
+    trackProductView(product.name, product.slug);
+  }, [product.name, product.slug]);
+
+  const safeQuantity = Math.max(
+    Number(quantity) || minimumQuantity,
+    minimumQuantity
   );
 
-  const priceTiers = product.priceTiers ?? [];
+  const { unitPrice, totalPrice } = useMemo(
+    () => getPriceForQuantity(product, safeQuantity),
+    [product, safeQuantity]
+  );
+
+  const priceTiers = useMemo(
+    () =>
+      [...(product.priceTiers ?? [])]
+        .map((tier) => tier as NormalizedTier)
+        .sort((a, b) => getTierMinimum(a) - getTierMinimum(b)),
+    [product.priceTiers]
+  );
+
+  const lowestTierPrice = useMemo(() => {
+    if (priceTiers.length === 0) return null;
+    return Math.min(...priceTiers.map((tier) => tier.price));
+  }, [priceTiers]);
+
+  const nextTier = useMemo(
+    () =>
+      priceTiers.find(
+        (tier) => getTierMinimum(tier) > safeQuantity
+      ),
+    [priceTiers, safeQuantity]
+  );
+
   const features = product.features ?? [];
   const specifications = product.specifications ?? {};
   const recommendations = product.recommendations ?? [];
-  const fallbackImage = `/productos/${product.slug}.jpg`;
-  const images = product.images?.length > 0 ? product.images : [fallbackImage];
   const related = relatedProducts ?? [];
 
-  const promoTier = priceTiers.find((t) => t.isPromo);
-  const missingForPromo = promoTier ? Math.max(0, promoTier.min - safeQuantity) : 0;
+  const fallbackImage = `/productos/${product.slug}.jpg`;
+  const images =
+    product.images && product.images.length > 0
+      ? product.images
+      : [fallbackImage];
 
-  const selectedImage = images[selectedImageIndex];
+  const selectedImage =
+    images[selectedImageIndex] ?? images[0] ?? fallbackImage;
 
   const handleAdd = () => {
-    addItem(product, getCalculatedQuantity(product, quantity));
-    trackAddToBudget(product.name, product.slug, quantity);
+    const calculatedQuantity = getCalculatedQuantity(
+      product,
+      safeQuantity
+    );
+
+    addItem(product, calculatedQuantity);
+    trackAddToBudget(
+      product.name,
+      product.slug,
+      safeQuantity
+    );
+
+    setWasAdded(true);
+
+    window.setTimeout(() => {
+      setWasAdded(false);
+    }, 2000);
   };
 
-  return (
-    <div className="bg-[#f7faf7] min-h-screen">
-      <div className="container mx-auto px-4 py-8 md:py-10">
+  const whatsappMessage = `Hola, quiero consultar por ${product.name}. Cantidad: ${safeQuantity} ${formatUnit(product.unit)}.`;
 
-        <Link href="/productos" className="flex items-center gap-2 mb-5 md:mb-6 text-sm text-gray-700">
-          <ArrowLeft size={16} /> Volver
+  return (
+    <main className="min-h-screen bg-[#f6f8f6]">
+      <div className="container mx-auto px-4 py-6 md:py-10">
+        <Link
+          href="/productos"
+          className="mb-5 inline-flex items-center gap-2 text-sm font-medium text-gray-600 transition-colors hover:text-corpicia-green"
+        >
+          <ArrowLeft size={17} />
+          Volver a productos
         </Link>
 
-        <div className="grid lg:grid-cols-[1.2fr_1fr] gap-8 lg:gap-10">
-
-          <div>
-            <div className="relative aspect-square rounded-xl overflow-hidden bg-white shadow-sm">
-              <Image src={selectedImage} alt={product.name} fill className="object-cover" />
-            </div>
-
-            <div className="grid grid-cols-4 gap-2 mt-4">
-              {images.map((img, i) => (
-                <button key={i} onClick={() => setSelectedImageIndex(i)} aria-label={`Ver imagen ${i + 1} de ${product.name}`}>
-                  <div className={`relative aspect-square ${selectedImageIndex === i ? 'ring-2 ring-green-600 rounded' : ''}`}>
-                    <Image src={img} alt="" fill className="object-cover rounded" />
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-5 md:space-y-6">
-
-            <div className="space-y-2">
-              <h1 className="text-3xl font-bold leading-tight">{product.name}</h1>
-              <p className="text-sm text-green-700 font-medium">{product.shortDescription}</p>
-              <p className="text-gray-700 leading-relaxed">{product.description}</p>
-            </div>
-
-            <div className="border rounded-xl p-5 md:p-6 bg-white space-y-5 shadow-sm">
-
-              <div className="space-y-1">
-                <p className="text-xs uppercase tracking-wide text-gray-500">Precio aplicado por {formatUnit(product.unit)}</p>
-                <div className="text-3xl md:text-4xl font-bold text-green-600">
-                  {formatPrice(unitPrice)} <span className="text-lg md:text-xl font-semibold text-green-700">/ {formatUnit(product.unit)}</span>
-                </div>
-              </div>
-
-              <QuantitySelector
-                quantity={quantity}
-                minQuantity={product.minQuantity}
-                onChange={setQuantity}
+        <section className="grid gap-7 lg:grid-cols-[minmax(0,1.15fr)_minmax(380px,0.85fr)] lg:gap-10">
+          {/* Galería */}
+          <div className="min-w-0">
+            <div className="relative aspect-square overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+              <Image
+                src={selectedImage}
+                alt={product.name}
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 58vw"
+                className="object-cover"
               />
 
-              {priceTiers.length > 0 && (
-                <div className="pt-1 border-t space-y-3">
-                  <p className="text-sm font-semibold mt-2">Precios por volumen</p>
-                  
-                  <div className="space-y-2">
-                    {priceTiers.map((tier, idx) => {
-                      const normalizedTier = tier as typeof tier & { minQuantity?: number; maxQuantity?: number | null; };
-                      const min = normalizedTier.min ?? normalizedTier.minQuantity ?? 0;
-                      const max = normalizedTier.max ?? normalizedTier.maxQuantity ?? null;
-                      
-                      const isActive = safeQuantity >= min && (max === null || safeQuantity <= max);
-                      const isLowestPrice = tier.price === Math.min(...priceTiers.map(t => t.price));
-                      
-                      const label = max !== null
-                          ? `${min} a ${max} ${formatUnit(product.unit)}`
-                          : `Desde ${min} ${formatUnit(product.unit)}`;
-
-                      return (
-                        <div key={idx} className={`flex flex-col sm:flex-row justify-between sm:items-center text-sm p-2 rounded-lg transition-colors ${isActive ? 'bg-green-50 border border-green-200 shadow-sm' : 'border border-transparent'}`}>
-                          <div className="flex items-center flex-wrap gap-2 mb-1 sm:mb-0">
-                            <span className={`${isActive ? 'font-semibold text-green-800' : 'text-gray-700'}`}>{label}</span>
-                            {tier.isPromo && (
-                              <span className="px-1.5 py-0.5 text-[10px] uppercase tracking-wide bg-blue-100 text-blue-700 rounded font-bold">
-                                Promoción
-                              </span>
-                            )}
-                            {isLowestPrice && (
-                              <span className="px-1.5 py-0.5 text-[10px] uppercase tracking-wide bg-corpicia-green/10 text-corpicia-green rounded font-bold">
-                                Mejor Precio
-                              </span>
-                            )}
-                            {isActive && (
-                              <span className="px-1.5 py-0.5 text-[10px] uppercase tracking-wide bg-green-200 text-green-800 rounded font-bold">
-                                Aplicado
-                              </span>
-                            )}
-                          </div>
-                          <span className={`${isActive ? 'font-bold text-green-800' : 'font-medium text-gray-800'}`}>
-                            {formatPrice(tier.price)} / {formatUnit(product.unit)}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {(() => {
-                    const sortedTiers = [...priceTiers].sort((a, b) => {
-                      const minA = (a as any).min ?? (a as any).minQuantity ?? 0;
-                      const minB = (b as any).min ?? (b as any).minQuantity ?? 0;
-                      return minA - minB;
-                    });
-                    const nextTier = sortedTiers.find(t => {
-                      const min = (t as any).min ?? (t as any).minQuantity ?? 0;
-                      return min > safeQuantity;
-                    });
-                    
-                    if (nextTier) {
-                      const nextMin = (nextTier as any).min ?? (nextTier as any).minQuantity ?? 0;
-                      const missing = nextMin - safeQuantity;
-                      return (
-                        <p className="text-xs text-orange-600 bg-orange-50 p-2 rounded border border-orange-100 mt-2">
-                          Te faltan {missing} {formatUnit(product.unit)} para acceder a {formatPrice(nextTier.price)} / {formatUnit(product.unit)}.
-                        </p>
-                      );
-                    } else {
-                      return (
-                        <p className="text-xs text-green-700 bg-green-50 p-2 rounded border border-green-100 mt-2">
-                          Ya tenés el mejor precio disponible.
-                        </p>
-                      );
-                    }
-                  })()}
-                </div>
+              {product.isFeatured && (
+                <span className="absolute left-4 top-4 rounded-full bg-corpicia-green px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-white shadow-sm">
+                  Destacado
+                </span>
               )}
-
-              <div className="pt-3 border-t">
-                <p className="text-sm text-gray-500 mb-1">
-                  {safeQuantity} {formatUnit(product.unit)} × {formatPrice(unitPrice)} / {formatUnit(product.unit)}
-                </p>
-                <div className="text-xl font-bold">
-                  Total: {formatPrice(totalPrice)}
-                </div>
-              </div>
-
-              {/* ✅ BOTONES CORREGIDOS: Con gap y responsive */}
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <Button onClick={handleAdd} className="flex-1 min-h-[44px]">
-                  <ShoppingCart className="mr-2" size={18} /> Agregar al Presupuesto
-                </Button>
-
-                <a
-                  href={getWhatsAppUrl(`Hola quiero ${product.name}`)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => trackWhatsAppClick('pdp', product.slug)}
-                  className="flex-1"
-                >
-                  <Button variant="outline" className="w-full min-h-[44px]">
-                    WhatsApp
-                  </Button>
-                </a>
-              </div>
-
             </div>
 
-            <div className="border rounded-xl bg-white p-5 md:p-6 space-y-4 shadow-sm">
-              <h2 className="text-lg font-semibold">Características y especificaciones</h2>
+            {images.length > 1 && (
+              <div className="mt-3 flex gap-3 overflow-x-auto pb-2">
+                {images.map((image, index) => {
+                  const isSelected =
+                    selectedImageIndex === index;
 
-              <div className="space-y-2">
-                {features.map((feature) => (
-                  <div key={feature} className="flex items-start gap-2 text-sm text-gray-700">
-                    <Check size={16} className="mt-0.5 text-green-600" />
-                    <span>{feature}</span>
-                  </div>
-                ))}
+                  return (
+                    <button
+                      key={`${image}-${index}`}
+                      type="button"
+                      onClick={() =>
+                        setSelectedImageIndex(index)
+                      }
+                      aria-label={`Ver imagen ${index + 1} de ${product.name}`}
+                      aria-pressed={isSelected}
+                      className={`relative h-20 w-20 flex-none overflow-hidden rounded-xl border-2 bg-white transition ${
+                        isSelected
+                          ? 'border-corpicia-green ring-2 ring-corpicia-green/15'
+                          : 'border-transparent hover:border-gray-300'
+                      }`}
+                    >
+                      <Image
+                        src={image}
+                        alt=""
+                        fill
+                        sizes="80px"
+                        className="object-cover"
+                      />
+                    </button>
+                  );
+                })}
               </div>
+            )}
 
-              <div className="space-y-1 text-sm text-gray-700">
-                {Object.entries(specifications).map(([label, value]) => (
-                  <p key={label}>
-                    <span className="font-semibold">{label}:</span> {value}
-                  </p>
-                ))}
+            {/* Información inferior desktop */}
+            <div className="mt-7 hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm lg:block">
+              <h2 className="text-xl font-semibold text-gray-950">
+                Detalles del producto
+              </h2>
+
+              <div className="mt-5 grid gap-6 md:grid-cols-2">
+                {features.length > 0 && (
+                  <div>
+                    <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+                      Características
+                    </h3>
+
+                    <div className="space-y-3">
+                      {features.map((feature) => (
+                        <div
+                          key={feature}
+                          className="flex items-start gap-2.5 text-sm text-gray-700"
+                        >
+                          <Check
+                            size={17}
+                            className="mt-0.5 flex-none text-corpicia-green"
+                          />
+                          <span>{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {Object.keys(specifications).length > 0 && (
+                  <div>
+                    <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+                      Especificaciones
+                    </h3>
+
+                    <dl className="divide-y divide-gray-100">
+                      {Object.entries(specifications).map(
+                        ([label, value]) => (
+                          <div
+                            key={label}
+                            className="flex justify-between gap-4 py-2.5 text-sm"
+                          >
+                            <dt className="text-gray-500">
+                              {label}
+                            </dt>
+                            <dd className="text-right font-medium text-gray-900">
+                              {value}
+                            </dd>
+                          </div>
+                        )
+                      )}
+                    </dl>
+                  </div>
+                )}
               </div>
 
               {recommendations.length > 0 && (
-                <div className="pt-2 border-t space-y-2">
-                  <h3 className="text-base font-semibold">Recomendaciones de uso</h3>
-                  <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700 leading-relaxed">
-                    {recommendations.map((item) => (
-                      <li key={item}>{item}</li>
+                <div className="mt-6 border-t border-gray-100 pt-5">
+                  <h3 className="mb-3 text-base font-semibold text-gray-900">
+                    Recomendaciones de uso
+                  </h3>
+
+                  <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-gray-700">
+                    {recommendations.map((recommendation) => (
+                      <li key={recommendation}>
+                        {recommendation}
+                      </li>
                     ))}
                   </ul>
                 </div>
               )}
             </div>
-
           </div>
-        </div>
+
+          {/* Información comercial */}
+          <div className="min-w-0">
+            <div className="space-y-5 lg:sticky lg:top-24">
+              <header>
+                <p className="mb-2 text-sm font-semibold uppercase tracking-[0.14em] text-corpicia-green">
+                  Producto Corpicia
+                </p>
+
+                <h1 className="text-3xl font-bold leading-tight text-gray-950 md:text-4xl">
+                  {product.name}
+                </h1>
+
+                {product.shortDescription && (
+                  <p className="mt-3 text-base font-medium text-gray-700">
+                    {product.shortDescription}
+                  </p>
+                )}
+
+                {product.description && (
+                  <p className="mt-3 leading-relaxed text-gray-600">
+                    {product.description}
+                  </p>
+                )}
+              </header>
+
+              <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                {/* Precio y mínimo */}
+                <div className="grid grid-cols-2 divide-x divide-gray-200 border-b border-gray-200 bg-gradient-to-br from-green-50 to-white">
+                  <div className="p-4 md:p-5">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      Precio aplicado
+                    </p>
+
+                    <p className="mt-1 text-2xl font-bold text-corpicia-green md:text-3xl">
+                      {formatPrice(unitPrice)}
+                    </p>
+
+                    <p className="mt-1 text-sm text-gray-500">
+                      por {formatUnit(product.unit)}
+                    </p>
+                  </div>
+
+                  <div className="p-4 md:p-5">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      Compra mínima
+                    </p>
+
+                    <p className="mt-1 text-2xl font-bold text-gray-950 md:text-3xl">
+                      {minimumQuantity}
+                    </p>
+
+                    <p className="mt-1 text-sm text-gray-500">
+                      {formatUnit(product.unit)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-5 p-4 md:p-5">
+                  {/* Cantidad */}
+                  <div>
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <label className="text-sm font-semibold text-gray-900">
+                        Cantidad
+                      </label>
+
+                      <span className="text-xs text-gray-500">
+                        Mínimo: {minimumQuantity}{' '}
+                        {formatUnit(product.unit)}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-3">
+                      <QuantitySelector
+                        quantity={safeQuantity}
+                        minQuantity={minimumQuantity}
+                        onChange={setQuantity}
+                      />
+
+                      <span className="rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700">
+                        {formatUnit(product.unit)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Niveles de precio */}
+                  {priceTiers.length > 0 && (
+                    <div className="border-t border-gray-100 pt-5">
+                      <h2 className="text-base font-semibold text-gray-950">
+                        Precios por cantidad
+                      </h2>
+
+                      <div className="mt-3 space-y-2">
+                        {priceTiers.map((tier, index) => {
+                          const min = getTierMinimum(tier);
+                          const max = getTierMaximum(tier);
+                          const isActive =
+                            safeQuantity >= min &&
+                            (max === null ||
+                              safeQuantity <= max);
+                          const isLowestPrice =
+                            tier.price === lowestTierPrice;
+
+                          const label =
+                            max !== null
+                              ? `${min} a ${max} ${formatUnit(product.unit)}`
+                              : `Desde ${min} ${formatUnit(product.unit)}`;
+
+                          return (
+                            <div
+                              key={`${min}-${index}`}
+                              className={`rounded-xl border p-3 transition ${
+                                isActive
+                                  ? 'border-corpicia-green bg-green-50'
+                                  : 'border-gray-200 bg-white'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between gap-3">
+                                <div>
+                                  <div className="flex flex-wrap items-center gap-1.5">
+                                    <span
+                                      className={`text-sm ${
+                                        isActive
+                                          ? 'font-semibold text-green-900'
+                                          : 'text-gray-700'
+                                      }`}
+                                    >
+                                      {label}
+                                    </span>
+
+                                    {isActive && (
+                                      <span className="rounded-full bg-corpicia-green px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                                        Aplicado
+                                      </span>
+                                    )}
+
+                                    {isLowestPrice && (
+                                      <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800">
+                                        Mejor precio
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <span className="whitespace-nowrap text-sm font-bold text-gray-950">
+                                  {formatPrice(tier.price)}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {nextTier ? (
+                        <p className="mt-3 rounded-lg bg-amber-50 p-3 text-xs leading-relaxed text-amber-800">
+                          Agregá{' '}
+                          {getTierMinimum(nextTier) -
+                            safeQuantity}{' '}
+                          {formatUnit(product.unit)} más para
+                          acceder a{' '}
+                          {formatPrice(nextTier.price)} por{' '}
+                          {formatUnit(product.unit)}.
+                        </p>
+                      ) : (
+                        <p className="mt-3 rounded-lg bg-green-50 p-3 text-xs text-green-800">
+                          Ya tenés el mejor precio disponible.
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Total */}
+                  <div className="rounded-xl bg-gray-950 p-4 text-white">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-xs uppercase tracking-wide text-gray-400">
+                          Total estimado
+                        </p>
+
+                        <p className="mt-1 text-2xl font-bold md:text-3xl">
+                          {formatPrice(totalPrice)}
+                        </p>
+                      </div>
+
+                      <div className="text-right text-xs leading-relaxed text-gray-400">
+                        {safeQuantity}{' '}
+                        {formatUnit(product.unit)}
+                        <br />
+                        × {formatPrice(unitPrice)}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Acciones */}
+                  <div className="space-y-3">
+                    <Button
+                      type="button"
+                      onClick={handleAdd}
+                      disabled={wasAdded}
+                      className="h-12 w-full text-base"
+                    >
+                      {wasAdded ? (
+                        <>
+                          <CheckCircle2
+                            size={19}
+                            className="mr-2"
+                          />
+                          Agregado al presupuesto
+                        </>
+                      ) : (
+                        <>
+                          <ShoppingCart
+                            size={19}
+                            className="mr-2"
+                          />
+                          Agregar al presupuesto
+                        </>
+                      )}
+                    </Button>
+
+                    <a
+                      href={getWhatsAppUrl(whatsappMessage)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() =>
+                        trackWhatsAppClick(
+                          'pdp',
+                          product.slug
+                        )
+                      }
+                      className="block"
+                    >
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="h-12 w-full"
+                      >
+                        Consultar por WhatsApp
+                      </Button>
+                    </a>
+                  </div>
+
+                  <div className="flex items-start gap-3 border-t border-gray-100 pt-4 text-xs leading-relaxed text-gray-500">
+                    <Package
+                      size={17}
+                      className="mt-0.5 flex-none text-corpicia-green"
+                    />
+                    <p>
+                      Producto sujeto a disponibilidad. El
+                      precio aplicado depende de la cantidad
+                      seleccionada.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Información mobile */}
+              <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm lg:hidden">
+                <h2 className="text-lg font-semibold text-gray-950">
+                  Características y especificaciones
+                </h2>
+
+                {features.length > 0 && (
+                  <div className="mt-4 space-y-3">
+                    {features.map((feature) => (
+                      <div
+                        key={feature}
+                        className="flex items-start gap-2.5 text-sm text-gray-700"
+                      >
+                        <Check
+                          size={16}
+                          className="mt-0.5 flex-none text-corpicia-green"
+                        />
+                        <span>{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {Object.keys(specifications).length > 0 && (
+                  <dl className="mt-5 divide-y divide-gray-100 border-t border-gray-100">
+                    {Object.entries(specifications).map(
+                      ([label, value]) => (
+                        <div
+                          key={label}
+                          className="flex justify-between gap-4 py-3 text-sm"
+                        >
+                          <dt className="text-gray-500">
+                            {label}
+                          </dt>
+                          <dd className="text-right font-medium text-gray-900">
+                            {value}
+                          </dd>
+                        </div>
+                      )
+                    )}
+                  </dl>
+                )}
+
+                {recommendations.length > 0 && (
+                  <div className="mt-5 border-t border-gray-100 pt-5">
+                    <h3 className="text-base font-semibold text-gray-900">
+                      Recomendaciones de uso
+                    </h3>
+
+                    <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-gray-700">
+                      {recommendations.map(
+                        (recommendation) => (
+                          <li key={recommendation}>
+                            {recommendation}
+                          </li>
+                        )
+                      )}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
 
         {related.length > 0 && (
-          <section className="mt-14">
+          <section className="mt-14 md:mt-20">
             <div className="mb-5 flex items-end justify-between gap-4">
               <div>
-                <p className="text-sm font-medium text-green-700">
+                <p className="text-sm font-semibold text-corpicia-green">
                   Completá tu proyecto
                 </p>
-                <h2 className="text-xl font-bold">
+
+                <h2 className="mt-1 text-2xl font-bold text-gray-950">
                   También te puede interesar
                 </h2>
               </div>
 
               <Link
                 href="/productos"
-                className="text-sm font-medium text-green-700 hover:underline"
+                className="text-sm font-semibold text-corpicia-green hover:underline"
               >
-                Ver todos los productos
+                Ver todos
               </Link>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">
               {related.map((relatedProduct) => (
                 <ProductCard
                   key={relatedProduct.id}
@@ -290,8 +647,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Props)
             </div>
           </section>
         )}
-
       </div>
-    </div>
+    </main>
   );
 }
