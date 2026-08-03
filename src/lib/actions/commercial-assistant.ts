@@ -10,7 +10,13 @@ export type CommercialAssistantProduct = {
   description: string;
   shortDescription?: string;
   pricePerM2: number;
-  unit: 'm2' | 'docena' | 'unidad' | 'visita' | 'servicio';
+  unit:
+    | 'm2'
+    | 'metro_lineal'
+    | 'docena'
+    | 'unidad'
+    | 'visita'
+    | 'servicio';
   priceTiers?: Array<{
     min: number;
     max: number | null;
@@ -38,6 +44,11 @@ export type CommercialAssistantResult =
       success: false;
       message: string;
     };
+
+export type CommercialAssistantHistoryItem = {
+  role: 'user' | 'assistant';
+  content: string;
+};
 
 type AIResponse = {
   answer?: string;
@@ -163,7 +174,8 @@ function mapProduct(product: any): CommercialAssistantProduct {
 }
 
 export async function askCommercialAssistant(
-  message: string
+  message: string,
+  history: CommercialAssistantHistoryItem[] = []
 ): Promise<CommercialAssistantResult> {
   try {
     const question = normalizeText(message, 600);
@@ -224,11 +236,22 @@ export async function askCommercialAssistant(
 
     const ai = new GoogleGenAI({ apiKey });
 
+    const safeHistory = history
+      .slice(-8)
+      .map((item) => ({
+        role: item.role,
+        content: normalizeText(item.content, 600),
+      }))
+      .filter((item) => item.content);
+
     const prompt = `
 Actuá como asesor comercial de Corpicia Paraguay, empresa especializada en
 césped natural, jardinería, paisajismo, riego y mantenimiento de áreas verdes.
 
-Consulta del cliente:
+Historial reciente de la conversación:
+${JSON.stringify(safeHistory)}
+
+Consulta actual del cliente:
 ${question}
 
 Catálogo real disponible:

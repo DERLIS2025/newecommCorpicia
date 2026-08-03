@@ -27,13 +27,40 @@ const TEMPLATE_ROWS = [
     description: 'Descripción completa del producto.',
     short_description: 'Descripción breve.',
     price_amount: 33000,
-    unit: 'm²',
+    unit: 'm2',
     min_order_quantity: 10,
     is_active: true,
     is_featured: false,
     image_url: 'https://ejemplo.com/imagen.jpg',
   },
 ];
+
+function normalizeProductUnit(value: unknown): string {
+  const normalized = String(value ?? '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '_');
+
+  const aliases: Record<string, string> = {
+    'm2': 'm2',
+    'm²': 'm2',
+    'metro_cuadrado': 'm2',
+    'metros_cuadrados': 'm2',
+    'metro_lineal': 'metro_lineal',
+    'metros_lineales': 'metro_lineal',
+    'm_lineal': 'metro_lineal',
+    'ml': 'metro_lineal',
+    'unidad': 'unidad',
+    'unidades': 'unidad',
+    'docena': 'docena',
+    'visita': 'visita',
+    'servicio': 'servicio',
+  };
+
+  return aliases[normalized] || normalized;
+}
 
 function normalizeRows(
   rows: Record<string, unknown>[]
@@ -49,7 +76,7 @@ function normalizeRows(
     price_amount: Number(
       row.price_amount ?? row.precio ?? row.precio_base ?? 0
     ),
-    unit: String(row.unit ?? row.unidad ?? '').trim(),
+    unit: normalizeProductUnit(row.unit ?? row.unidad),
     min_order_quantity: Number(
       row.min_order_quantity ?? row.cantidad_minima ?? 1
     ),

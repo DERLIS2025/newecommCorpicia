@@ -19,6 +19,8 @@ export function formatUnit(unit: Product['unit']): string {
   switch (unit) {
     case 'm2':
       return 'm²';
+    case 'metro_lineal':
+      return 'metro lineal';
     case 'docena':
       return 'docena';
     case 'unidad':

@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import {
   askCommercialAssistant,
+  type CommercialAssistantHistoryItem,
   type CommercialAssistantProduct,
 } from '@/lib/actions/commercial-assistant';
 import { AssistantProductCard } from './AssistantProductCard';
@@ -40,6 +41,9 @@ export function CommercialAssistant() {
   const [response, setResponse] =
     useState<AssistantResponse | null>(null);
   const [error, setError] = useState('');
+  const [history, setHistory] = useState<
+    CommercialAssistantHistoryItem[]
+  >([]);
 
   if (pathname?.startsWith('/admin')) {
     return null;
@@ -57,8 +61,12 @@ export function CommercialAssistant() {
     setResponse(null);
 
     try {
-      const result =
-        await askCommercialAssistant(cleanQuestion);
+      const currentHistory = [...history];
+
+      const result = await askCommercialAssistant(
+        cleanQuestion,
+        currentHistory
+      );
 
       if (!result.success) {
         setError(result.message);
@@ -71,6 +79,25 @@ export function CommercialAssistant() {
           result.followUpQuestion,
         products: result.products,
       });
+
+      const updatedHistory: CommercialAssistantHistoryItem[] = [
+        ...currentHistory,
+        {
+          role: 'user',
+          content: cleanQuestion,
+        },
+        {
+          role: 'assistant',
+          content: [
+            result.answer,
+            result.followUpQuestion,
+          ]
+            .filter(Boolean)
+            .join(' '),
+        },
+      ];
+
+      setHistory(updatedHistory.slice(-10));
 
       setMessage('');
     } catch {
@@ -210,16 +237,31 @@ export function CommercialAssistant() {
                     </div>
                   )}
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setResponse(null);
-                      setError('');
-                    }}
-                    className="text-xs font-medium text-green-700 hover:underline"
-                  >
-                    Hacer otra consulta
-                  </button>
+                  <div className="flex items-center gap-4">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setResponse(null);
+                        setError('');
+                      }}
+                      className="text-xs font-medium text-green-700 hover:underline"
+                    >
+                      Continuar conversación
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setResponse(null);
+                        setError('');
+                        setHistory([]);
+                        setMessage('');
+                      }}
+                      className="text-xs text-gray-500 hover:underline"
+                    >
+                      Nueva conversación
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
