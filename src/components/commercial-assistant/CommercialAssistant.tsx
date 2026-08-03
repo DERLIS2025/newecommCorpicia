@@ -209,7 +209,7 @@ export function CommercialAssistant() {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="group fixed bottom-4 left-3 z-[60] flex h-[92px] w-[92px] items-center justify-center border-0 bg-transparent p-0 transition-transform duration-300 hover:scale-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-green-500/40 sm:bottom-5 sm:left-5 sm:h-[108px] sm:w-[108px]"
+        className="group fixed bottom-4 left-3 z-[60] flex h-[130px] w-[130px] items-center justify-center border-0 bg-transparent p-0 transition-transform duration-300 hover:scale-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-green-500/40 sm:bottom-5 sm:left-5 sm:h-[150px] sm:w-[150px]"
         aria-label="Hablar con Oscar, el jardinero"
       >
         <span className="absolute inset-2 rounded-full bg-green-500/25 motion-safe:animate-ping" />
@@ -220,8 +220,8 @@ export function CommercialAssistant() {
             alt="Oscar, el jardinero de Corpicia"
             fill
             priority
-            sizes="(max-width: 640px) 92px, 108px"
-            className="object-contain"
+            sizes="(max-width: 640px) 130px, 150px"
+            className="object-contain object-bottom"
           />
         </span>
 
