@@ -148,10 +148,10 @@ export function CommercialAssistant() {
 
                 <div>
                   <h2 className="font-semibold">
-                    Asistente de Corpicia
+                    Oscar, el jardinero
                   </h2>
                   <p className="text-xs text-green-100">
-                    Te ayudamos a elegir mejor
+                    Asesor de jardinería de Corpicia
                   </p>
                 </div>
               </div>
@@ -168,7 +168,7 @@ export function CommercialAssistant() {
 
             <div className="flex-1 space-y-4 overflow-y-auto bg-gray-50 p-4">
               <div className="rounded-xl rounded-tl-sm border bg-white p-3 text-sm text-gray-700 shadow-sm">
-                ¡Hola! Contame qué necesitás para tu jardín, césped o sistema de riego y te recomendaré productos del catálogo.
+                ¡Hola! Soy Oscar, el jardinero de Corpicia. Contame qué querés hacer en tu jardín y vemos juntos qué opción te conviene.
               </div>
 
               {!response && !loading && (
@@ -197,7 +197,7 @@ export function CommercialAssistant() {
               {loading && (
                 <div className="flex items-center gap-3 rounded-xl border bg-white p-4 text-sm text-gray-600">
                   <Loader2 className="h-5 w-5 animate-spin text-green-700" />
-                  Analizando el catálogo...
+                  Oscar está revisando las mejores opciones...
                 </div>
               )}
 

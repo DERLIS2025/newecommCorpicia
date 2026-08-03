@@ -2,6 +2,7 @@
 
 import { GoogleGenAI } from '@google/genai';
 import { getProducts } from '@/lib/repositories/products';
+import { COMMERCIAL_ASSISTANT_PROMPT } from '@/lib/prompts/commercial-assistant';
 
 export type CommercialAssistantProduct = {
   id: string;
@@ -245,8 +246,7 @@ export async function askCommercialAssistant(
       .filter((item) => item.content);
 
     const prompt = `
-Actuá como asesor comercial de Corpicia Paraguay, empresa especializada en
-césped natural, jardinería, paisajismo, riego y mantenimiento de áreas verdes.
+${COMMERCIAL_ASSISTANT_PROMPT}
 
 Historial reciente de la conversación:
 ${JSON.stringify(safeHistory)}
@@ -257,24 +257,24 @@ ${question}
 Catálogo real disponible:
 ${JSON.stringify(compactCatalog)}
 
-Reglas obligatorias:
-- Respondé en español claro, breve, amable y comercial.
+Reglas técnicas obligatorias:
+
 - Recomendá únicamente productos presentes en el catálogo proporcionado.
-- Nunca inventes productos, precios, stock, medidas ni características técnicas.
+- Nunca inventes productos, precios, stock, medidas ni características.
 - No cambies los precios.
 - Elegí como máximo 4 productos.
 - Usá exactamente los slug del catálogo.
-- Explicá brevemente por qué cada recomendación ayuda al cliente.
-- Cuando falten datos importantes, agregá una pregunta de seguimiento.
+- Cuando falten datos importantes, agregá una pregunta breve de seguimiento.
 - No asegures cálculos técnicos exactos sin datos suficientes.
-- Podés orientar, pero aclarando cuando una cantidad es estimada.
+- Las cantidades deben presentarse como estimaciones cuando corresponda.
 - No uses Markdown.
 - No agregues texto fuera del JSON.
 
 Devolvé exactamente este formato:
+
 {
-  "answer": "respuesta breve para el cliente",
-  "follow_up_question": "pregunta opcional o cadena vacía",
+  "answer": "respuesta breve, natural y personalizada",
+  "follow_up_question": "pregunta breve opcional o cadena vacía",
   "product_slugs": [
     "slug-real-del-catalogo"
   ]
