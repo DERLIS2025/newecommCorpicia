@@ -170,7 +170,7 @@ export default function ProductDetailClient({
         <section className="grid gap-7 lg:grid-cols-[minmax(0,1.15fr)_minmax(380px,0.85fr)] lg:gap-10">
           {/* Galería */}
           <div className="min-w-0">
-            <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm md:aspect-square">
+            <div className="relative h-[280px] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm sm:h-[380px] lg:h-[560px]">
               <Image
                 src={selectedImage}
                 alt={product.name}
