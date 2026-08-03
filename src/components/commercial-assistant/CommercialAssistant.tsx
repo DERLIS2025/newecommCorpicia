@@ -209,12 +209,14 @@ export function CommercialAssistant() {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="group fixed bottom-4 left-3 z-[60] flex h-[130px] w-[130px] items-center justify-center border-0 bg-transparent p-0 transition-transform duration-300 hover:scale-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-green-500/40 sm:bottom-5 sm:left-5 sm:h-[150px] sm:w-[150px]"
+        className="group fixed bottom-4 left-3 z-[60] flex h-[130px] w-[220px] items-center justify-start border-0 bg-transparent p-0 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-green-500/40 sm:bottom-5 sm:left-5 sm:h-[150px] sm:w-[250px]"
         aria-label="Hablar con Oscar, el jardinero"
       >
-        <span className="absolute inset-2 rounded-full bg-green-500/25 motion-safe:animate-ping" />
+        <span className="oscar-attention-bar absolute left-[72px] top-1/2 z-0 flex h-12 -translate-y-1/2 items-center rounded-r-full bg-green-700 pl-16 pr-5 text-sm font-semibold tracking-wide text-white shadow-lg sm:left-[84px] sm:h-14 sm:pl-20 sm:pr-6 sm:text-base">
+          ATENCIÓN 24/7
+        </span>
 
-        <span className="oscar-avatar-float relative block h-full w-full drop-shadow-[0_8px_10px_rgba(0,0,0,0.28)]">
+        <span className="oscar-avatar-float relative z-10 block h-[130px] w-[130px] flex-none drop-shadow-[0_8px_10px_rgba(0,0,0,0.28)] sm:h-[150px] sm:w-[150px]">
           <Image
             src="/avatars/oscar.png"
             alt="Oscar, el jardinero de Corpicia"
@@ -225,7 +227,7 @@ export function CommercialAssistant() {
           />
         </span>
 
-        <span className="absolute right-1 top-1 h-4 w-4 rounded-full border-2 border-white bg-green-400 shadow-sm" />
+        <span className="absolute left-[110px] top-3 z-20 h-4 w-4 rounded-full border-2 border-white bg-green-400 shadow-sm sm:left-[128px]" />
       </button>
 
       {isOpen && (

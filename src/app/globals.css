@@ -98,3 +98,35 @@ html {
     animation: none;
   }
 }
+
+@keyframes oscar-attention-bar {
+  0%,
+  20% {
+    opacity: 0;
+    transform: translate(-18px, -50%);
+  }
+
+  35%,
+  75% {
+    opacity: 1;
+    transform: translate(0, -50%);
+  }
+
+  90%,
+  100% {
+    opacity: 0;
+    transform: translate(-18px, -50%);
+  }
+}
+
+.oscar-attention-bar {
+  animation: oscar-attention-bar 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oscar-attention-bar {
+    animation: none;
+    opacity: 1;
+    transform: translate(0, -50%);
+  }
+}
