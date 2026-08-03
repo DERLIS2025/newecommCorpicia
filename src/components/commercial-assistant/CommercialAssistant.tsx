@@ -50,6 +50,12 @@ function createMessageId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
+function wait(milliseconds: number) {
+  return new Promise((resolve) =>
+    window.setTimeout(resolve, milliseconds)
+  );
+}
+
 export function CommercialAssistant() {
   const pathname = usePathname();
 
@@ -115,6 +121,13 @@ export function CommercialAssistant() {
         followUpQuestion: result.followUpQuestion,
         products: result.products,
       };
+
+      const naturalDelay = Math.min(
+        1500,
+        Math.max(650, result.answer.length * 8)
+      );
+
+      await wait(naturalDelay);
 
       setMessages((current) => [
         ...current,
@@ -245,7 +258,7 @@ export function CommercialAssistant() {
                               'oscar-welcome' && (
                               <div className="mb-2 flex items-center gap-1.5 text-xs font-medium text-green-700">
                                 <Sparkles className="h-3.5 w-3.5" />
-                                Oscar
+                                Oscar • Jardinero Corpicia
                               </div>
                             )}
 
