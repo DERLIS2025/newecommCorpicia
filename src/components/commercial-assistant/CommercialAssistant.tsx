@@ -145,7 +145,18 @@ export function CommercialAssistant() {
         id: createMessageId(),
         role: 'assistant',
         content: result.answer,
-        followUpQuestion: result.followUpQuestion,
+        followUpQuestion:
+          result.followUpQuestion &&
+          !result.answer
+            .toLowerCase()
+            .includes(
+              result.followUpQuestion
+                .toLowerCase()
+                .replace(/[¿?]/g, '')
+                .trim()
+            )
+            ? result.followUpQuestion
+            : '',
         products: result.products,
         handoffToWhatsApp:
           result.handoffToWhatsApp,
