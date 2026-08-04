@@ -43,7 +43,7 @@ const initialMessage: ChatMessage = {
   id: 'oscar-welcome',
   role: 'assistant',
   content:
-    '¡Hola! Soy Oscar, el jardinero de Corpicia. Contame qué querés hacer en tu jardín y vemos juntos qué opción te conviene.',
+    '¡Hola! Soy Maxi, el jardinero de Corpicia. Contame qué querés hacer en tu jardín y vemos juntos qué opción te conviene.',
 };
 
 function createMessageId() {
@@ -73,7 +73,7 @@ function buildWhatsAppUrl(
     .join('\n');
 
   const message = [
-    'Hola, estuve conversando con Oscar desde la web de Corpicia.',
+    'Hola, estuve conversando con Maxi desde la web de Corpicia.',
     '',
     conversation,
     '',
@@ -221,7 +221,7 @@ export function CommercialAssistant() {
         type="button"
         onClick={() => setIsOpen(true)}
         className="group fixed bottom-4 left-3 z-[60] flex h-[130px] w-[220px] items-center justify-start border-0 bg-transparent p-0 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-green-500/40 sm:bottom-5 sm:left-5 sm:h-[150px] sm:w-[250px]"
-        aria-label="Hablar con Oscar, el jardinero"
+        aria-label="Hablar con Maxi, el jardinero"
       >
         <span className="oscar-attention-bar absolute left-[72px] top-1/2 z-0 flex h-12 -translate-y-1/2 items-center rounded-r-full bg-green-700 pl-16 pr-5 text-sm font-semibold tracking-wide text-white shadow-lg sm:left-[84px] sm:h-14 sm:pl-20 sm:pr-6 sm:text-base">
           ATENCIÓN 24/7
@@ -229,8 +229,8 @@ export function CommercialAssistant() {
 
         <span className="oscar-avatar-float relative z-10 block h-[130px] w-[130px] flex-none drop-shadow-[0_8px_10px_rgba(0,0,0,0.28)] sm:h-[150px] sm:w-[150px]">
           <Image
-            src="/avatars/oscar.png"
-            alt="Oscar, el jardinero de Corpicia"
+            src="/avatars/maxi.png"
+            alt="Maxi, el jardinero de Corpicia"
             fill
             priority
             sizes="(max-width: 640px) 130px, 150px"
@@ -255,8 +255,8 @@ export function CommercialAssistant() {
               <div className="flex items-center gap-3">
                 <div className="relative h-11 w-11 flex-none overflow-hidden rounded-full border-2 border-white bg-white">
                   <Image
-                    src="/avatars/oscar.png"
-                    alt="Oscar, el jardinero"
+                    src="/avatars/maxi.png"
+                    alt="Maxi, el jardinero"
                     fill
                     sizes="44px"
                     className="object-cover object-top"
@@ -265,7 +265,7 @@ export function CommercialAssistant() {
 
                 <div>
                   <h2 className="text-base font-semibold">
-                    Oscar, el jardinero
+                    Maxi, el jardinero
                   </h2>
 
                   <p className="text-xs text-green-100">
@@ -315,7 +315,7 @@ export function CommercialAssistant() {
                               'oscar-welcome' && (
                               <div className="mb-2 flex items-center gap-1.5 text-xs font-medium text-green-700">
                                 <Sparkles className="h-3.5 w-3.5" />
-                                Oscar • Jardinero Corpicia
+                                Maxi • Jardinero Corpicia
                               </div>
                             )}
 
@@ -391,7 +391,7 @@ export function CommercialAssistant() {
                 <div className="flex justify-start">
                   <div className="flex items-center gap-2 rounded-2xl rounded-tl-sm bg-white px-4 py-3 text-sm text-gray-600 shadow-sm">
                     <Loader2 className="h-4 w-4 animate-spin text-green-700" />
-                    Oscar está escribiendo...
+                    Maxi está escribiendo...
                   </div>
                 </div>
               )}
@@ -438,7 +438,7 @@ export function CommercialAssistant() {
                     }
                   }
                 }}
-                placeholder="Escribile a Oscar..."
+                placeholder="Escribile a Maxi..."
                 rows={1}
                 disabled={loading}
                 className="max-h-24 min-h-[44px] flex-1 resize-none rounded-2xl border border-gray-300 bg-white px-4 py-3 text-sm font-normal text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-green-600 focus:ring-1 focus:ring-green-600"
