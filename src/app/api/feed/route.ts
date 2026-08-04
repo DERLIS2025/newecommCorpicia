@@ -1,10 +1,9 @@
-import { productsCatalog } from '@/data/productsData';
+import { getProducts } from '@/lib/repositories/products';
 
 const SITE_URL = 'https://corpicia.com';
 
-function escapeXml(str: string): string {
-  if (!str) return '';
-  return str
+function escapeXml(value: unknown): string {
+  return String(value ?? '')
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -13,49 +12,70 @@ function escapeXml(str: string): string {
 }
 
 function formatPrice(price: number): string {
-  return `${Math.round(price)} PYG`;
+  return `${Math.round(Number(price) || 0)} PYG`;
 }
 
-export function GET(): Response {
-  const activeProducts = productsCatalog.filter((p) => p.isActive);
+function getMerchantPrice(product: any): number {
+  const tiers = Array.isArray(product.priceTiers)
+    ? product.priceTiers
+    : [];
+
+  const baseTier = tiers
+    .filter((tier: any) => Number(tier?.minQuantity) <= 1)
+    .sort(
+      (a: any, b: any) =>
+        Number(a?.minQuantity || 0) -
+        Number(b?.minQuantity || 0)
+    )[0];
+
+  return Number(
+    baseTier?.price ??
+    product.pricePerM2 ??
+    product.price_amount ??
+    0
+  );
+}
+
+export async function GET(): Promise<Response> {
+  const products = await getProducts();
+
+  const activeProducts = products.filter(
+    (product: any) =>
+      product &&
+      product.slug &&
+      product.name &&
+      Number(getMerchantPrice(product)) > 0
+  );
 
   const itemsXml = activeProducts
-    .map((product) => {
+    .map((product: any) => {
       const link = `${SITE_URL}/productos/${product.slug}/`;
-      
-      const imageMap: Record<string, string> = {
-        'aspersor-rain-bird-5004': '/productos/aspersor-rain-bird-5004.jpg',
-        'canto-rodado': '/productos/canto-rodado.jpg',
-        'cesped-esmeralda': '/productos/cesped-esmeralda.jpg',
-        'cesped-kavaju': '/productos/cesped-kavaju.jpg',
-        'cesped-mani-doce': '/productos/cesped-mani-docena.jpg',
-        'cesped-siempre-verde': '/productos/cesped-siempre-verde.jpg',
-        'difusor-riego-jardin': '/productos/difusor-riego.jpg',
-        'granza-blanca-fina-decorativa': '/productos/granza-blanca-fina-decorativa.jpg',
-        'mini-rotor-rain-bird-3500': '/productos/mini-rotor-rain-bird-3500.jpg',
-        'piso-ecologico-40x60': '/productos/piso-ecologico-40x60.jpg',
-        'pisos-imitacion-madera': '/productos/pisos-imitacion-madera.jpg',
-        'separador-cesped-caminos': '/productos/separador-cesped-caminos.jpg',
-        'valvula-riego-rain-bird': '/productos/valvula-riego-rain-bird.jpg',
-      };
-      
-      const imagePath = product.images?.[0] || imageMap[product.slug] || '/productos/default.jpg';
-      const imageLink = imagePath.startsWith('http')
-        ? imagePath
-        : `${SITE_URL}${imagePath}`;
 
-      const price = product.pricePerM2 ?? 0;
+      const rawImage =
+        Array.isArray(product.images) && product.images.length > 0
+          ? product.images[0]
+          : '/productos/default.jpg';
+
+      const imageLink = rawImage.startsWith('http')
+        ? rawImage
+        : `${SITE_URL}${rawImage}`;
+
+      const price = getMerchantPrice(product);
 
       return `    <item>
-      <g:id>${escapeXml(String(product.id))}</g:id>
+      <g:id>${escapeXml(product.id || product.slug)}</g:id>
       <g:title>${escapeXml(product.name)}</g:title>
-      <g:description>${escapeXml(product.description)}</g:description>
+      <g:description>${escapeXml(
+        product.shortDescription ||
+        product.description ||
+        product.name
+      )}</g:description>
       <g:link>${escapeXml(link)}</g:link>
       <g:image_link>${escapeXml(imageLink)}</g:image_link>
-      <g:availability>in stock</g:availability>
+      <g:availability>in_stock</g:availability>
       <g:price>${escapeXml(formatPrice(price))}</g:price>
       <g:condition>new</g:condition>
-      <g:brand>Corpicia</g:brand>
+      <g:brand>${escapeXml(product.brand || 'Corpicia')}</g:brand>
       <g:identifier_exists>no</g:identifier_exists>
     </item>`;
     })
@@ -66,7 +86,7 @@ export function GET(): Response {
   <channel>
     <title>Corpicia</title>
     <link>${SITE_URL}/</link>
-    <description>Productos de jardinería en Paraguay</description>
+    <description>Productos de jardinería y paisajismo de Corpicia</description>
 ${itemsXml}
   </channel>
 </rss>`;
@@ -74,7 +94,8 @@ ${itemsXml}
   return new Response(xml, {
     headers: {
       'Content-Type': 'application/xml; charset=utf-8',
-      'Cache-Control': 'public, max-age=3600',
+      'Cache-Control':
+        'public, s-maxage=900, stale-while-revalidate=1800',
     },
   });
 }
