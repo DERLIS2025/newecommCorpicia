@@ -8,6 +8,7 @@ import { Plus, Trash2, ArrowLeft, Sparkles } from 'lucide-react';
 import { createProduct, updateProduct } from '@/lib/actions/admin-products';
 import { generateProductContentWithAI } from '@/lib/actions/admin-product-ai';
 import Link from 'next/link';
+import ProductImageUploader from '@/components/admin/ProductImageUploader';
 
 export default function ProductForm({ product = null, categories = [] }: { product?: any, categories: any[] }) {
   const router = useRouter();
@@ -332,39 +333,22 @@ export default function ProductForm({ product = null, categories = [] }: { produ
           </div>
 
           <div className="bg-white p-6 rounded-xl border shadow-sm space-y-4">
-            <h2 className="font-semibold text-lg border-b pb-2">Imágenes (URLs)</h2>
-            <p className="text-xs text-gray-500">Durante este Sprint se utilizan URLs directas a las imágenes.</p>
-            {images.map((img, idx) => (
-              <div key={idx} className="flex gap-2 items-center">
-                <Input 
-                  placeholder="https://ejemplo.com/imagen.jpg"
-                  value={img.image_url} 
-                  onChange={e => {
-                    const newImages = [...images];
-                    newImages[idx].image_url = e.target.value;
-                    setImages(newImages);
-                  }} 
-                />
-                <label className="flex items-center gap-1 text-sm whitespace-nowrap">
-                  <input 
-                    type="radio" 
-                    name="main_image" 
-                    checked={img.is_main} 
-                    onChange={() => {
-                      const newImages = images.map((i, iIdx) => ({ ...i, is_main: idx === iIdx }));
-                      setImages(newImages);
-                    }} 
-                  />
-                  Principal
-                </label>
-                <Button type="button" variant="ghost" size="icon" className="text-red-600 shrink-0" onClick={() => setImages(images.filter((_, i) => i !== idx))}>
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-            ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => setImages([...images, { image_url: '', is_main: images.length === 0 }])}>
-              <Plus className="w-4 h-4 mr-2" /> Agregar Imagen
-            </Button>
+            <div className="border-b pb-3">
+              <h2 className="font-semibold text-lg">
+                Imágenes del producto
+              </h2>
+              <p className="mt-1 text-sm text-gray-500">
+                Subí las imágenes desde tu computadora. La primera imagen
+                principal será utilizada también por Google Merchant.
+              </p>
+            </div>
+
+            <ProductImageUploader
+              images={images.filter(
+                (image) => image.image_url?.trim()
+              )}
+              onChange={setImages}
+            />
           </div>
 
           <div className="bg-white p-6 rounded-xl border shadow-sm space-y-4">
