@@ -50,6 +50,8 @@ export default function ProductForm({ product = null, categories = [] }: { produ
         return 'bolsa';
       case 'bolsa_30kg':
         return 'Bolsa de 30 (kg)';
+      case 'bolsa_50kg':
+        return 'Bolsa de 50 (kg)';
       case 'litro':
         return 'litro';
       case 'metro_lineal':
@@ -609,6 +611,7 @@ export default function ProductForm({ product = null, categories = [] }: { produ
                 <option value="kg">Kilogramo (kg)</option>
                 <option value="bolsa">Bolsa</option>
                 <option value="bolsa_30kg">Bolsa de 30 (kg)</option>
+                <option value="bolsa_50kg">Bolsa de 50 (kg)</option>
                 <option value="litro">Litro</option>
                 <option value="metro_lineal">Metro lineal</option>
                 <option value="unidad">Unidad</option>

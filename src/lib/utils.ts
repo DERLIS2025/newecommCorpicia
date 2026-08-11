@@ -25,6 +25,8 @@ export function formatUnit(unit: Product['unit']): string {
       return 'bolsa';
     case 'bolsa_30kg':
       return 'Bolsa de 30 (kg)';
+    case 'bolsa_50kg':
+      return 'Bolsa de 50 (kg)';
     case 'litro':
       return 'litro';
     case 'metro_lineal':

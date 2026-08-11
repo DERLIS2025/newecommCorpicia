@@ -18,6 +18,7 @@ export interface Product {
     | 'kg'
     | 'bolsa'
     | 'bolsa_30kg'
+    | 'bolsa_50kg'
     | 'litro'
     | 'metro_lineal'
     | 'docena'
