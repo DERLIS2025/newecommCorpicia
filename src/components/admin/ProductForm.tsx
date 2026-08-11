@@ -44,6 +44,14 @@ export default function ProductForm({ product = null, categories = [] }: { produ
     switch (unit) {
       case 'm2':
         return 'm²';
+      case 'kg':
+        return 'kg';
+      case 'bolsa':
+        return 'bolsa';
+      case 'bolsa_30kg':
+        return 'Bolsa de 30 (kg)';
+      case 'litro':
+        return 'litro';
       case 'metro_lineal':
         return 'metro lineal';
       case 'unidad':
@@ -597,7 +605,11 @@ export default function ProductForm({ product = null, categories = [] }: { produ
             <div>
               <label className="block text-sm font-medium mb-1">Unidad *</label>
               <select name="unit" defaultValue={product?.unit || 'm2'} onChange={e => setSelectedUnit(e.target.value)} className="w-full flex h-10 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" required>
-                <option value="m2">m²</option>
+                <option value="m2">Metro cuadrado (m²)</option>
+                <option value="kg">Kilogramo (kg)</option>
+                <option value="bolsa">Bolsa</option>
+                <option value="bolsa_30kg">Bolsa de 30 (kg)</option>
+                <option value="litro">Litro</option>
                 <option value="metro_lineal">Metro lineal</option>
                 <option value="unidad">Unidad</option>
                 <option value="docena">Docena</option>

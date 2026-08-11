@@ -15,6 +15,10 @@ export interface Product {
   pricePerM2: number;
   unit:
     | 'm2'
+    | 'kg'
+    | 'bolsa'
+    | 'bolsa_30kg'
+    | 'litro'
     | 'metro_lineal'
     | 'docena'
     | 'unidad'
