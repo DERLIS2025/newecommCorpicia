@@ -330,6 +330,63 @@ export function ProfessionalCtaSettingsForm({
         />
       </div>
 
+
+      <div className="border-t pt-7">
+        <h2 className="text-lg font-semibold">
+          Beneficios comerciales
+        </h2>
+
+        <p className="mt-1 text-sm text-gray-500">
+          Estos textos aparecen con el ícono de check en la web.
+        </p>
+
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <div>
+            <Label>Beneficio 1</Label>
+            <Input
+              value={data.benefit_1}
+              onChange={(event) =>
+                update('benefit_1', event.target.value)
+              }
+              className="mt-1"
+            />
+          </div>
+
+          <div>
+            <Label>Beneficio 2</Label>
+            <Input
+              value={data.benefit_2}
+              onChange={(event) =>
+                update('benefit_2', event.target.value)
+              }
+              className="mt-1"
+            />
+          </div>
+
+          <div>
+            <Label>Beneficio 3</Label>
+            <Input
+              value={data.benefit_3}
+              onChange={(event) =>
+                update('benefit_3', event.target.value)
+              }
+              className="mt-1"
+            />
+          </div>
+
+          <div>
+            <Label>Beneficio 4</Label>
+            <Input
+              value={data.benefit_4}
+              onChange={(event) =>
+                update('benefit_4', event.target.value)
+              }
+              className="mt-1"
+            />
+          </div>
+        </div>
+      </div>
+
       <div className="border-t pt-7">
         <h2 className="text-lg font-semibold">
           Imágenes responsive

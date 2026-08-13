@@ -8,6 +8,11 @@ export type ProfessionalCtaSettings = {
   button_text: string;
   whatsapp_message: string;
 
+  benefit_1: string;
+  benefit_2: string;
+  benefit_3: string;
+  benefit_4: string;
+
   // Compatibilidad con la primera versión
   image_url: string;
 
@@ -24,7 +29,11 @@ export const DEFAULT_PROFESSIONAL_CTA: ProfessionalCtaSettings = {
     'Somos tu aliado para tus proyectos. Encontrá césped, piedras decorativas, sistemas de riego e insumos para jardinería con asesoramiento personalizado.',
   button_text: 'Quiero recibir asesoramiento',
   whatsapp_message:
-    'Hola Corpicia, soy jardinero/profesional y quiero recibir información sobre productos y condiciones para profesionales.',
+    'Hola Corpicia, soy profesional del rubro y quiero conocer productos, precios por volumen y beneficios para profesionales.',
+  benefit_1: 'Precios especiales para profesionales',
+  benefit_2: 'Compras por volumen y mayoristas',
+  benefit_3: 'Asesoramiento para tus proyectos',
+  benefit_4: 'Todo en un solo proveedor',
   image_url: '',
   desktop_image_url: '',
   mobile_image_url: '',

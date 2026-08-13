@@ -99,10 +99,10 @@ export function ProfessionalCta({
                 </p>
 
                 <div className="mt-6 grid gap-3 text-sm text-gray-700 sm:grid-cols-2">
-                  <Benefit text="Atención personalizada" />
-                  <Benefit text="Productos para profesionales" />
-                  <Benefit text="Asesoramiento técnico" />
-                  <Benefit text="Cobertura nacional" />
+                  <Benefit text={settings.benefit_1} />
+                  <Benefit text={settings.benefit_2} />
+                  <Benefit text={settings.benefit_3} />
+                  <Benefit text={settings.benefit_4} />
                 </div>
 
                 <a
