@@ -18,10 +18,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-import { supabase } from '@/lib/supabase';
-
 import {
   saveProfessionalCta,
+  uploadProfessionalCtaImage,
 } from '@/lib/actions/admin-professional-cta';
 
 import type {
@@ -80,12 +79,6 @@ export function ProfessionalCtaSettingsForm({
     file: File,
     type: ImageType
   ) {
-    if (!supabase) {
-      throw new Error(
-        'Supabase no está configurado.'
-      );
-    }
-
     if (!ALLOWED_TYPES.includes(file.type)) {
       throw new Error(
         'Solamente se permiten imágenes JPG, PNG o WebP.'
@@ -98,40 +91,22 @@ export function ProfessionalCtaSettingsForm({
       );
     }
 
-    const extension =
-      file.name
-        .split('.')
-        .pop()
-        ?.toLowerCase() || 'webp';
+    const formData = new FormData();
 
-    const fileName =
-      `${type}-${crypto.randomUUID()}.${extension}`;
+    formData.append('file', file);
+    formData.append('type', type);
 
-    const filePath =
-      `professional-cta/${fileName}`;
+    const result =
+      await uploadProfessionalCtaImage(formData);
 
-    const { error } = await supabase.storage
-      .from('product-images')
-      .upload(
-        filePath,
-        file,
-        {
-          cacheControl: '31536000',
-          upsert: false,
-          contentType: file.type,
-        }
+    if (!result.success || !result.publicUrl) {
+      throw new Error(
+        result.error ||
+          'No se pudo subir la imagen.'
       );
-
-    if (error) {
-      throw error;
     }
 
-    const { data: publicData } =
-      supabase.storage
-        .from('product-images')
-        .getPublicUrl(filePath);
-
-    return publicData.publicUrl;
+    return result.publicUrl;
   }
 
   async function handleImageChange(
