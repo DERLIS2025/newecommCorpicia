@@ -368,11 +368,11 @@ export function ProfessionalCtaSettingsForm({
       <div className="grid gap-6 lg:grid-cols-2">
         <ImageUploaderCard
           title="Imagen Desktop"
-          description="Recomendado: horizontal, aproximadamente 1600 × 1000 px."
+          description="Recomendado: 1200 × 1200 px."
           imageUrl={
             data.desktop_image_url
           }
-          aspectClass="aspect-[16/10]"
+          aspectClass="aspect-square"
           inputRef={desktopInputRef}
           loading={
             uploading === 'desktop'
@@ -390,11 +390,11 @@ export function ProfessionalCtaSettingsForm({
 
         <ImageUploaderCard
           title="Imagen Mobile"
-          description="Recomendado: vertical, aproximadamente 1080 × 1350 px."
+          description="Recomendado: 1200 × 1200 px."
           imageUrl={
             data.mobile_image_url
           }
-          aspectClass="aspect-[4/5]"
+          aspectClass="aspect-square"
           inputRef={mobileInputRef}
           loading={
             uploading === 'mobile'

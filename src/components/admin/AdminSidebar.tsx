@@ -24,6 +24,11 @@ const navItems = [
   { group: 'Principal', items: [
     { name: 'Inicio', href: '/admin/inicio', icon: LayoutDashboard },
     { name: 'Banners', href: '/admin/banners', icon: ImageIcon },
+      {
+        label: 'Profesionales',
+        href: '/admin/cta-profesionales',
+        icon: Users,
+      },
     { name: 'Pop Up y anuncios', href: '/admin/announcements', icon: Settings },
   ]},
   { group: 'Catálogo', items: [
