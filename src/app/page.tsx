@@ -9,6 +9,8 @@ import { Leaf, Truck, Phone, Shield } from 'lucide-react';
 import { getProducts } from '@/lib/repositories/products';
 import { getBanners } from '@/lib/repositories/banners';
 import { BannerCarousel } from '@/components/home/BannerCarousel';
+import { ProfessionalCta } from '@/components/home/ProfessionalCta';
+import { getProfessionalCta } from '@/lib/repositories/professional-cta';
 
 import { getSeoEntry } from '@/lib/repositories/seo';
 
@@ -47,6 +49,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function HomePage() {
   const productsCatalog = await getProducts();
   const bannersResult = await getBanners();
+  const professionalCta = await getProfessionalCta();
   const heroBanners = Array.isArray(bannersResult) ? bannersResult.filter((b: any) => b.type === 'hero') : bannersResult.hero;
   const secondaryBanners = Array.isArray(bannersResult) ? bannersResult.filter((b: any) => b.type === 'secondary') : bannersResult.secondary;
 
@@ -190,6 +193,9 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* CTA PARA JARDINEROS Y PROFESIONALES */}
+      <ProfessionalCta settings={professionalCta} />
     </div>
   );
 }
