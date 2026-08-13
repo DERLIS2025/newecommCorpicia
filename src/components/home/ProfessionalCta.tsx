@@ -39,7 +39,7 @@ export function ProfessionalCta({
         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-[#f7f9f6] shadow-sm">
           <div className="grid items-stretch md:grid-cols-[45%_55%]">
 
-            <div className="relative min-h-[280px] bg-[#e8eee7] sm:min-h-[340px] md:min-h-[430px]">
+            <div className="relative min-h-[340px] bg-[#eef3ed] sm:min-h-[420px] md:min-h-[520px]">
 
               {mobileImage ? (
                 <div className="absolute inset-0 md:hidden">
@@ -48,7 +48,7 @@ export function ProfessionalCta({
                     alt="Corpicia para jardineros y paisajistas"
                     fill
                     sizes="100vw"
-                    className="object-cover"
+                    className="object-contain bg-[#eef3ed]"
                   />
                 </div>
               ) : null}
@@ -60,7 +60,7 @@ export function ProfessionalCta({
                     alt="Corpicia para jardineros y paisajistas"
                     fill
                     sizes="45vw"
-                    className="object-cover"
+                    className="object-contain bg-[#eef3ed]"
                   />
                 </div>
               ) : null}
@@ -81,7 +81,7 @@ export function ProfessionalCta({
               ) : null}
             </div>
 
-            <div className="flex items-center p-6 sm:p-8 md:p-10 lg:p-14">
+            <div className="flex items-center p-5 sm:p-7 md:p-10 lg:p-12">
               <div className="max-w-xl">
 
                 {settings.eyebrow ? (
@@ -90,7 +90,7 @@ export function ProfessionalCta({
                   </p>
                 ) : null}
 
-                <h2 className="text-2xl font-bold leading-tight tracking-tight text-gray-900 sm:text-3xl lg:text-4xl">
+                <h2 className="text-[28px] font-bold leading-[1.08] tracking-tight text-gray-900 sm:text-3xl lg:text-4xl">
                   {settings.title}
                 </h2>
 
@@ -109,7 +109,7 @@ export function ProfessionalCta({
                   href={whatsapp}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-corpicia-green px-6 py-3 font-semibold text-white transition hover:opacity-90 sm:w-auto"
+                  className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-corpicia-green px-5 py-3 font-semibold text-white transition hover:opacity-90 sm:w-auto"
                 >
                   {settings.button_text}
 
