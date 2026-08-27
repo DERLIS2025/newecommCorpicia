@@ -141,7 +141,18 @@ export function Footer() {
       <div className="border-t border-white/10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-2 text-sm text-white/50">
-            <p>© 2026 Corpicia. Todos los derechos reservados.</p>
+            <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-3">
+              <p>© 2026 Corpicia. Todos los derechos reservados.</p>
+              <span className="hidden sm:inline">•</span>
+              <a
+                href="https://equantum.com.py"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white transition-colors"
+              >
+                Desarrollado por eQuantum
+              </a>
+            </div>
             <div className="flex gap-4">
               <Link href="/terminos/" className="hover:text-white transition-colors">
                 Términos y condiciones
