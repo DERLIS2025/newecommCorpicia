@@ -54,10 +54,20 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     getCategories()
   ]);
 
+  const activeCategoryIds = new Set(
+    products
+      .map((product: any) => product.categoryId)
+      .filter(Boolean)
+  );
+
+  const categoriesWithProducts = categories.filter((category: any) =>
+    activeCategoryIds.has(category.id)
+  );
+
   return (
     <ProductsClient
       products={products}
-      categories={categories}
+      categories={categoriesWithProducts}
       initialQuery={initialQuery}
     />
   );
