@@ -48,7 +48,9 @@ export default function ProductsClient({
     const hasCategoryFilter = !selectedCategories.includes('all');
 
     return products.filter((product) => {
-      const matchesCategory = !hasCategoryFilter || selectedCategories.includes(product.category);
+      const matchesCategory =
+        !hasCategoryFilter ||
+        (!!product.categoryId && selectedCategories.includes(product.categoryId));
       const matchesQuery =
         normalizedQuery.length === 0 ||
         product.name.toLowerCase().includes(normalizedQuery);

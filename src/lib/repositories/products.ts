@@ -76,6 +76,7 @@ export async function getProducts() {
   
       return data.map(product => ({
         ...product,
+        categoryId: product.category_id,
         category: product.categories?.name,
         categorySlug: product.categories?.slug,
         images: product.product_images?.sort((a: any, b: any) => a.order_index - b.order_index).map((img: any) => img.image_url).filter(Boolean) || [],
@@ -177,6 +178,7 @@ export async function getProductsByCategory(categorySlug: string) {
   
       return data.map(product => ({
         ...product,
+        categoryId: product.category_id,
         category: product.categories?.name,
         categorySlug: product.categories?.slug,
         images: product.product_images?.sort((a: any, b: any) => a.order_index - b.order_index).map((img: any) => img.image_url).filter(Boolean) || [],
@@ -284,6 +286,7 @@ export async function getRelatedProducts(
       .slice(0, limit)
       .map((product: any) => ({
         ...product,
+        categoryId: product.category_id,
         category: product.categories?.name,
         categorySlug: product.categories?.slug,
         images:

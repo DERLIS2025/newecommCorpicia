@@ -28,6 +28,7 @@ export interface Product {
   priceTiers?: PriceTier[];
   minQuantity: number;
   images: string[];
+  categoryId?: string;
   category: string;
   isActive: boolean;
   isFeatured: boolean;
